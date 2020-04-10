@@ -2889,9 +2889,18 @@ inline void d_xor_handler(unsigned int *p_active_functions)
       unsigned int signals = 0;
       for (unsigned int j = 0; j < N_BIG; j++)
       {
-        for (unsigned int k = 0; k < 32; k++)
+        if (temp_array[j] == 0) continue; 
+        else
         {
-          if ((temp_array[j] & (1 << k)) != 0) signals++;
+          for (unsigned int k = 0; k < 32; k++)
+          {
+            if ((temp_array[j] & (1 << k)) != 0) 
+            {
+              signals++;
+              if (signals > 1) break;
+            }
+          }
+          if (signals > 1) break;
         }
       }
       if (signals == 1) state_defined_xor |= (1 << i);
@@ -3171,12 +3180,12 @@ inline void mtz_handler(unsigned int *p_active_functions, unsigned int number_gr
   
   //ПО Uнцн
   po_u_ncn_setpoint = previous_state_mtz_po_uncn ?
-            u_linear_nom_const * U_DOWN / 100 :
-            u_linear_nom_const;
+            u_f_nom_const * U_DOWN / 100 :
+            u_f_nom_const;
   
-  previous_state_mtz_po_uncn = ((measurement[IM_UAB] <= po_u_ncn_setpoint) ||
-                                (measurement[IM_UBC] <= po_u_ncn_setpoint) ||
-                                (measurement[IM_UCA] <= po_u_ncn_setpoint));
+  previous_state_mtz_po_uncn = ((measurement[IM_UA] <= po_u_ncn_setpoint) ||
+                                (measurement[IM_UB] <= po_u_ncn_setpoint) ||
+                                (measurement[IM_UC] <= po_u_ncn_setpoint));
   
   ctr_mtz_nespr_kil_napr = ctr_mtz_nespr_kil_napr && previous_state_mtz_po_incn && previous_state_mtz_po_uncn; //Неисправность цепей напряжения (_AND3)
   
@@ -3611,21 +3620,22 @@ inline void zdz_handler(unsigned int *p_active_functions, unsigned int number_gr
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 3)       \
     )   
-  _AND3(logic_zdz_0, 2, light, 0, control_zdz_tmp, CTR_ZDZ_OVD1_STATE_BIT, logic_zdz_0, 4);
+  uint32_t zdz_ovd_diagnostyka_inv = (uint32_t)(~zdz_ovd_diagnostyka);
+  _AND4(logic_zdz_0, 2, light, 0, zdz_ovd_diagnostyka_inv, 0, control_zdz_tmp, CTR_ZDZ_OVD1_STATE_BIT, logic_zdz_0, 4);
   //"Св.ЗДЗ від ОВД1"
   if (_GET_OUTPUT_STATE(logic_zdz_0, 4))
     _SET_BIT(p_active_functions, RANG_LIGHT_ZDZ_FROM_OVD1);
   else
     _CLEAR_BIT(p_active_functions, RANG_LIGHT_ZDZ_FROM_OVD1);
 
-  _AND3(logic_zdz_0, 2, light, 1, control_zdz_tmp, CTR_ZDZ_OVD1_STATE_BIT, logic_zdz_0, 5);
+  _AND4(logic_zdz_0, 2, light, 1, zdz_ovd_diagnostyka_inv, 1, control_zdz_tmp, CTR_ZDZ_OVD2_STATE_BIT, logic_zdz_0, 5);
   //"Св.ЗДЗ від ОВД2"
   if (_GET_OUTPUT_STATE(logic_zdz_0, 5))
     _SET_BIT(p_active_functions, RANG_LIGHT_ZDZ_FROM_OVD2);
   else
     _CLEAR_BIT(p_active_functions, RANG_LIGHT_ZDZ_FROM_OVD2);
 
-  _AND3(logic_zdz_0, 2, light, 2, control_zdz_tmp, CTR_ZDZ_OVD1_STATE_BIT, logic_zdz_0, 6);
+  _AND4(logic_zdz_0, 2, light, 2, zdz_ovd_diagnostyka_inv, 2, control_zdz_tmp, CTR_ZDZ_OVD3_STATE_BIT, logic_zdz_0, 6);
   //"Св.ЗДЗ від ОВД3"
   if (_GET_OUTPUT_STATE(logic_zdz_0, 6))
     _SET_BIT(p_active_functions, RANG_LIGHT_ZDZ_FROM_OVD3);
@@ -6782,6 +6792,7 @@ inline void vmp_handler(unsigned int p_active_functions[])
             &&
             (
              (X_min_KZ_prt == ((unsigned int)UNDEF_RESISTANCE)) || /*Це є ознакою, що для даного КЗ ми перший раз фіксуємо мінімальний опір, тому і його значення помічаємо як мінімальне*/
+             (MF_KZ_tmp > MF_KZ) ||  
              (X_min_KZ_prt > min_interphase_X)
             )   
            )
@@ -7681,6 +7692,18 @@ void fix_undefined_error_ar(unsigned int* carrent_active_functions)
 inline void analog_registrator(unsigned int* carrent_active_functions)
 {
   static unsigned int unsaved_bytes_of_header_ar;
+  static unsigned int prev_active_sources[N_BIG];
+  unsigned int cur_active_sources[N_BIG];
+  cur_active_sources[0] = carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0];
+  cur_active_sources[1] = carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1];
+  cur_active_sources[2] = carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2];
+  cur_active_sources[3] = carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3];
+  cur_active_sources[4] = carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4];
+  cur_active_sources[5] = carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5];
+  cur_active_sources[6] = carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6];
+  cur_active_sources[7] = carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7];
+  cur_active_sources[8] = carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8];
+  cur_active_sources[9] = carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9];
 
   //Попередньо скидаємо невизначену помилку  роботи аналогового реєстратора
   _SET_BIT(clear_diagnostyka, ERROR_AR_UNDEFINED_BIT);
@@ -7690,25 +7713,60 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
     /*
     Ця ситуація означає, що були активними джерела аналогового реєстратора, які запустили
     в роботу аналоговий реєстратор, і тепер для розблокування можливості запускати новий запис ми 
-    чекаємо ситуації, що всі джерела активації деактивуються (у будь-який час чи до
-    завершення записування текучого запису аналогового реєстратора, чи вже після завершення
-    записування. Це буде умовою розблокування можливості запису нового запису)
+    чекаємо ситуації, що
+    - всі джерела активації деактивуються (у будь-який час чи до завершення записування текучого
+    запису аналогового реєстратора, чи вже після завершення записування. Це буде умовою
+    розблокування можливості запису нового запису)
+    - попердній запис записаний  у DataFlash
+    - всі джерела не деактивувалися але появилося нове джерело
     */
     if(
-       ((carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0]) == 0) &&
-       ((carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1]) == 0) &&
-       ((carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2]) == 0) &&
-       ((carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3]) == 0) &&
-       ((carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4]) == 0) &&
-       ((carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5]) == 0) &&
-       ((carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6]) == 0) &&
-       ((carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7]) == 0) &&
-       ((carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8]) == 0) &&
-       ((carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9]) == 0)
+       (cur_active_sources[0] == 0) &&
+       (cur_active_sources[1] == 0) &&
+       (cur_active_sources[2] == 0) &&
+       (cur_active_sources[3] == 0) &&
+       (cur_active_sources[4] == 0) &&
+       (cur_active_sources[5] == 0) &&
+       (cur_active_sources[6] == 0) &&
+       (cur_active_sources[7] == 0) &&
+       (cur_active_sources[8] == 0) &&
+       (cur_active_sources[9] == 0) 
       ) 
     {
-      //Умова розблокування можливості початку нового запису виконана
+      //Перша умова розблокування можливості початку нового запису виконана
       continue_previous_record_ar = 0;
+    }
+    else if  (state_ar_record == STATE_AR_NO_RECORD)
+    {
+      //Попередній запис повністю записаний у DataFlash, але ще деякі джерела активації не деакттивувалися
+      unsigned int diff_active_sources[N_BIG];
+      diff_active_sources[0] = prev_active_sources[0] ^ cur_active_sources[0];
+      diff_active_sources[1] = prev_active_sources[1] ^ cur_active_sources[1];
+      diff_active_sources[2] = prev_active_sources[2] ^ cur_active_sources[2];
+      diff_active_sources[3] = prev_active_sources[3] ^ cur_active_sources[3];
+      diff_active_sources[4] = prev_active_sources[4] ^ cur_active_sources[4];
+      diff_active_sources[5] = prev_active_sources[5] ^ cur_active_sources[5];
+      diff_active_sources[6] = prev_active_sources[6] ^ cur_active_sources[6];
+      diff_active_sources[7] = prev_active_sources[7] ^ cur_active_sources[7];
+      diff_active_sources[8] = prev_active_sources[8] ^ cur_active_sources[8];
+      diff_active_sources[9] = prev_active_sources[9] ^ cur_active_sources[9];
+
+      if(
+         ((diff_active_sources[0] & cur_active_sources[0]) != 0) ||
+         ((diff_active_sources[1] & cur_active_sources[1]) != 0) ||
+         ((diff_active_sources[2] & cur_active_sources[2]) != 0) ||
+         ((diff_active_sources[3] & cur_active_sources[3]) != 0) ||
+         ((diff_active_sources[4] & cur_active_sources[4]) != 0) ||
+         ((diff_active_sources[5] & cur_active_sources[5]) != 0) ||
+         ((diff_active_sources[6] & cur_active_sources[6]) != 0) ||
+         ((diff_active_sources[7] & cur_active_sources[7]) != 0) ||
+         ((diff_active_sources[8] & cur_active_sources[8]) != 0) ||
+         ((diff_active_sources[9] & cur_active_sources[9]) != 0) 
+        ) 
+      {
+        //Друга умова розблокування можливості початку нового запису виконана
+        continue_previous_record_ar = 0;
+      }
     }
   }
 
@@ -7729,16 +7787,16 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
       //Аналізуємо, чи стоїть умова запуску аналогового реєстратора
       if (
           (
-           ((carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0]) != 0) ||
-           ((carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1]) != 0) ||
-           ((carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2]) != 0) ||
-           ((carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3]) != 0) ||
-           ((carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4]) != 0) ||
-           ((carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5]) != 0) ||
-           ((carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6]) != 0) ||
-           ((carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7]) != 0) ||
-           ((carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8]) != 0) ||
-           ((carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9]) != 0)
+           (cur_active_sources[0] != 0) ||
+           (cur_active_sources[1] != 0) ||
+           (cur_active_sources[2] != 0) ||
+           (cur_active_sources[3] != 0) ||
+           (cur_active_sources[4] != 0) ||
+           (cur_active_sources[5] != 0) ||
+           (cur_active_sources[6] != 0) ||
+           (cur_active_sources[7] != 0) ||
+           (cur_active_sources[8] != 0) ||
+           (cur_active_sources[9] != 0)
           )
           &&  
           (continue_previous_record_ar == 0) /*при попередній роботі ан.реєстротора (якщо така була) вже всі джерела активації були зняті і зароз вони знову виникли*/ 
@@ -7843,16 +7901,16 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
             поки ще старий запис не закінчився повністю
             */
             if (
-                ((carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0]) != 0) ||
-                ((carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1]) != 0) ||
-                ((carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2]) != 0) ||
-                ((carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3]) != 0) ||
-                ((carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4]) != 0) ||
-                ((carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5]) != 0) ||
-                ((carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6]) != 0) ||
-                ((carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7]) != 0) ||
-                ((carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8]) != 0) ||
-                ((carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9]) != 0)
+                (cur_active_sources[0] != 0) ||
+                (cur_active_sources[1] != 0) ||
+                (cur_active_sources[2] != 0) ||
+                (cur_active_sources[3] != 0) ||
+                (cur_active_sources[4] != 0) ||
+                (cur_active_sources[5] != 0) ||
+                (cur_active_sources[6] != 0) ||
+                (cur_active_sources[7] != 0) ||
+                (cur_active_sources[8] != 0) ||
+                (cur_active_sources[9] != 0)
                ) 
             {
               //Виставляємо помилку, що тимчасово аналоговий реєстратор є занятий (черз те, що завершується попередній запис)
@@ -7966,16 +8024,16 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
       //На даний момент певні внутрішні операції блокують роботу аналогового реєстратрора
       //Аналізуємо, чи стоїть умова запуску аналогового реєстратора
       if (
-          ((carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0]) != 0) ||
-          ((carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1]) != 0) ||
-          ((carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2]) != 0) ||
-          ((carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3]) != 0) ||
-          ((carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4]) != 0) ||
-          ((carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5]) != 0) ||
-          ((carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6]) != 0) ||
-          ((carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7]) != 0) ||
-          ((carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8]) != 0) ||
-          ((carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9]) != 0)
+          (cur_active_sources[0] != 0) ||
+          (cur_active_sources[1] != 0) ||
+          (cur_active_sources[2] != 0) ||
+          (cur_active_sources[3] != 0) ||
+          (cur_active_sources[4] != 0) ||
+          (cur_active_sources[5] != 0) ||
+          (cur_active_sources[6] != 0) ||
+          (cur_active_sources[7] != 0) ||
+          (cur_active_sources[8] != 0) ||
+          (cur_active_sources[9] != 0)
          )
       {
         //Виставляємо помилку, що тимчасово аналоговий реєстратор є занятий
@@ -7991,6 +8049,17 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
       break;
     }
   }
+
+  prev_active_sources[0] = cur_active_sources[0];
+  prev_active_sources[1] = cur_active_sources[1];
+  prev_active_sources[2] = cur_active_sources[2];
+  prev_active_sources[3] = cur_active_sources[3];
+  prev_active_sources[4] = cur_active_sources[4];
+  prev_active_sources[5] = cur_active_sources[5];
+  prev_active_sources[6] = cur_active_sources[6];
+  prev_active_sources[7] = cur_active_sources[7];
+  prev_active_sources[8] = cur_active_sources[8];
+  prev_active_sources[9] = cur_active_sources[9];
 }
 /*****************************************************/
 

@@ -601,8 +601,8 @@ unsigned int mtz_settings_prt[NUMBER_LEVEL_MTZ][MTZ_SETTINGS_LENGTH];
 unsigned int mtz_tmr_const[NUMBER_LEVEL_MTZ][NUMBER_LEVEL_TMR_CONST];
 int * type_mtz_arr[NUMBER_LEVEL_MTZ];
 unsigned int mtz_const_menu_settings_prt[NUMBER_LEVEL_MTZ][MTZ_CONST_MENU_SETTINGS_LENGTH];
-unsigned int i_nom_const;
-unsigned int u_linear_nom_const;
+unsigned int const i_nom_const = I_NOM * KOEF_1_2_I;
+unsigned int const u_f_nom_const = U_PHASE_NOM * KOEF_0_2_U;
 unsigned int * setpoint_mtz[NUMBER_LEVEL_MTZ];
 unsigned int * setpoint_mtz_n_vpered[NUMBER_LEVEL_MTZ];
 unsigned int * setpoint_mtz_n_nazad[NUMBER_LEVEL_MTZ];
@@ -832,6 +832,7 @@ unsigned int edit_serial_number_dev;
 unsigned int info_vidkluchennja_vymykacha[2];
 unsigned char info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MAX_NUMBER][7]; 
 
+unsigned int  watchdog_l2;
 unsigned int control_word_of_watchdog;
 //unsigned int test_watchdogs/* = 0*/;
 
