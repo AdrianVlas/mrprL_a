@@ -1,14 +1,18 @@
-# Ігнорувати bak-файли
+# Р†РіРЅРѕСЂСѓРІР°С‚Рё bak-С„Р°Р№Р»Рё
 *.bak
-# Ігнорувати html-файли
+# Р†РіРЅРѕСЂСѓРІР°С‚Рё html-С„Р°Р№Р»Рё
 *.html
-# Ігнорувати dep-файли середовища розробки
+# ignore dep-files integrated dev. environment
 *.dep
-# Ігнорувати my.bat
+# Р†РіРЅРѕСЂСѓРІР°С‚Рё my.bat
 my.bat
+*.ses
+*.txt
+# ignore files from  folders settings/
+settings/ 
 
-# Ігнорувати файли з папки settings/
-settings/
-
-# Ігнорувати файли з папки Flash-Debug/
+# ignore files from  folders Flash-Debug/
 Flash-Debug/
+# ignore files from  folders 
+ses/
+nppBackup/
