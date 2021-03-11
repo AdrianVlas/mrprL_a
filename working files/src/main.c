@@ -6,6 +6,8 @@
 #include "functions_global.h"
 #include "variables_global_m.h"
 
+unsigned int before_full_start;
+
 /*******************************************************************************/
 //Робота з Watchdog
 /*******************************************************************************/
@@ -83,8 +85,10 @@ inline void watchdog_routine(unsigned int maska)
 /*************************************************************************
 Періодичні низькопріоритетні задачі
 *************************************************************************/
-void periodical_operations(void)
+void periodical_operations(unsigned int full_actions)
 {
+  watchdog_routine((before_full_start == true) ? UNITED_BITS_WATCHDOG_SHORT : UNITED_BITS_WATCHDOG);
+
   //Обмін через SPI_1
   if (  
       (control_spi1_taskes[0] != 0) || 
@@ -106,6 +110,8 @@ void periodical_operations(void)
       (driver_i2c.state_execution > 0)
      )
     main_routines_for_i2c();
+  
+  if (full_actions == false) return;
 
   //Обробка дій системи меню
   if (reinit_LCD)
@@ -119,7 +125,7 @@ void periodical_operations(void)
   view_whole_ekran();
     
   //Робота з Watchdog
-  watchdog_routine(UNITED_BITS_WATCHDOG);
+  watchdog_routine((before_full_start == true) ? UNITED_BITS_WATCHDOG_SHORT : UNITED_BITS_WATCHDOG);
 
 #if (MODYFIKACIA_VERSII_PZ >= 10)
   /*******************/
@@ -347,7 +353,8 @@ void periodical_operations(void)
   //Підрахунок вільного ресуру процесор-програма
   if(resurs_temp < 0xfffffffe) resurs_temp++;
 
-  watchdog_routine(UNITED_BITS_WATCHDOG);
+  //Робота з Watchdog
+  watchdog_routine((before_full_start == true) ? UNITED_BITS_WATCHDOG_SHORT : UNITED_BITS_WATCHDOG);
 }
 /*************************************************************************/
 
@@ -660,6 +667,17 @@ int main(void)
   //Запускаємо генерацію переривань кожну кожну 1 мс від каналу 2 таймеру 4 для виконання періодичних низькопріоритетних задач
   start_tim4_canal2_for_interrupt_1mc();
   
+//  /***/
+//  {
+//    size_t col = 0;
+//    for(size_t i = 0; i < 0x10000; ++i)
+//    {
+//      _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD32_DD38) = ((1 << col) << LED_N_ROW) | ((uint32_t)(0) & ((1 << LED_N_ROW) - 1));
+//      if (++col >= LED_N_COL) col = 0;
+//      for (size_t j = 0; j < 100; ++j) watchdog_routine(WATCHDOG_KYYBOARD);
+//    }
+//  }
+//  /***/
   //Ініціалізація FATFs
   MX_FATFS_Init();
   
@@ -678,7 +696,9 @@ int main(void)
            )   
           )
     {
-      ar_routine_with_fatfs(false);
+      before_full_start = true;
+      ar_routine_with_fatfs(true);
+      watchdog_routine(UNITED_BITS_WATCHDOG_SHORT);
       if (
           (measurement[IM_IA] < POWEER_ISNOT_FROM_IA_IC) &&
           (measurement[IM_IC] < POWEER_ISNOT_FROM_IA_IC)
@@ -686,8 +706,8 @@ int main(void)
       {
         number_seconds_tmp = (number_seconds + 2) % 60;
       }
-      watchdog_routine(UNITED_BITS_WATCHDOG_SHORT);
     }
+    before_full_start = false;
   }
   /**********************/
   
@@ -752,6 +772,7 @@ int main(void)
   while (1)
   {
     //Немає активних операцій по Аналоговому реєстратору
+    before_full_start = false;
     if (periodical_tasks_TEST_FLASH_MEMORY != 0)
     {
       /************************************************************/
@@ -762,7 +783,7 @@ int main(void)
       for (unsigned int i = ((unsigned int)&__checksum_end -(unsigned int)&__checksum_begin +1); i > 0; i--)
       {
         sum += *point++;
-        ar_routine_with_fatfs(true);
+        ar_routine_with_fatfs(false);
         watchdog_routine(UNITED_BITS_WATCHDOG);
       }
       if (sum != (unsigned short)__checksum) _SET_BIT(set_diagnostyka, ERROR_INTERNAL_FLASH_BIT);
@@ -773,7 +794,7 @@ int main(void)
     }
     else 
     {
-      ar_routine_with_fatfs(true);
+      ar_routine_with_fatfs(false);
       watchdog_routine(UNITED_BITS_WATCHDOG);
     }
   }

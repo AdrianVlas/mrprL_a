@@ -53,8 +53,8 @@ DEFAULT_SETTINGS_SET_BIT
 #define BUFFER_USB_OUT        (3*BUFFER_USB)
 #define BUFFER_LAN            256
 
-#define MAX_TIMEOUT_PACKET    5000 // 50 мс, якщо врахувати, що ТІM4 тактує з періодом 10 мкс
-#define MAX_TIMEOUT_PACKET_USB 200 /*один тік - 1 мс*/
+#define MAX_TIMEOUT_PACKET    50000 // 500 мс, якщо врахувати, що ТІM4 тактує з періодом 10 мкс
+#define MAX_TIMEOUT_PACKET_USB 1000 /*один тік - 1 мс*/
 
 #define ERROR_ILLEGAL_FUNCTION                        1
 #define ERROR_ILLEGAL_DATA_ADDRESS                    2 

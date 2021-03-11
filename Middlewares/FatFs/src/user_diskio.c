@@ -148,7 +148,7 @@ DRESULT USER_read (
 #endif
     
     //очікуємо завершення читання
-    while((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_FS) != 0) periodical_operations();
+    while((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_FS) != 0) periodical_operations(false);
     
     //копіюємо прийняті дані у цільовий буфер
     for (size_t i = 0; i < fs_count_to_transfer; i++)  *buff_tmp++ = buffer_for_fs[i];
@@ -210,7 +210,7 @@ DRESULT USER_write (
 #endif
     
     //очікуємо завершення запису
-    while((control_tasks_dataflash & task_writing_for_fs) != 0) periodical_operations();
+    while((control_tasks_dataflash & task_writing_for_fs) != 0) periodical_operations(false);
     
     //інкрементуємо адресу
     address_df += fs_count_to_transfer_tmp;

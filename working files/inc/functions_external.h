@@ -19,7 +19,7 @@ extern void FSMC_SRAM_Init(void);
 extern int main(void);
 extern void ar_routine_with_fatfs(unsigned int);
 extern unsigned int ar_free_space(int*, int*);
-extern void periodical_operations(void);
+extern void periodical_operations(unsigned int);
 extern void periodical_operations_communication(unsigned int);
 extern void global_vareiables_installation(void);
 extern void start_settings_peripherals(void);

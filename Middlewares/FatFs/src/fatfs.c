@@ -50,7 +50,7 @@ void MX_FATFS_Init(void)
              )
         {
 //          periodical_operations_communication(((POWER_CTRL->IDR & POWER_CTRL_PIN) == (uint32_t)Bit_RESET));
-          periodical_operations();
+          periodical_operations(false);
         }
         
         //формуємо файлову систему

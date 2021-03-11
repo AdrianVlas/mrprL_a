@@ -9183,7 +9183,7 @@ do{
     }
     if (not_null)
     {
-      //_SET_BIT(active_functions, RANG_AVAR_DEFECT);
+      _SET_BIT(active_functions, RANG_AVAR_DEFECT);
 //       #warning "No Avar Error"
     }
     else

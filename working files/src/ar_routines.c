@@ -3,7 +3,7 @@
 /*************************************************************************
 Робота з аналоговим реєстратором і FATFs на низькому рівні програми
 *************************************************************************/
-void ar_routine_with_fatfs(unsigned int full_actions)
+void ar_routine_with_fatfs(unsigned int before_full_start)
 {
   static unsigned int level_ar_writing;
   if (
@@ -255,7 +255,7 @@ void ar_routine_with_fatfs(unsigned int full_actions)
             }
           }
           while ((res != FR_OK) && (error < 2));
-          if (full_actions == true) periodical_operations_communication(true);  
+          if (before_full_start == false) periodical_operations_communication(true);  
 
           if (res != FR_OK) 
           {
@@ -302,7 +302,7 @@ void ar_routine_with_fatfs(unsigned int full_actions)
             if (error == 0)
             {
               res = f_write(&fil, Buffter, ByteToWrite, &ByteWritten);
-              if (full_actions == true) periodical_operations_communication(true);
+              if (before_full_start == false) periodical_operations_communication(true);
             }
           }
           while ((res == FR_OK) && (error < 2) && (ByteToWrite != ByteWritten));
@@ -364,7 +364,7 @@ void ar_routine_with_fatfs(unsigned int full_actions)
               ByteToWrite = rewrite_data[i].size;
           
               res = f_write(&fil, Buffter, ByteToWrite, &ByteWritten);
-              if (full_actions == true) periodical_operations_communication(true);
+              if (before_full_start == false) periodical_operations_communication(true);
             }
           }
 
@@ -491,7 +491,7 @@ void ar_routine_with_fatfs(unsigned int full_actions)
                 res = f_write(&fil, Buffter, ByteToWrite, &ByteWritten);
                 if (res == FR_OK) dirty_data_ar = true;
                 
-                if (full_actions == true) periodical_operations_communication(true);
+                if (before_full_start == false) periodical_operations_communication(true);
               }
             }
             while (
@@ -646,8 +646,8 @@ void ar_routine_with_fatfs(unsigned int full_actions)
       if ((POWER_CTRL->IDR & POWER_CTRL_PIN) == (uint32_t)Bit_RESET)
       {
         //Активні операції по Аналоговому реєстратору блокуються
-        if (full_actions == true) periodical_operations_communication(false);
-        periodical_operations();
+        if (before_full_start == false) periodical_operations_communication(false);
+        periodical_operations(false);
       }
       
       break;
@@ -686,8 +686,8 @@ void ar_routine_with_fatfs(unsigned int full_actions)
   default:
     {
       //Немає активних операцій по Аналоговому реєстратору
-      if (full_actions == true) periodical_operations_communication(false);
-      periodical_operations();
+      if (before_full_start == false) periodical_operations_communication(false);
+      periodical_operations(true);
       break;
     }
   }

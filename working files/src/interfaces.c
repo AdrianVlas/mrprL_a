@@ -32,35 +32,39 @@ void Usb_routines_irq(void)
   /***
   Ппередача в USB
   ***/
-  uint32_t usb_transmiting_count_tmp = 0;
-  static u8 buffer_USB_tmp[BUFFER_USB];  
+  if ((USB_Tx_State != 1) && (data_usb_transmiting_irq == true))
+  { 
+    uint32_t usb_transmiting_count_tmp = 0;
+    static u8 buffer_USB_tmp[BUFFER_USB];  
   
-  while (to_USB_ptr_in_irq != to_USB_ptr_out)
-  {
-    buffer_USB_tmp[usb_transmiting_count_tmp++] = buffer_USB_out[to_USB_ptr_in_irq++];
+    while (to_USB_ptr_in_irq != to_USB_ptr_out)
+    {
+      buffer_USB_tmp[usb_transmiting_count_tmp++] = buffer_USB_out[to_USB_ptr_in_irq++];
     
-    if (to_USB_ptr_in_irq >= BUFFER_USB_OUT)
-    {
-      if (to_USB_ptr_in_irq == BUFFER_USB_OUT) to_USB_ptr_in_irq = 0;
-      else total_error_sw_fixed(105);
-    }
-    
-    if (usb_transmiting_count_tmp >= BUFFER_USB)
-    {
-      if (usb_transmiting_count_tmp == BUFFER_USB) break;
-      else total_error_sw_fixed(106);
-    }
-  }
-  
-  if (usb_transmiting_count_tmp != 0)
-  {
-    if (from_USB_ptr_in_irq == from_USB_ptr_out_irq)
-    {
-      int32_t delta = time_local - time_receive;
-      if (delta < 0) delta += (1u << 31);
-      if (delta < MAX_TIMEOUT_PACKET_USB)
+      if (to_USB_ptr_in_irq >= BUFFER_USB_OUT)
       {
-        APP_FOPS.pIf_DataTx(buffer_USB_tmp, usb_transmiting_count_tmp);
+        if (to_USB_ptr_in_irq == BUFFER_USB_OUT) to_USB_ptr_in_irq = 0;
+        else total_error_sw_fixed(105);
+      }
+    
+      if (usb_transmiting_count_tmp >= BUFFER_USB)
+      {
+        if (usb_transmiting_count_tmp == BUFFER_USB) break;
+        else total_error_sw_fixed(106);
+      }
+    }
+    if (to_USB_ptr_in_irq == to_USB_ptr_out)  data_usb_transmiting_irq = false;
+  
+    if (usb_transmiting_count_tmp != 0)
+    {
+      if (from_USB_ptr_in_irq == from_USB_ptr_out_irq)
+      {
+        int32_t delta = time_local - time_receive;
+        if (delta < 0) delta += (1u << 31);
+        if (delta < MAX_TIMEOUT_PACKET_USB)
+        {
+          APP_FOPS.pIf_DataTx(buffer_USB_tmp, usb_transmiting_count_tmp);
+        }
       }
     }
   }
@@ -97,7 +101,11 @@ void Usb_routines(void)
       else delta_USB = (0x10000 - previous_count_tim4_USB) + current_count_tim4_USB; //0x10000 - це повний період таймера, бо ми настроїли його тактуватиу інтервалі [0; 65535]
     }
     
-    if (delta_USB > 188) /*1 - відповідає 10 мкс, бо TIM4 настроєний з тактуванням 10 мкс. 188 віщдповідає тоді 1880 мкс. 1880 мк це час 1,5 символа на швидкості 9600 у форматі 1-start + 8-data + pare + 2-stop*/
+    if (
+        (delta_USB > 188) /*1 - відповідає 10 мкс, бо TIM4 настроєний з тактуванням 10 мкс. 188 віщдповідає тоді 1880 мкс. 1880 мк це час 1,5 символа на швидкості 9600 у форматі 1-start + 8-data + pare + 2-stop*/
+        &&
+        (data_usb_transmiting_irq == false)  
+       )   
     {
       //Копіюємо кількість прийнятої інформації
       usb_received_count = count_out;
@@ -141,6 +149,7 @@ void Usb_routines(void)
 
     usb_transmiting_count = 0;
     data_usb_transmiting = false;
+    data_usb_transmiting_irq = true;
   }
   /***/
 }  

@@ -631,6 +631,10 @@ __ALIGN_BEGIN uint8_t usbd_cdc_OtherCfgDesc[USB_CDC_CONFIG_DESC_SIZ]  __ALIGN_EN
   {
     if (APP_Rx_length == 0) 
     {
+      /***/
+      APP_Rx_ptr_in = 0;
+      APP_Rx_ptr_out = 0;
+      /***/
       USB_Tx_State = 0;
     }
     else 
@@ -733,6 +737,10 @@ static void Handle_USBAsynchXfer (void *pdev)
     
     if(APP_Rx_ptr_out == APP_Rx_ptr_in) 
     {
+      /***/
+      APP_Rx_ptr_in = 0;
+      APP_Rx_ptr_out = 0;
+      /***/
       USB_Tx_State = 0; 
       return;
     }

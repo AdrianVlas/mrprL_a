@@ -497,7 +497,15 @@ extern unsigned char usb_transmiting[BUFFER_USB];
 extern int usb_received_count;
 extern int usb_transmiting_count;
 extern unsigned char data_usb_transmiting;
+extern unsigned char data_usb_transmiting_irq;
 extern unsigned int timeout_idle_USB;
+
+//extern uint32_t USB_Tx_begin;
+//extern uint32_t USB_Tx_end;
+//extern uint8_t USB_Tx_last_buffer[256];
+//extern uint32_t USB_Tx_count;
+
+extern uint8_t  USB_Tx_State;
 
 #if (MODYFIKACIA_VERSII_PZ >= 10)
 //MODBUS-TCP

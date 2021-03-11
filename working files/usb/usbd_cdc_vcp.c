@@ -208,26 +208,34 @@ CDC_IF_Prop_TypeDef VCP_fops =
   */
 /*static*/ uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len)
 {
+  uint32_t APP_Rx_ptr_in_tmp = APP_Rx_ptr_in;
+
+//  USB_Tx_begin = APP_Rx_ptr_in_tmp;
+//  USB_Tx_count = 0;
+  
   for (uint32_t i = 0; i < Len; i++)
   {
     if (linecoding.datatype == 7)
     {
-      APP_Rx_Buffer[APP_Rx_ptr_in] = *(Buf++) & 0x7F;
+      /*USB_Tx_last_buffer[USB_Tx_count++] = */APP_Rx_Buffer[APP_Rx_ptr_in_tmp] = *(Buf++) & 0x7F;
     }
     else if (linecoding.datatype == 8)
     {
-      APP_Rx_Buffer[APP_Rx_ptr_in] = *(Buf++);
+      /*USB_Tx_last_buffer[USB_Tx_count++] = */APP_Rx_Buffer[APP_Rx_ptr_in_tmp] = *(Buf++);
     }
   
-    APP_Rx_ptr_in++;
+    APP_Rx_ptr_in_tmp++;
   
     /* To avoid buffer overflow */
-    if(APP_Rx_ptr_in >=/*==*/ APP_RX_DATA_SIZE)
+    if(APP_Rx_ptr_in_tmp >=/*==*/ APP_RX_DATA_SIZE)
     {
-      if(APP_Rx_ptr_in == APP_RX_DATA_SIZE) APP_Rx_ptr_in = 0;
+      if(APP_Rx_ptr_in_tmp == APP_RX_DATA_SIZE) APP_Rx_ptr_in_tmp = 0;
       else total_error_sw_fixed(102);
     }
   }
+    
+//  USB_Tx_end = APP_Rx_ptr_in_tmp;
+  APP_Rx_ptr_in = APP_Rx_ptr_in_tmp;
   
   return USBD_OK;
 }

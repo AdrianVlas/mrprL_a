@@ -3216,20 +3216,20 @@ unsigned int set_new_settings_from_interface(unsigned int source)
   
   if ((type_of_settings_changed & (1 << DEFAULT_SETTINGS_SET_BIT)) != 0)
   {
-    current_settings.time_setpoints = current_settings.time_ranguvannja = time_dat_tmp;
-    current_settings.source_setpoints = current_settings.source_ranguvannja = 0;
+    current_settings_interfaces.time_setpoints = current_settings_interfaces.time_ranguvannja = time_dat_tmp;
+    current_settings_interfaces.source_setpoints = current_settings_interfaces.source_ranguvannja = 0;
   }
   
   if ((type_of_settings_changed & (1 << SETTINGS_DATA_CHANGED_BIT)) != 0)
   {
-    current_settings.time_setpoints = time_dat_tmp;
-    current_settings.source_setpoints = source;
+    current_settings_interfaces.time_setpoints = time_dat_tmp;
+    current_settings_interfaces.source_setpoints = source;
   }
   
   if ((type_of_settings_changed & (1 << RANGUVANNJA_DATA_CHANGED_BIT)) != 0)
   {
-    current_settings.time_ranguvannja = time_dat_tmp;
-    current_settings.source_ranguvannja = source;
+    current_settings_interfaces.time_ranguvannja = time_dat_tmp;
+    current_settings_interfaces.source_ranguvannja = source;
   }
   
   unsigned int reconfiguration_RS_485 = 0, reconfiguration_RS_485_with_reset_usart = 0;
