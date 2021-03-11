@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_setpoint_zop(unsigned int group)
 {
- const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_ZOP][MAX_COL_LCD] = 
+ static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_ZOP][MAX_COL_LCD] = 
   {
     {
       "”ÒÚ‡‚Í‡ «Œœ( Œ‘)"
@@ -20,7 +20,7 @@ void make_ekran_setpoint_zop(unsigned int group)
       "”ÒÚ‡‚Í‡ «Œœ( Œ‘)"
     }
   };
-  const unsigned char symbols[MAX_NAMBER_LANGUAGE][3] = {"Â‰.", "Ó‰.", "u  ", "Â‰."};
+  static const unsigned char symbols[MAX_NAMBER_LANGUAGE][3] = {"Â‰.", "Ó‰.", "u  ", "Â‰."};
   int index_language = index_language_in_array(current_settings.language);
   
   unsigned int position_temp = current_ekran.index_position;
@@ -103,7 +103,7 @@ void make_ekran_setpoint_zop(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_zop(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ZOP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ZOP][MAX_COL_LCD] = 
   {
     {
       "   T «Œœ( Œ‘)   "
@@ -196,7 +196,7 @@ void make_ekran_timeout_zop(unsigned int group)
 /*****************************************************/
 void make_ekran_control_zop()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ZOP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ZOP][MAX_COL_LCD] = 
   {
     {
       " «‡˘ËÚ‡ «Œœ( Œ‘)"

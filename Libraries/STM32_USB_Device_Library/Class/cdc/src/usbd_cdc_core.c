@@ -67,6 +67,7 @@
 #include "usbd_cdc_core.h"
 #include "usbd_desc.h"
 #include "usbd_req.h"
+#include "header.h"
 
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -630,10 +631,6 @@ __ALIGN_BEGIN uint8_t usbd_cdc_OtherCfgDesc[USB_CDC_CONFIG_DESC_SIZ]  __ALIGN_EN
   {
     if (APP_Rx_length == 0) 
     {
-      /***/
-      APP_Rx_ptr_in = 0;
-      APP_Rx_ptr_out = 0;
-      /***/
       USB_Tx_State = 0;
     }
     else 
@@ -730,15 +727,12 @@ static void Handle_USBAsynchXfer (void *pdev)
   {
     if (APP_Rx_ptr_out >=/*==*/ APP_RX_DATA_SIZE)
     {
-      APP_Rx_ptr_out = 0;
+      if (APP_Rx_ptr_out == APP_RX_DATA_SIZE) APP_Rx_ptr_out = 0;
+      else total_error_sw_fixed(103);
     }
     
     if(APP_Rx_ptr_out == APP_Rx_ptr_in) 
     {
-      /***/
-      APP_Rx_ptr_in = 0;
-      APP_Rx_ptr_out = 0;
-      /***/
       USB_Tx_State = 0; 
       return;
     }

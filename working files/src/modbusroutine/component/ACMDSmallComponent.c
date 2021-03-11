@@ -6,10 +6,17 @@
 //начальный bit в карте памяти
 #define BEGIN_ADR_BIT 50000
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+//конечный регистр в карте памяти
+#define END_ADR_REGISTER 299
+//конечный bit в карте памяти
+#define END_ADR_BIT 50691
+#else
 //конечный регистр в карте памяти
 #define END_ADR_REGISTER 296
 //конечный bit в карте памяти
 #define END_ADR_BIT 50648
+#endif
 
 int privateACMDSmallGetReg2(int adrReg);
 int privateACMDSmallGetBit2(int adrBit);
@@ -19,8 +26,6 @@ int getACMDSmallModbusBit(int);//получить содержимое бита
 int setACMDSmallModbusRegister(int, int);//записать регистр
 int setACMDSmallModbusBit(int, int);//записать бит
 
-void preACMDSmallReadAction(void);//action до чтения
-void preACMDSmallWriteAction(void);//action до записи
 int  postACMDSmallWriteAction(void);//action после записи
 
 int  cmdFunc000(int inOffset, int *outMaska, int *dvMaska, int actControl);
@@ -256,8 +261,12 @@ int cmdFunc000(int inOffset, int *outMaska, int *dvMaska, int actControl)
 //        (*dvMaska) =
     break;
 
-//123456
-#if MODYFIKACIA_VERSII_PZ == 0
+//#if MODYFIKACIA_VERSII_PZ == 0
+#if (                                   \
+     (MODYFIKACIA_VERSII_PZ == 0) ||    \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
+    )   
   case 117:
     (*outMaska) = RANG_LIGHT_ZDZ_FROM_OVD1;
 //        (*dvMaska) =
@@ -642,146 +651,146 @@ int cmdFunc000(int inOffset, int *outMaska, int *dvMaska, int actControl)
   case EL_CONFIGURATION_BEGIN:
     (*outMaska) = RANG_DF1_IN;
     (*dvMaska) = RANG_SMALL_DF1_IN;
-    if(actControl==1) isValid = 0;
+    if(actControl==(1+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 433:
     (*outMaska) = RANG_DF2_IN;
     (*dvMaska) = RANG_SMALL_DF2_IN;
-    if(actControl==2) isValid = 0;
+    if(actControl==(2+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 434:
     (*outMaska) = RANG_DF3_IN;
     (*dvMaska) = RANG_SMALL_DF3_IN;
-    if(actControl==3) isValid = 0;
+    if(actControl==(3+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 435:
     (*outMaska) = RANG_DF4_IN;
     (*dvMaska) = RANG_SMALL_DF4_IN;
-    if(actControl==4) isValid = 0;
+    if(actControl==(4+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 436:
     (*outMaska) = RANG_DF5_IN;
     (*dvMaska) = RANG_SMALL_DF5_IN;
-    if(actControl==5) isValid = 0;
+    if(actControl==(5+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 437:
     (*outMaska) = RANG_DF6_IN;
     (*dvMaska) = RANG_SMALL_DF6_IN;
-    if(actControl==6) isValid = 0;
+    if(actControl==(6+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 438:
     (*outMaska) = RANG_DF7_IN;
     (*dvMaska) = RANG_SMALL_DF7_IN;
-    if(actControl==7) isValid = 0;
+    if(actControl==(7+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 439:
     (*outMaska) = RANG_DF8_IN;
     (*dvMaska) = RANG_SMALL_DF8_IN;
-    if(actControl==8) isValid = 0;
+    if(actControl==(8+SOURCEMARKER_MFT)) isValid = 0;
     break;
 
 //  count_bit = 8;
   case 448:
     (*outMaska) = RANG_DF1_OUT;
 //        (*dvMaska) =
-    if(actControl==1) isValid = 0;
+    if(actControl==(1+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 449:
     (*outMaska) = RANG_DF2_OUT;
 //        (*dvMaska) =
-    if(actControl==2) isValid = 0;
+    if(actControl==(2+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 450:
     (*outMaska) = RANG_DF3_OUT;
 //        (*dvMaska) =
-    if(actControl==3) isValid = 0;
+    if(actControl==(3+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 451:
     (*outMaska) = RANG_DF4_OUT;
 //        (*dvMaska) =
-    if(actControl==4) isValid = 0;
+    if(actControl==(4+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 452:
     (*outMaska) = RANG_DF5_OUT;
 //        (*dvMaska) =
-    if(actControl==5) isValid = 0;
+    if(actControl==(5+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 453:
     (*outMaska) = RANG_DF6_OUT;
 //        (*dvMaska) =
-    if(actControl==6) isValid = 0;
+    if(actControl==(6+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 454:
     (*outMaska) = RANG_DF7_OUT;
 //        (*dvMaska) =
-    if(actControl==7) isValid = 0;
+    if(actControl==(7+SOURCEMARKER_MFT)) isValid = 0;
     break;
   case 455:
     (*outMaska) = RANG_DF8_OUT;
 //        (*dvMaska) =
-    if(actControl==8) isValid = 0;
+    if(actControl==(8+SOURCEMARKER_MFT)) isValid = 0;
     break;
 
 //  count_bit = 12;
   case 464:
     (*outMaska) = RANG_DT1_SET;
     (*dvMaska) = RANG_SMALL_DT1_SET;
-    if(actControl==1) isValid = 0;
+    if(actControl==(1+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 465:
     (*outMaska) = RANG_DT1_RESET;
     (*dvMaska) = RANG_SMALL_DT1_RESET;
-    if(actControl==1) isValid = 0;
+    if(actControl==(1+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 466:
     (*outMaska) = RANG_DT2_SET;
     (*dvMaska) = RANG_SMALL_DT2_SET;
-    if(actControl==2) isValid = 0;
+    if(actControl==(2+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 467:
     (*outMaska) = RANG_DT2_RESET;
     (*dvMaska) = RANG_SMALL_DT2_RESET;
-    if(actControl==2) isValid = 0;
+    if(actControl==(2+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 468:
     (*outMaska) = RANG_DT3_SET;
     (*dvMaska) = RANG_SMALL_DT3_SET;
-    if(actControl==3) isValid = 0;
+    if(actControl==(3+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 469:
     (*outMaska) = RANG_DT3_RESET;
     (*dvMaska) = RANG_SMALL_DT3_RESET;
-    if(actControl==3) isValid = 0;
+    if(actControl==(3+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 470:
     (*outMaska) = RANG_DT4_SET;
     (*dvMaska) = RANG_SMALL_DT4_SET;
-    if(actControl==4) isValid = 0;
+    if(actControl==(4+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 471:
     (*outMaska) = RANG_DT4_RESET;
     (*dvMaska) = RANG_SMALL_DT4_RESET;
-    if(actControl==4) isValid = 0;
+    if(actControl==(4+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 472:
     (*outMaska) = RANG_DT1_OUT;
 //        (*dvMaska) =
-    if(actControl==1) isValid = 0;
+    if(actControl==(1+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 473:
     (*outMaska) = RANG_DT2_OUT;
 //        (*dvMaska) =
-    if(actControl==2) isValid = 0;
+    if(actControl==(2+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 474:
     (*outMaska) = RANG_DT3_OUT;
 //        (*dvMaska) =
-    if(actControl==3) isValid = 0;
+    if(actControl==(3+SOURCEMARKER_DTR)) isValid = 0;
     break;
   case 475:
     (*outMaska) = RANG_DT4_OUT;
 //        (*dvMaska) =
-    if(actControl==4) isValid = 0;
+    if(actControl==(4+SOURCEMARKER_DTR)) isValid = 0;
     break;
 
 //  count_bit = 40;
@@ -1329,6 +1338,27 @@ int cmdFunc000(int inOffset, int *outMaska, int *dvMaska, int actControl)
     }//switch
   }//if
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  if(inOffset>=656 && inOffset<672)
+  {
+    int ingoosOffset = inOffset-656;
+    (*outMaska) = RANG_BLOCK_IN_GOOSE1 + ingoosOffset;
+    (*dvMaska)  = RANG_SMALL_BLOCK_IN_GOOSE1 + ingoosOffset;
+  }//if(inOffset>=656 && inOffset<672)
+  else if(inOffset>=672 && inOffset<676)
+  {
+    int inmmsOffset = inOffset-672;
+    (*outMaska) = RANG_BLOCK_IN_MMS1 + inmmsOffset;
+    (*dvMaska)  = RANG_SMALL_BLOCK_IN_MMS1 + inmmsOffset;
+  }//if(inOffset>=672 && inOffset<676)
+  else if(inOffset>=688 && inOffset<692)
+  {
+    int inlanOffset = inOffset-688;
+    (*outMaska) = RANG_BLOCK_OUT_LAN1 + inlanOffset;
+    (*dvMaska)  = RANG_SMALL_BLOCK_OUT_LAN1 + inlanOffset;
+  }//if(inOffset>=688 && inOffset<692)
+#endif
+
   return isValid;
 }//cmdFunc000(int inOffset, int *outMaska, int *dvMaska)
 
@@ -1348,11 +1378,7 @@ void constructorACMDSmallComponent(COMPONENT_OBJ *acmdcomp)
   acmdsmallcomponent->setModbusRegister = setACMDSmallModbusRegister;// регистра
   acmdsmallcomponent->setModbusBit      = setACMDSmallModbusBit;// бита
 
-  acmdsmallcomponent->preReadAction   = preACMDSmallReadAction;//action до чтения
-  acmdsmallcomponent->preWriteAction  = preACMDSmallWriteAction;//action до записи
   acmdsmallcomponent->postWriteAction = postACMDSmallWriteAction;//action после записи
-
-  acmdsmallcomponent->isActiveActualData = 0;
 
   for(int i=0; i<N_BIG*32; i++)   decoderN_BIGACMDArray[i] = (unsigned short)decoderN_BIGACMDArrayLoader(i);//декодировщик индекса бита в адрес modbus  для реле
   for(int i=0; i<N_SMALL*32; i++) decoderN_SMALLACMDArray[i] = (unsigned short)decoderN_SMALLACMDArrayLoader(i);//декодировщик индекса бита в адрес modbus  для DV
@@ -1372,14 +1398,26 @@ void loadACMDSmallActualDataBit(int cmdSwitch, int beginOffset, int endOffset)
      {
       case PASSWORD_SETCMD://Пароль установлен
       {
-      if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
-            value = password_set_USB;//Пароль установлен
-      else  value = password_set_RS485;//Пароль установлен
+       switch(pointInterface)//метка интерфейса 0-USB 1-RS485
+       {
+        case USB_RECUEST:
+         value = password_set_USB;//Пароль установлен
+        break;
+        case RS485_RECUEST:
+         value = password_set_RS485;//Пароль установлен
+        break;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+        case LAN_RECUEST:
+         value = password_set_LAN;//Пароль установлен
+        break;
+#endif
+       }//switch(pointInterface)
       goto m1;
-      }//if
+      }//case PASSWORD_SETCMD://Пароль установлен
       case IMUNITET_BITACMD565://Сброс счетчика ресурса выключателя
       {
         value = 0;
+
         if(pointInterface==RS485_RECUEST)//метка интерфейса 0-USB 1-RS485
         if(cmdSwitch==1) //GCMD
         { 
@@ -1387,6 +1425,7 @@ void loadACMDSmallActualDataBit(int cmdSwitch, int beginOffset, int endOffset)
                  value = 1;
           goto m1;
         }//if
+
         if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
         if(cmdSwitch==1) //GCMD
         { 
@@ -1394,8 +1433,20 @@ void loadACMDSmallActualDataBit(int cmdSwitch, int beginOffset, int endOffset)
                  value = 1;
           goto m1;
         }//if
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+        if(pointInterface==LAN_RECUEST)//метка интерфейса 0-USB 1-RS485
+        if(cmdSwitch==1) //GCMD
+        { 
+          if(information_about_restart_counter & (1 << LAN_RECUEST)/*(1 << RS485_RECUEST)*/)
+                 value = 1;
+          goto m1;
+        }//if
+#endif
+
         goto m1;
       }//if
+
      }//switch
       value = encoderN_BIGACMD(item);//кодировщик адреса modbus в индекс бита для реле
       if(value==-1) value=0;
@@ -1406,16 +1457,26 @@ void loadACMDSmallActualDataBit(int cmdSwitch, int beginOffset, int endOffset)
           value = active_functions[value/32] & (1<<(value%32));
         }//if(cmdSwitch==0)
         if(cmdSwitch==1) {
-          //GCMD
           if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
           {
              value = trigger_functions_USB[value/32] & (1<<(value%32));
           }//if
-          else
+          else if(pointInterface==RS485_RECUEST)
           {
              value = trigger_functions_RS485[value/32] & (1<<(value%32));
           }//else
-        }//if(cmdSwitch==0)
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+          else if(pointInterface==LAN_RECUEST)
+          {
+             value = trigger_functions_LAN[value/32] & (1<<(value%32));
+          }//else
+#endif  
+          else
+          {
+            //Теоретично цього ніколи не мало б бути
+            total_error_sw_fixed(208);
+          }
+        }//if(cmdSwitch==1)
       }
     }//if(item>=beginOffset && item<endOffset)
 m1:
@@ -1952,10 +2013,20 @@ int writeACMDSmallActualDataBit(int inOffset, int dataBit)
     if(actControl&&dataBit)
     {
       //Скидання загальних функцій
-  if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
-      reset_trigger_function_from_interface |= (1 << USB_RECUEST);
-  else 
+     switch(pointInterface)//метка интерфейса 0-USB 1-RS485
+     {
+      case USB_RECUEST:
+       reset_trigger_function_from_interface |= (1 << USB_RECUEST);
+      break;
+      case RS485_RECUEST:
       reset_trigger_function_from_interface |= (1 << RS485_RECUEST);
+      break;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      case LAN_RECUEST:
+      reset_trigger_function_from_interface |= (1 << LAN_RECUEST);
+      break;
+#endif
+     }//switch
     }//if(action)
     return 0;
   case 565://Сигнал про очищення ресурсу лічильників з системи захистів
@@ -1975,6 +2046,9 @@ int writeACMDSmallActualDataBit(int inOffset, int dataBit)
         //Активація внесекних змін
         int typI = 2;
         if(pointInterface==RS485_RECUEST) typI = 3;//метка интерфейса 0-USB 1-RS485
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+        else if(pointInterface==LAN_RECUEST) typI = 4;//метка интерфейса 0-USB 1-RS485
+#endif
         if(set_new_settings_from_interface(typI))//2-USB
         {
         type_of_settings_changed = 0;
@@ -2005,18 +2079,6 @@ int writeACMDSmallActualDataBit(int inOffset, int dataBit)
   return MARKER_ERRORPERIMETR;
 }//writeACMDSmallActualDataBit(int offset)
 
-void preACMDSmallReadAction(void)
-{
-//action до чтения
-  acmdsmallcomponent->isActiveActualData = 1;
-}//
-void preACMDSmallWriteAction(void)
-{
-//action до записи
-  acmdsmallcomponent->operativMarker[0] = -1;
-  acmdsmallcomponent->operativMarker[1] = -1;//оперативный маркер
-  acmdsmallcomponent->isActiveActualData = 1;
-}//
 int postACMDSmallWriteAction(void)
 {
 //action после записи

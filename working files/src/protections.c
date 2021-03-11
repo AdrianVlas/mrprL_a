@@ -133,12 +133,12 @@ inline unsigned int sqrt_32(unsigned int y)
 inline void velychyna_zvorotnoi_poslidovnosti(int ortogonal_local_calc[], const __index_I_U i_u)
 {
   enum _n_phase {_A = 0, _B, _C, _A_B_C};
-  const enum _full_ort_index a_b_c[_NUMBER_FOR_I_U][_A_B_C] = 
+  static const enum _full_ort_index a_b_c[_NUMBER_FOR_I_U][_A_B_C] = 
   {
     {FULL_ORT_Ia, FULL_ORT_Ib, FULL_ORT_Ic},
     {FULL_ORT_Ua, FULL_ORT_Ub, FULL_ORT_Uc}
   };
-  const uint32_t const_val[_NUMBER_FOR_I_U][4] = 
+  static const uint32_t const_val[_NUMBER_FOR_I_U][4] = 
   {
     {IM_I2, IM_I1, MNOGNYK_I_DIJUCHE, (VAGA_DILENNJA_I_DIJUCHE + 4)},
     {IM_U2, IM_U1, MNOGNYK_U_DIJUCHE, (VAGA_DILENNJA_U_DIJUCHE + 4)}
@@ -363,12 +363,12 @@ inline void directional_mtz(int ortogonal_local_calc[], unsigned int number_grou
     }
 
     unsigned int porig_Uxy;
-    if (Uxy_bilshe_porogu[i] == 0) porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE*KOEF_POVERNENNJA_SECTOR_BLK/100;
+    if (Uxy_bilshe_porogu[i] == 0) porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE*KOEF_POVERNENNJA_U_SECTOR_BLK/100;
     else porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE;
     Uxy_bilshe_porogu[i] = (measurement[index_U] >= porig_Uxy);
       
     unsigned int porig_Ix;
-    if (Ix_bilshe_porogu[i] == 0) porig_Ix = PORIG_CHUTLYVOSTI_CURRENT*KOEF_POVERNENNJA_SECTOR_BLK/100;
+    if (Ix_bilshe_porogu[i] == 0) porig_Ix = PORIG_CHUTLYVOSTI_CURRENT*KOEF_POVERNENNJA_I_SECTOR_BLK/100;
     else porig_Ix = PORIG_CHUTLYVOSTI_CURRENT;
     Ix_bilshe_porogu[i]  = (measurement[index_I] >= porig_Ix );
   }
@@ -640,12 +640,12 @@ inline void directional_tznp(int ortogonal_local_calc[], unsigned int number_gro
     За розрахунком описаним при розрахунку діючих значень наші ортогональні є у ворматі (15 біт + знак) = 16-розряжне число
     */
     unsigned int porig_U;
-    if (TZNP_3U0_bilshe_porogu == 0) porig_U = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE*KOEF_POVERNENNJA_SECTOR_BLK/100;
+    if (TZNP_3U0_bilshe_porogu == 0) porig_U = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE*KOEF_POVERNENNJA_U_SECTOR_BLK/100;
     else porig_U = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE;
     unsigned int U_bilshe_porogu_tmp = TZNP_3U0_bilshe_porogu = (measurement[IM_3U0] >= porig_U);
       
     unsigned int porig_I;
-    if (TZNP_3I0_r_bilshe_porogu == 0) porig_I = PORIG_CHUTLYVOSTI_CURRENT*KOEF_POVERNENNJA_SECTOR_BLK/100;
+    if (TZNP_3I0_r_bilshe_porogu == 0) porig_I = PORIG_CHUTLYVOSTI_CURRENT*KOEF_POVERNENNJA_I_SECTOR_BLK/100;
     else porig_I = PORIG_CHUTLYVOSTI_CURRENT;
     unsigned int I_bilshe_porogu_tmp = TZNP_3I0_r_bilshe_porogu  = (measurement[IM_3I0_r] >= porig_I);
 
@@ -799,12 +799,12 @@ inline void directional_tznp(int ortogonal_local_calc[], unsigned int number_gro
 /*****************************************************/
 //Визначенням опорів
 /*****************************************************/
-inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_group_stp, int resistance_output[]) 
+inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_group_stp, int resistance_output[], int32_t *line_current) 
 {
-  const unsigned int index_phase_voltage[3]  = {FULL_ORT_Ua , FULL_ORT_Ub , FULL_ORT_Uc };
-  const unsigned int index_line_voltage[3]   = {FULL_ORT_Uab, FULL_ORT_Ubc, FULL_ORT_Uca};
-  const unsigned int index_begin_current[3]  = {FULL_ORT_Ia , FULL_ORT_Ib , FULL_ORT_Ic };
-  const unsigned int index_end_current[3]    = {FULL_ORT_Ib , FULL_ORT_Ic , FULL_ORT_Ia };
+  static const unsigned int index_phase_voltage[3]  = {FULL_ORT_Ua , FULL_ORT_Ub , FULL_ORT_Uc };
+  static const unsigned int index_line_voltage[3]   = {FULL_ORT_Uab, FULL_ORT_Ubc, FULL_ORT_Uca};
+  static const unsigned int index_begin_current[3]  = {FULL_ORT_Ia , FULL_ORT_Ib , FULL_ORT_Ic };
+  static const unsigned int index_end_current[3]    = {FULL_ORT_Ib , FULL_ORT_Ic , FULL_ORT_Ia };
   
   //Однофазний опір
   int I0_x, I0_y;
@@ -852,8 +852,13 @@ inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_grou
     
     //Розраховуємо амплітуду струму Ix
     unsigned int Ix = ( MNOGNYK_I_DIJUCHE*(sqrt_64(mod)) ) >> (VAGA_DILENNJA_I_DIJUCHE + 4);
-    
-    if (Ix >= PORIG_Ixy)
+      
+    unsigned int porig_Ix;
+    if (Ix_bilshe_porogu_dz[i] == 0) porig_Ix = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ*KOEF_POVERNENNJA_IU_DZ_SECTOR_BLK/100;
+    else porig_Ix = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ;
+    Ix_bilshe_porogu_dz[i]  = (Ix >= porig_Ix );
+
+    if (Ix_bilshe_porogu_dz[i])
     {
       //Можна розраховувати однофазний опір
       /*
@@ -905,8 +910,8 @@ inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_grou
     0x6E51*2 = 0xDCA2 це є 16 бітне число (+ можливий знак) - тобто число виходить 17-бітне
     */
     
-    _a2 = ortogonal_local_calc[2*index_begin_current[i] + 0] - ortogonal_local_calc[2*index_end_current[i] + 0];
-    _b2 = ortogonal_local_calc[2*index_begin_current[i] + 1] - ortogonal_local_calc[2*index_end_current[i] + 1];
+    *(line_current++) = _a2 = ortogonal_local_calc[2*index_begin_current[i] + 0] - ortogonal_local_calc[2*index_end_current[i] + 0];
+    *(line_current++) = _b2 = ortogonal_local_calc[2*index_begin_current[i] + 1] - ortogonal_local_calc[2*index_end_current[i] + 1];
 
 #define _A1     ortogonal_local_calc[2*index_line_voltage[i] + 0]
 #define _B1     ortogonal_local_calc[2*index_line_voltage[i] + 1]
@@ -916,7 +921,12 @@ inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_grou
     //Розраховуємо амплітуду струму Ixy
     unsigned int Ixy = ( MNOGNYK_I_DIJUCHE*(sqrt_64(mod)) ) >> (VAGA_DILENNJA_I_DIJUCHE + 4);
     
-    if (Ixy >= PORIG_Ixy)
+    unsigned int porig_Ixy;
+    if (Ix_bilshe_porogu_dz[i + 3] == 0) porig_Ixy = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ*KOEF_POVERNENNJA_IU_DZ_SECTOR_BLK/100;
+    else porig_Ixy = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ;
+    Ix_bilshe_porogu_dz[i + 3]  = (Ixy >= porig_Ixy );
+
+    if (Ix_bilshe_porogu_dz[i + 3])
     {
       //Можна розраховувати міжфазний опір
       /*
@@ -981,31 +991,32 @@ inline void calc_resistance(int ortogonal_local_calc[], unsigned int number_grou
 /*****************************************************/
 //Фазочутливий елемент  для опорів
 /*****************************************************/
-inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group_stp) 
+inline void directional_dz(int ortogonal_local_calc[], int32_t line_current[], unsigned int number_group_stp) 
 {
-  for (size_t i = 0; i < 3; i++)
+  for (size_t i = 0; i < 3; ++i)
   {
-    uint32_t index_I, index_U;
+    uint32_t index_U;
+    uint32_t shift_for_line;
     switch (i)
     {
     case 0:
       {
-        index_I = IM_IA;
         index_U = IM_UBC;
+        shift_for_line = 4;
 
         break;
       }
     case 1:
       {
-        index_I = IM_IB;
         index_U = IM_UCA;
+        shift_for_line = 4;
 
         break;
       }
     case 2:
       {
-        index_I = IM_IC;
         index_U = IM_UAB;
+        shift_for_line = 1;
 
         break;
       }
@@ -1017,14 +1028,9 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
     }
 
     unsigned int porig_Uxy;
-    if (Uxy_bilshe_porogu_dz[i] == 0) porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE_DZ*KOEF_POVERNENNJA_SECTOR_BLK/100;
+    if (Uxy_bilshe_porogu_dz[i] == 0) porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE_DZ*KOEF_POVERNENNJA_IU_DZ_SECTOR_BLK/100;
     else porig_Uxy = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE_DZ;
-    Uxy_bilshe_porogu_dz[i] = (measurement[index_U] >= porig_Uxy);
-      
-    unsigned int porig_Ix;
-    if (Ix_bilshe_porogu_dz[i] == 0) porig_Ix = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ*KOEF_POVERNENNJA_SECTOR_BLK/100;
-    else porig_Ix = PORIG_CHUTLYVOSTI_CURRENT_ANGLE_DZ;
-    Ix_bilshe_porogu_dz[i]  = (measurement[index_I] >= porig_Ix );
+    Uxy_bilshe_porogu_dz[i + shift_for_line] = Uxy_bilshe_porogu_dz[i] = (measurement[index_U] >= porig_Uxy);
   }
 
 
@@ -1073,7 +1079,7 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
     /*
     За розрахунком описаним при розрахунку діючих значень наші ортогональні є у ворматі (15 біт + знак) = 16-розряжне число
     */
-    for (size_t i = 0; i < 3; i++)
+    for (size_t i = 0; i < 2*3; i++)
     {
       if (
           (Uxy_bilshe_porogu_dz[i] != 0) &&
@@ -1104,6 +1110,27 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
 
             break;
           }
+        case 3:
+          {
+            index_I_ort = 0;
+            index_U_ort = FULL_ORT_Uab;
+
+            break;
+          }
+        case 4:
+          {
+            index_I_ort = 1;
+            index_U_ort = FULL_ORT_Ubc;
+
+            break;
+          }
+        case 5:
+          {
+            index_I_ort = 2;
+            index_U_ort = FULL_ORT_Uca;
+
+            break;
+          }
         default:
           {
             //Теоретично цього ніколи не мало б бути
@@ -1111,14 +1138,14 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
           }
         }
 
-#define SIN_I   ortogonal_local_calc[2*index_I_ort    ]
-#define COS_I   ortogonal_local_calc[2*index_I_ort + 1]
+#define SIN_I   ((i < 3) ? ortogonal_local_calc[2*index_I_ort    ] : line_current[2*index_I_ort    ])
+#define COS_I   ((i < 3) ? ortogonal_local_calc[2*index_I_ort + 1] : line_current[2*index_I_ort + 1])
 #define SIN_U   ortogonal_local_calc[2*index_U_ort    ]
 #define COS_U   ortogonal_local_calc[2*index_U_ort + 1]
 
-        //Робимо доповорот  проти годинникової стрілки на 90°
-        int32_t amp_cos_U_90 =  SIN_U;//З розділу: "Неймовірно, але факт", тобто що я не можу пояснити
-        int32_t amp_sin_U_90 = -COS_U;//З розділу: "Неймовірно, але факт", тобто що я не можу пояснити
+        //Робимо доповорот  проти годинникової стрілки на 90° (крім міжфазного варіанту)
+        int32_t amp_cos_U = (i < 3) ?  SIN_U/*З розділу: "Неймовірно, але факт", тобто що я не можу пояснити*/ : COS_U;
+        int32_t amp_sin_U = (i < 3) ? -COS_U/*З розділу: "Неймовірно, але факт", тобто що я не можу пояснити*/ : SIN_U;
 
         //Вираховуємо COS і SIN кута різниці між (U[i]+90°) і I[i]
         int32_t cos_fi, sin_fi;
@@ -1128,8 +1155,8 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
         0x120FC, то добуток їх має дати 0x7C87B7BC  - 31 бітне число (плюс знак біту)
         Тобто ми вкладаємося у тип int.
         */
-        sin_fi = -(SIN_I*amp_cos_U_90 - COS_I*amp_sin_U_90);//З розділу: "Неймовірно, але факт", тобто що я не можу пояснити
-        cos_fi = COS_I*amp_cos_U_90 + SIN_I*amp_sin_U_90;
+        sin_fi = -(amp_sin_U*COS_I - amp_cos_U*SIN_I);//З розділу: "Неймовірно, але факт", тобто що я не можу пояснити
+        cos_fi =   amp_cos_U*COS_I + amp_sin_U*SIN_I;
 
 #undef SIN_I
 #undef COS_I
@@ -1156,7 +1183,7 @@ inline void directional_dz(int ortogonal_local_calc[], unsigned int number_group
         Хоч може тут я перемудровую?..
         */
 
-        const int32_t sector_H[2][2] = {{126, -22}, {123, -35}};
+        static const int32_t sector_H[2][2] = {{126, -22}, {123, -35}};
         //Визначення сектору
         int sin_fi1_minus_fi2;
         const int *sector;
@@ -1778,15 +1805,22 @@ inline void calc_measurement(unsigned int number_group_stp)
   /***/
 
   /***/
+  //Розраховуємо опори
+  /***/
+  int32_t line_current[3*2];
+  calc_resistance(ortogonal_calc, number_group_stp, resistance, line_current);
+  /***/
+
+  /***/
   //Фазочутливий елемент для ДЗ (всіх ступенів)
   /***/
   if ((current_settings_prt.configuration & (1<<DZ_BIT_CONFIGURATION)) != 0)
   {
-    directional_dz(ortogonal_calc, number_group_stp);
+    directional_dz(ortogonal_calc, line_current, number_group_stp);
   }
   else
   {
-    for (size_t i = 0; i < 3; i++)
+    for (size_t i = 0; i < 2*3; i++)
     {
       Uxy_bilshe_porogu_dz[i] = 0;
       Ix_bilshe_porogu_dz[i] = 0;
@@ -1851,12 +1885,6 @@ inline void calc_measurement(unsigned int number_group_stp)
   velychyna_zvorotnoi_poslidovnosti(ortogonal_calc, INDEX_I);
   /***/
   
-  /***/
-  //Розраховуємо опори
-  /***/
-  calc_resistance(ortogonal_calc, number_group_stp, resistance);
-  /***/
-
   if(++number_inputs_for_fix_one_period >= 20)
   {
     /***/
@@ -1995,6 +2023,48 @@ inline void clocking_global_timers(void)
       if (global_timers[i] <= (0x7fffffff - DELTA_TIME_FOR_TIMERS)) global_timers[i] += DELTA_TIME_FOR_TIMERS;
     }
   }
+
+
+  static unsigned int power_is;
+  if ((POWER_CTRL->IDR & POWER_CTRL_PIN) != (uint32_t)Bit_RESET) 
+  {
+    power_is = true;
+
+    timePowerDown = -1;
+  }
+  else
+  {
+    if (
+        (measurement[IM_IA] > POWEER_IS_FROM_IA_IC) ||
+        (measurement[IM_IC] > POWEER_IS_FROM_IA_IC)
+       )
+    {
+      power_is = true;
+    }
+    else if (
+             (measurement[IM_IA] < POWEER_ISNOT_FROM_IA_IC) &&
+             (measurement[IM_IC] < POWEER_ISNOT_FROM_IA_IC)
+            )
+    {
+      power_is = false;
+    }
+    else
+    {
+      //power_is залишається без змін
+    }
+    
+    if (timePowerDown < 0) timePowerDown = 0;
+    else if (power_is) timePowerDown = 0;
+    else if (
+             (timePowerDown >= 0) &&
+             (timePowerDown <= (0x7fffffff - DELTA_TIME_FOR_TIMERS))  
+            )
+    {
+      timePowerDown += DELTA_TIME_FOR_TIMERS;
+    }
+  }
+
+
   
   if (++timer_prt_signal_output_mode_2 >= PERIOD_SIGNAL_OUTPUT_MODE_2)
   {
@@ -2007,19 +2077,17 @@ inline void clocking_global_timers(void)
 /*****************************************************/
 //Опрацювання Ориділювальних функцій - має запускатися після відкрпацювання блоків всіх захистів
 /*****************************************************/
-inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed_state_with_start_new_timeout)
+inline void df_handler(unsigned int *p_active_functions)
 {
-  /*
-  Джерела активації формуємо в source_activation_df
-  Формуємо маску вже активних функцій у maska_active_df
-  */
-  static unsigned int source_activation_df_prev;
+  unsigned int logic_df[NUMBER_DEFINED_FUNCTIONS];
   
-  unsigned int source_activation_df = 0;
-  unsigned int state_df = 0;
+  //Визначаємо, чи активовуються опреділювані функції через свої ранжовані функції-джерела
   for (unsigned int i = 0; i < NUMBER_DEFINED_FUNCTIONS; i++)
   {
-    unsigned int number_byte_in, number_bit_in, number_byte_out, number_bit_out;
+    unsigned int *p_logic_df = (logic_df + i);
+    *p_logic_df = 0;
+    
+    unsigned int number_byte_in, number_bit_in;
     switch (i)
     {
     case 0:
@@ -2027,9 +2095,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF1_IN >> 5;
         number_bit_in = RANG_DF1_IN & 0x1f;
 
-        number_byte_out = RANG_DF1_OUT >> 5;
-        number_bit_out = RANG_DF1_OUT & 0x1f;
-        
         break;
       }
     case 1:
@@ -2037,18 +2102,12 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF2_IN >> 5;
         number_bit_in = RANG_DF2_IN & 0x1f;
 
-        number_byte_out = RANG_DF2_OUT >> 5;
-        number_bit_out = RANG_DF2_OUT & 0x1f;
-        
         break;
       }
     case 2:
       {
         number_byte_in = RANG_DF3_IN >> 5;
         number_bit_in = RANG_DF3_IN & 0x1f;
-
-        number_byte_out = RANG_DF3_OUT >> 5;
-        number_bit_out = RANG_DF3_OUT & 0x1f;
         
         break;
       }
@@ -2057,9 +2116,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF4_IN >> 5;
         number_bit_in = RANG_DF4_IN & 0x1f;
 
-        number_byte_out = RANG_DF4_OUT >> 5;
-        number_bit_out = RANG_DF4_OUT & 0x1f;
-        
         break;
       }
     case 4:
@@ -2067,9 +2123,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF5_IN >> 5;
         number_bit_in = RANG_DF5_IN & 0x1f;
 
-        number_byte_out = RANG_DF5_OUT >> 5;
-        number_bit_out = RANG_DF5_OUT & 0x1f;
-        
         break;
       }
     case 5:
@@ -2077,9 +2130,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF6_IN >> 5;
         number_bit_in = RANG_DF6_IN & 0x1f;
 
-        number_byte_out = RANG_DF6_OUT >> 5;
-        number_bit_out = RANG_DF6_OUT & 0x1f;
-        
         break;
       }
     case 6:
@@ -2087,9 +2137,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF7_IN >> 5;
         number_bit_in = RANG_DF7_IN & 0x1f;
 
-        number_byte_out = RANG_DF7_OUT >> 5;
-        number_bit_out = RANG_DF7_OUT & 0x1f;
-        
         break;
       }
     case 7:
@@ -2097,9 +2144,6 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
         number_byte_in = RANG_DF8_IN >> 5;
         number_bit_in = RANG_DF8_IN & 0x1f;
 
-        number_byte_out = RANG_DF8_OUT >> 5;
-        number_bit_out = RANG_DF8_OUT & 0x1f;
-        
         break;
       }
     default:
@@ -2110,309 +2154,97 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
       }
     }
 
-//    if (i < NUMBER_DEFINED_FUNCTIONS/*current_settings_prt.number_defined_df*/)
+    /***
+    Джерело активації ОФ-ії
+    ***/
+    *p_logic_df |= ((p_active_functions[number_byte_in] & (1 << number_bit_in) ) >> number_bit_in ) << 0;
+    //Перевіряємо ще, чи не іде утимування активним джерела ОФ через таймер-утримування (для активації через кнопки або інтерфейс)
+    if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] >= 0)
     {
-      /***
-      Джерело активації ОФ-ії
-      ***/
-      source_activation_df |= ((p_active_functions[number_byte_in] & (1 << number_bit_in) ) >> number_bit_in ) << i;
-      //Перевіряємо ще, чи не іде утимування активним джерела ОФ через таймер-утримування (для активації через кнопки або інтерфейс)
-      if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] >= 0)
-      {
-        //Таймер запущений, або вже зупинився
-        //Факт запуску цього таймеру означає, що активація відбувалася через кнопку, або інтерфейс
-        //Тому для забеспечення роботи логічної схеми до кінця роботи цього таймеру виставляємо, що джерело активації активне
-        source_activation_df |= (1 << i);
+      //Таймер запущений, або вже зупинився
+      //Факт запуску цього таймеру означає, що активація відбувалася через кнопку, або інтерфейс
+      //Тому для забеспечення роботи логічної схеми до кінця роботи цього таймеру виставляємо, що джерело активації активне
+      *p_logic_df |= (1 << 0);
       
-        //Відмічаємо, джерело активації утримуємться у активному стані у масиві активуючих функцій
-        p_active_functions[number_byte_in] |= (1 << number_bit_in);
+      //Відмічаємо, джерело активації утримуємться у активному стані у масиві активуючих функцій
+      p_active_functions[number_byte_in] |= (1 << number_bit_in);
       
-        //У випадку, якщо таймер дійшов до свого макисального значення, то скидаємо роботу цього таймеру
-        if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] >= ((int)current_settings_prt.timeout_pause_df[i]))
-          global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] = -1;
-      }
-      /***/
+      //У випадку, якщо таймер дійшов до свого макисального значення, то скидаємо роботу цього таймеру
+      if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] >= ((int)current_settings_prt.timeout_pause_df[i]))
+        global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] = -1;
+    }
+    /***/
 
-      /***
-      Формування маски до цього часу активних ОФ-ій
-      ***/
-      state_df |= (((p_active_functions[number_byte_out] & ((unsigned int)(1 << number_bit_out))) != 0) || (etap_execution_df[i] == EXECUTION_DF)) << i;
-      /***/
-    }
-//    else
-//    {
-//      //Таймери, які не задіяні скидаємо з роботи
-//      global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + i] = -1;
-//      global_timers[INDEX_TIMER_DF_PAUSE_START + i] = -1;
-//      global_timers[INDEX_TIMER_DF_WORK_START + i] = -1;
-//      
-//      etap_execution_df[i] = NONE_DF;
-//    }
-    }
-  
-  //Визначаємо, чи активовуються опреділювані функції через свої ранжовані функції-джерела
-  unsigned int source_blk_df = 0;
-  for (unsigned int i = 0; i < NUMBER_DEFINED_FUNCTIONS/*current_settings_prt.number_defined_df*/; i++)
-  {
-    if (
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i    ] !=0) || 
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 1] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 2] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 3] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 4] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 5] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 6] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 7] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 8] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 9] !=0)
-       )
+    if(
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i    ] & p_active_functions[0] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 1] & p_active_functions[1] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 2] & p_active_functions[2] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 3] & p_active_functions[3] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 4] & p_active_functions[4] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 5] & p_active_functions[5] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 6] & p_active_functions[6] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 7] & p_active_functions[7] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 8] & p_active_functions[8] ) != 0) ||
+       ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 9] & p_active_functions[9] ) != 0)
+      )
     {
-      //Випадок, якщо функції зранжовані на джерело прямих функцій
-      if(
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i    ] & p_active_functions[0] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 1] & p_active_functions[1] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 2] & p_active_functions[2] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 3] & p_active_functions[3] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 4] & p_active_functions[4] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 5] & p_active_functions[5] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 6] & p_active_functions[6] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 7] & p_active_functions[7] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 8] & p_active_functions[8] ) != 0) ||
-         ( ( current_settings_prt.ranguvannja_df_source_plus[N_BIG*i + 9] & p_active_functions[9] ) != 0) 
-        )
-      {
-        source_activation_df |= (1 << i);
-      }
+      *p_logic_df |= (1 << 0);
     }
 
-    if (
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i    ] !=0) || 
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 1] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 2] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 3] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 4] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 5] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 6] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 7] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 8] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 9] !=0)
-       )
+    if(
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i    ] & ((unsigned int)(~p_active_functions[0])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 1] & ((unsigned int)(~p_active_functions[1])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 2] & ((unsigned int)(~p_active_functions[2])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 3] & ((unsigned int)(~p_active_functions[3])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 4] & ((unsigned int)(~p_active_functions[4])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 5] & ((unsigned int)(~p_active_functions[5])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 6] & ((unsigned int)(~p_active_functions[6])) ) != 0 ) ||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 7] & ((unsigned int)(~p_active_functions[7])) ) != 0 )||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 8] & ((unsigned int)(~p_active_functions[8])) ) != 0 )||
+       ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 9] & ((unsigned int)(~p_active_functions[9])) ) != 0 )
+      )
     {
-      //Випадок, якщо функції зранжовані на джерело інверсних функцій
-      if(
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i    ] & ((unsigned int)(~p_active_functions[0])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 1] & ((unsigned int)(~p_active_functions[1])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 2] & ((unsigned int)(~p_active_functions[2])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 3] & ((unsigned int)(~p_active_functions[3])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 4] & ((unsigned int)(~p_active_functions[4])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 5] & ((unsigned int)(~p_active_functions[5])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 6] & ((unsigned int)(~p_active_functions[6])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 7] & ((unsigned int)(~p_active_functions[7])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 8] & ((unsigned int)(~p_active_functions[8])) ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_minus[N_BIG*i + 9] & ((unsigned int)(~p_active_functions[9])) ) != 0 )
-        )
-      {
-        source_activation_df |= (1<< i);
-      }
+      *p_logic_df |= (1 << 0);
     }
 
-    if (
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i    ] !=0) || 
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 1] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 2] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 3] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 4] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 5] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 6] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 7] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 8] !=0) ||
-        (current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 9] !=0)
-       )
+    if(
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i    ] & p_active_functions[0] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 1] & p_active_functions[1] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 2] & p_active_functions[2] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 3] & p_active_functions[3] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 4] & p_active_functions[4] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 5] & p_active_functions[5] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 6] & p_active_functions[6] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 7] & p_active_functions[7] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 8] & p_active_functions[8] ) == 0 ) &&
+       ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 9] & p_active_functions[9] ) == 0 )
+      )
     {
-      //Випадок, якщо функції зранжовані насправді на джерело блокування
-      if(
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i    ] & p_active_functions[0] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 1] & p_active_functions[1] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 2] & p_active_functions[2] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 3] & p_active_functions[3] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 4] & p_active_functions[4] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 5] & p_active_functions[5] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 6] & p_active_functions[6] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 7] & p_active_functions[7] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 8] & p_active_functions[8] ) != 0 ) ||
-         ( ( current_settings_prt.ranguvannja_df_source_blk[N_BIG*i + 9] & p_active_functions[9] ) != 0 )
-        )
-      {
-        source_blk_df |= (1<< i);
-      }
+      *p_logic_df |= (1 << 1);
     }
     
-    //Запускаємо у роботу лоргічну схему роботи опреділюваної функції
-    switch (etap_execution_df[i])
+    /***
+    Виконуємо у цьому місці обробку логіки без встанвлення/скидання бітів про стан Визначуваної функції
+    Щоб новий стан попередньої функції не був включений у стан наступної
+    ***/
+    _TIMER_T_0(INDEX_TIMER_DF_PAUSE_START + i, current_settings_prt.timeout_pause_df[i], (*p_logic_df), 0, (*p_logic_df), 2);
+    
+    if ((current_settings_prt.type_df & (1 << i)) == 0)
     {
-    case NONE_DF:
-      {
-        if ((source_activation_df & (1<<i)) != 0)
-        {
-           if (current_settings_prt.timeout_pause_df[i] > 0)
-           {
-             //Випадок, коли є перед активацією ОФ, треба витримати таймер павзи
-             //Запускаємо відраховування таймера паузи
-             global_timers[INDEX_TIMER_DF_PAUSE_START + i] = 0;
-             //Змінюємо етап виконання логічної схеми на очікування завершення часу павзи
-             etap_execution_df[i] = START_TIMER_PAUSE_DF;
-           }
-           else
-           {
-             //Випадок, коли таймер павзи рівний нулю, тобто треба зразу активовувати ОФ і запускати таймер роботи
-
-             if (
-                 (current_settings_prt.timeout_work_df[i] > 0) ||
-                 ((current_settings_prt.type_df & (1<<i)) != 0)
-                )   
-             {
-              //Встановлюємо стан даної ОФ в "АКТИВНИЙ"
-              state_df |= (1 << i);
-              //Запускаємо відраховування таймера роботи
-              global_timers[INDEX_TIMER_DF_WORK_START + i] = 0;
-              //Переходимо на відраховування таймеру роботи - протягом цього часу ОФ гарантовано активується (якщо немає умови блокування)
-              etap_execution_df[i] = EXECUTION_DF;
-             }
-             else etap_execution_df[i] = WAITING_DEACTIVATION_SOURCE_DF;
-           }
-           
-           //Фіксація про зміну стану з початком відслідковуванням нової витримки
-           *p_changed_state_with_start_new_timeout |= (1 << i);
-        }
-        break;
-      }
-    case START_TIMER_PAUSE_DF:
-      {
-        //Зараз іде відлік часу таймеру павзи
-        //Перевіряємо, чи ОФ ще утимується в стані активації через своє джерело
-        if ((source_activation_df & (1<< i)) != 0)
-        {
-          //Перевіряємо, чи завершилася робота таймеру павзи
-          if (global_timers[INDEX_TIMER_DF_PAUSE_START + i] >= ((int)current_settings_prt.timeout_pause_df[i]))
-          {
-            if ((*p_changed_state_with_start_new_timeout & (1 << i)) == 0)
-            {
-              //Завершився час роботи таймеру павзи
-              global_timers[INDEX_TIMER_DF_PAUSE_START + i] = -1;
-  
-              if (
-                  (current_settings_prt.timeout_work_df[i] > 0) ||
-                  ((current_settings_prt.type_df & (1<<i)) != 0)
-                 )   
-              {
-                //Встановлюємо стан даної ОФ в "АКТИВНИЙ"
-                state_df |= (1 << i);
-                //Запускаємо відраховування таймера роботи
-                global_timers[INDEX_TIMER_DF_WORK_START + i] = 0;
-                //Переходимо на відраховування таймеру роботи - протягом цього часу ОФ гарантовано активується (якщо немає умови блокування)
-                etap_execution_df[i] = EXECUTION_DF;
-              }
-              else etap_execution_df[i] = WAITING_DEACTIVATION_SOURCE_DF;
-           
-              //Фіксація про зміну стану з початком відслідковуванням нової витримки
-              *p_changed_state_with_start_new_timeout |= (1 << i);
-            }
-          }
-        }
-        else
-        {
-          //Активація знята до завершення роботи таймеру павзи, тому скидаємо всю роботу по даній оприділюваеній функції
-          global_timers[INDEX_TIMER_DF_PAUSE_START + i] = -1;
-          etap_execution_df[i] = NONE_DF;
-           
-          //Відміна фіксації про зміну стану з початком відслідковуванням нової витримки
-          *p_changed_state_with_start_new_timeout &= (unsigned int)(~(1 << i));
-        }
-        break;
-      }
-    case EXECUTION_DF:
-      {
-        //Подальша робота даної ОФ залежить від типу ОФ
-        if ((current_settings_prt.type_df & (1<<i)) != 0)
-        {
-          //Дана ОФ ЗВОРОТНЯ
-          //Згідно логічної схеми утримуємо ОФ таймер роботи має запуститися після деактивації джерела
-          if ((source_activation_df & (1<< i)) != 0)
-          {
-            //Джерело ще є активне, а тому таймер роботи утримуємо/повертаємо у нульовому значенні
-            global_timers[INDEX_TIMER_DF_WORK_START + i] = 0;
-          }
-        }
-        else
-        {
-          //Дана ОФ ПРЯМА
-          if (
-              ((source_activation_df_prev & (1 << i)) == 0) &&
-              ((source_activation_df      & (1 << i)) != 0)
-             )   
-          {
-            //Джерело ще наново активувалося, а тому таймер роботи повертаємо у нульовому значенні
-            global_timers[INDEX_TIMER_DF_WORK_START + i] = 0;
-          }
-        }
-
-        //Перевіряємо, чи завершилася робота таймеру роботи
-        /*
-        Умовою продовження активації ОФ є випадок коли ОФ зворотня і джерело є активним
-        Впринципі на рівні таймеру все б мало працювати правильно, але є один нюанс, коли
-        функція є звороньою і джерело активне, то код вище скине таймер роботи в 0, 
-        тобто він буде гарантовано в 0, але коли уставка "Таймер роботи" для даної функції буде 0,
-        то по аналізу самого таймеру робота функції може зупинитися, що не правильно.
-        Тому тут ще я добавляю перевірку, що ОФ не може деактивуватися навіть коли таймер роботи
-        перевищує свою уставку у випадку коли і ОФ є зворотньою і джерело є активним
-        */
-        if (
-            (global_timers[INDEX_TIMER_DF_WORK_START + i] >= ((int)current_settings_prt.timeout_work_df[i])) &&
-            (
-             !( 
-               ((current_settings_prt.type_df & (1 << i)) != 0) && 
-               ((source_activation_df         & (1 << i)) != 0) 
-              )
-            )  
-           )
-        {
-          if ((*p_changed_state_with_start_new_timeout & (1 << i)) == 0)
-          {
-            //Завершився час роботи таймеру роботи
-            global_timers[INDEX_TIMER_DF_WORK_START + i] = -1;
-            //Переводимо ОФ у ПАСИВНИЙ стан
-            state_df &= ~(1 << i);
-          
-            //Перевіряємо, чи нам треба перейти в очікування деактивації джерела ОФ, чи перейти у висхідний стан
-            if ((source_activation_df & (1<< i)) == 0)
-            {
-              //Переходимо у режим висхідний стан
-              etap_execution_df[i] = NONE_DF;
-            }
-            else 
-            {
-              //Якщо джерело запуску цієї ОФ ще активне, то переходимо на оцікування його завершення
-              etap_execution_df[i] = WAITING_DEACTIVATION_SOURCE_DF;
-            }
-          }
-        }
-        break;
-      }
-    case WAITING_DEACTIVATION_SOURCE_DF:
-      {
-        //У цьому режимі ми перебуваємо доти, поки джерело активації ОФ не буде зняте
-        if ((source_activation_df & (1 << i)) == 0)
-        {
-          //Переходимо у режим висхідний стан
-          etap_execution_df[i] = NONE_DF;
-        }
-        break;
-      }
-    default: break;
+      _TIMER_IMPULSE(INDEX_TIMER_DF_WORK_START + i, current_settings_prt.timeout_work_df[i], static_logic_df, i, (*p_logic_df), 2, (*p_logic_df), 3);
     }
-  }
-  source_activation_df_prev = source_activation_df;
+    else
+    {
+      _TIMER_0_T    (INDEX_TIMER_DF_WORK_START + i, current_settings_prt.timeout_work_df[i],                     (*p_logic_df), 2, (*p_logic_df), 3);
+      static_logic_df &= ~(1u << i);
+    }
+      
+    _AND2((*p_logic_df), 3, (*p_logic_df), 1, (*p_logic_df), 4);
+    /***/
 
+    
+  }
+  
   //Установлюємо, або скидаємо ОФ у масиві функцій, які зараз будуть активовуватися
   /*
   Цей цикл і попередній не об'єднаі в один, а навпаки розєднані, бо у першому ми використовуємо
@@ -2476,20 +2308,8 @@ inline void df_handler(unsigned int *p_active_functions, unsigned int *p_changed
       }
     }
       
-    if ((state_df & (1 << i)) != 0 )
-    {
-      /*
-      ОФ функція зараз є активною
-      але перед тим, як виставити реальний стан цієї функції на даний момент часу - 
-      перевіряєио, чи не йде блокування її 
-      */     
-      if ((source_blk_df & (1<< i)) == 0 ) _SET_BIT(p_active_functions, index_df);
-      else _CLEAR_BIT(p_active_functions, index_df);
-    }
-    else
-    {
-      _CLEAR_BIT(p_active_functions, index_df);
-    }
+    if ((logic_df[i] & (1 << 4)) != 0 ) _SET_BIT(p_active_functions, index_df);
+    else _CLEAR_BIT(p_active_functions, index_df);
   }
 }
 /*****************************************************/
@@ -3506,7 +3326,8 @@ inline void zdz_handler(unsigned int *p_active_functions, unsigned int number_gr
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
 
   static uint32_t test;
@@ -3596,8 +3417,8 @@ inline void zdz_handler(unsigned int *p_active_functions, unsigned int number_gr
     test = swiched_on_OVD & 0x7;
   }
 
-  if (test != 0) _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28) = (1 << 8) | ((test & 0xf) << 12);
-  else _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28) = (((current_settings_prt.zdz_ovd_porig + 1) & 0xf) << 8);
+  if (test != 0) _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28_DD30) = (1 << 8) | ((test & 0xf) << 12);
+  else _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28_DD30) = (((current_settings_prt.zdz_ovd_porig + 1) & 0xf) << 8);
   /***/
 
 #endif  
@@ -3618,7 +3439,8 @@ inline void zdz_handler(unsigned int *p_active_functions, unsigned int number_gr
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
   uint32_t zdz_ovd_diagnostyka_inv = (uint32_t)(~zdz_ovd_diagnostyka);
   _AND4(logic_zdz_0, 2, light, 0, zdz_ovd_diagnostyka_inv, 0, control_zdz_tmp, CTR_ZDZ_OVD1_STATE_BIT, logic_zdz_0, 4);
@@ -3818,13 +3640,13 @@ inline void zz_handler(unsigned int *p_active_functions, unsigned int number_gro
   
   *********************************/
   unsigned int porig_3I0;
-  if (Nzz_3I0_bilshe_porogu == 0) porig_3I0 = PORIG_CHUTLYVOSTI_3I0*KOEF_POVERNENNJA_SECTOR_BLK/100;
+  if (Nzz_3I0_bilshe_porogu == 0) porig_3I0 = PORIG_CHUTLYVOSTI_3I0*KOEF_POVERNENNJA_3I0_SECTOR_BLK/100;
   else porig_3I0 = PORIG_CHUTLYVOSTI_3I0;
   unsigned int Nzz_3I0_bilshe_porogu_tmp = Nzz_3I0_bilshe_porogu = (measurement[IM_3I0] >= porig_3I0);
 
   unsigned int porig_3U0;
-  if (Nzz_3U0_bilshe_porogu == 0) porig_3U0 = PORIG_CHUTLYVOSTI_3U0*KOEF_POVERNENNJA_SECTOR_BLK/100;
-  else porig_3U0 = PORIG_CHUTLYVOSTI_3U0;
+  if (Nzz_3U0_bilshe_porogu == 0) porig_3U0 = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE*KOEF_POVERNENNJA_U_SECTOR_BLK/100;
+  else porig_3U0 = PORIG_CHUTLYVOSTI_VOLTAGE_ANGLE;
   unsigned int Nzz_3U0_bilshe_porogu_tmp = Nzz_3U0_bilshe_porogu = (measurement[IM_3U0] >= porig_3U0);
       
   if (
@@ -5830,7 +5652,7 @@ inline void up_handler(unsigned int *p_active_functions, unsigned int number_gro
         Алгебраїчне спрощення виразу
         setpoint = (pickup*koef_povernennja/100)*10 =  pickup*koef_povernennja/10
         */
-        pickup = (pickup * current_settings_prt.setpoint_UP_KP[n_UP][0][number_group_stp])/10;
+        pickup = (pickup * (int32_t)current_settings_prt.setpoint_UP_KP[n_UP][0][number_group_stp])/10;
       }
       else
       {
@@ -5840,13 +5662,15 @@ inline void up_handler(unsigned int *p_active_functions, unsigned int number_gro
     }
     else
     {
-      if (_CHECK_SET_BIT(p_active_functions, (RANG_PO_UP1 + 3*n_UP)) != 0) pickup = (pickup * current_settings_prt.setpoint_UP_KP[n_UP][0][number_group_stp])/100;
+      if (_CHECK_SET_BIT(p_active_functions, (RANG_PO_UP1 + 3*n_UP)) != 0) pickup = (pickup * (int32_t)current_settings_prt.setpoint_UP_KP[n_UP][0][number_group_stp])/100;
     }
 
     unsigned int more_less = ((current_settings_prt.control_UP & MASKA_FOR_BIT(n_UP*(_CTR_UP_NEXT_BIT - (_CTR_UP_PART_II - _CTR_UP_PART_I) - _CTR_UP_PART_I) + CTR_UP_MORE_LESS_BIT - (_CTR_UP_PART_II - _CTR_UP_PART_I))) != 0);
     
     int32_t analog_value;
     uint32_t PQ = false;
+    uint32_t bank_for_calc_power_tmp = (state_calc_power == false ) ? bank_for_calc_power : ((bank_for_calc_power ^ 0x1) & 0x1);
+
     switch (current_settings_prt.ctrl_UP_input[n_UP])
     {
     case UP_CTRL_Ia_Ib_Ic:
@@ -6027,20 +5851,20 @@ inline void up_handler(unsigned int *p_active_functions, unsigned int number_gro
     case UP_CTRL_P:
       {
         PQ = true;
-        analog_value = P[mutex_power != 0];
+        analog_value = P[bank_for_calc_power_tmp];
         
         break;
       }
     case UP_CTRL_Q:
       {
         PQ = true;
-        analog_value = Q[mutex_power != 0];
+        analog_value = Q[bank_for_calc_power_tmp];
         
         break;
       }
     case UP_CTRL_S:
       {
-        analog_value = S[mutex_power != 0];
+        analog_value = S[bank_for_calc_power_tmp];
         
         break;
       }
@@ -6239,9 +6063,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
       /*****************************************************
       Формуванні інформації про причину відключення для меню
       *****************************************************/
-      unsigned char *label_to_time_array;
-      if (copying_time == 2) label_to_time_array = time_copy;
-      else label_to_time_array = time;
+      __info_vymk info_vymk_tmp = {time_dat, time_ms};
           
       //ДЗ1
       if(
@@ -6250,7 +6072,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_DZ_1);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_1][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_DZ1);
       }
@@ -6262,7 +6084,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_AMTZ_DZ_1);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_1][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_AMTZ_DZ1);
       }
@@ -6274,7 +6096,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_DZ_2);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_2][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_DZ2);
       }
@@ -6286,7 +6108,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_AMTZ_DZ_2);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_2][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_AMTZ_DZ2);
       }
@@ -6298,7 +6120,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_DZ_3);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_3][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_3] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_DZ3);
       }
@@ -6311,7 +6133,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_AMTZ_DZ_3);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_3][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_3] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_AMTZ_DZ3);
       }
@@ -6323,7 +6145,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_DZ_4);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_4][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_DZ_4] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_DZ4);
       }
@@ -6335,7 +6157,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_AMTZ_DZ_4);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_4][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_AMTZ_DZ_4] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_AMTZ_DZ4);
       }
@@ -6347,7 +6169,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_MTZ1);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ1][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_MTZ1);
       }
@@ -6359,7 +6181,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_MTZ2);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ2][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_MTZ2);
       }
@@ -6371,7 +6193,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_MTZ3);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ3][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ3] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_MTZ3);
       }
@@ -6383,7 +6205,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_MTZ4);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ4][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MTZ4] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_MTZ4);
       }
@@ -6395,7 +6217,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ZDZ);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZDZ][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZDZ] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_ZDZ);
       }
@@ -6407,7 +6229,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_3I0);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_3I0][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_3I0] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_3I0);
       }
@@ -6419,7 +6241,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_3U0);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_3U0][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_3U0] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_3U0);
       }
@@ -6431,7 +6253,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_NZZ);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_NZZ][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_NZZ] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_NZZ);
       }
@@ -6443,7 +6265,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_TZNP1);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP1][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_TZNP1);
       }
@@ -6455,7 +6277,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_TZNP2);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP2][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_TZNP2);
       }
@@ -6467,7 +6289,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_TZNP3);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP3][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_TZNP3] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_TZNP3);
       }
@@ -6479,7 +6301,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ACHR_CHAPV_VID_DV);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV_VID_DV][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV_VID_DV] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_ACHR_CHAPV_VID_DV);
       }
@@ -6491,7 +6313,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ACHR_CHAPV1);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV1][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_ACHR_CHAPV1);
       }
@@ -6503,7 +6325,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ACHR_CHAPV2);
-        for(unsigned int j = 0; j < 7; j++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV2][j] = *(label_to_time_array + j);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ACHR_CHAPV2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_ACHR_CHAPV2);
       }
@@ -6515,7 +6337,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UROV1);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UROV1][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UROV1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UROV1);
       }
@@ -6527,7 +6349,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UROV2);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UROV2][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UROV2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UROV2);
       }
@@ -6539,7 +6361,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ZOP);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZOP][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZOP] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_ZOP);
       }
@@ -6551,7 +6373,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UMIN1);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMIN1][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMIN1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UMIN1);
       }
@@ -6563,7 +6385,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UMIN2);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMIN2][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMIN2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UMIN2);
       }
@@ -6575,7 +6397,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UMAX1);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMAX1][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMAX1] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UMAX1);
       }
@@ -6587,7 +6409,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_UMAX2);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMAX2][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UMAX2] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_UMAX2);
       }
@@ -6601,7 +6423,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
           )   
         {
           _SET_BIT(info_vidkluchennja_vymykacha, (VYMKNENNJA_VID_UP1 + n_UP));
-          for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UP1 + n_UP][i] = *(label_to_time_array + i);
+          info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_UP1 + n_UP] = info_vymk_tmp;
 
           _CLEAR_BIT(temp_array_of_outputs, (RANG_UP1 + 3*n_UP));
         }
@@ -6614,7 +6436,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_ZOVNISHNIKH_ZAKHYSTIV);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZOVNISHNIKH_ZAKHYSTIV][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_ZOVNISHNIKH_ZAKHYSTIV] = info_vymk_tmp;
 
         _CLEAR_BIT(temp_array_of_outputs, RANG_OTKL_VID_ZOVN_ZAHYSTIV);
       }
@@ -6649,7 +6471,7 @@ inline void on_off_handler(unsigned int *p_active_functions)
         )   
       {
         _SET_BIT(info_vidkluchennja_vymykacha, VYMKNENNJA_VID_INSHYKH_SYGNALIV);
-        for(unsigned int i = 0; i < 7; i++) info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_INSHYKH_SYGNALIV][i] = *(label_to_time_array + i);
+        info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_INSHYKH_SYGNALIV] = info_vymk_tmp;
       }
       /*****************************************************/
     }
@@ -6950,7 +6772,13 @@ inline void resurs_vymykacha_handler(unsigned int *p_active_functions)
     _SET_BIT(control_spi1_taskes, TASK_START_WRITE_RESURS_EEPROM_BIT);
 
     //Помічаємо, що відбулася очистка ресурсу вимикача
-    information_about_restart_counter |= ((1 << USB_RECUEST)|(1 << RS485_RECUEST));
+    information_about_restart_counter |= (
+                                            (1 << USB_RECUEST)
+                                          | (1 << RS485_RECUEST)
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                                          | (1 << LAN_RECUEST)
+#endif
+                                         );
   }
   
   /*******************************/
@@ -7098,7 +6926,7 @@ inline unsigned int stop_regisrator(unsigned int* carrent_active_functions, unsi
         //Зафіксовано, що всі функції, які можуть утримувати реєстратор активним зараз скинуті
           
         //Перевіряємо, чи всі таймери, які працють у логіці схеми виключені
-        unsigned int global_timers_work = 0, i = INDEX_TIMER_DF_PAUSE_START;
+        unsigned int global_timers_work = 0, i = INDEX_TIMER_VIDKL_VV;
         while ((i < NEXT_TIMER) && (global_timers_work == 0))
         {
           if (global_timers[i] >= 0) 
@@ -7115,6 +6943,10 @@ inline unsigned int stop_regisrator(unsigned int* carrent_active_functions, unsi
                 (i != INDEX_TIMER_ACHR_CHAPV_100MS_1)
                 &&
                 (i != INDEX_TIMER_NKN_DZ)
+                &&
+                (i != INDEX_TIMER_POSTFAULT)
+                &&
+                (i != INDEX_TIMER_FULL_AR_RECORD)
                )
             global_timers_work = 1;
           }
@@ -7282,6 +7114,32 @@ inline void routine_for_queue_dr(void)
 /*****************************************************/
 inline void digital_registrator(unsigned int* carrent_active_functions)
 {
+  /***
+  Стан оперативного живлення від якого залежить як Дискретний реєстратор буде працювати
+  ***/
+  enum _statePowerDown
+  {
+    STATE_POWER_DOWN_NONE = 0,
+    STATE_POWER_DOWN_ETAP_BEFORE,
+    STATE_POWER_DOWN_ETAP_CUT,
+    STATE_POWER_DOWN_ETAP_CUT_CONFIRMED,
+    STATE_POWER_DOWN_ETAP_AFTER
+  };
+  
+  static enum _statePowerDown statePowerDown;
+  if (((POWER_CTRL->IDR & POWER_CTRL_PIN) != (uint32_t)Bit_RESET)) statePowerDown = STATE_POWER_DOWN_NONE;
+  else
+  {
+    if (timePowerDown < POWER_DOWN_TIME) statePowerDown = STATE_POWER_DOWN_ETAP_BEFORE;
+    else
+    {
+      if (statePowerDown == STATE_POWER_DOWN_ETAP_BEFORE) statePowerDown = STATE_POWER_DOWN_ETAP_CUT;
+      else if (statePowerDown == STATE_POWER_DOWN_ETAP_CUT_CONFIRMED) statePowerDown = STATE_POWER_DOWN_ETAP_AFTER;
+    }
+  }
+  /***/
+ 
+
   static unsigned int previous_active_functions[N_BIG];
   
   static unsigned int number_items_dr;
@@ -7308,18 +7166,31 @@ inline void digital_registrator(unsigned int* carrent_active_functions)
       //На початок аналізу покищо ще дискретний реєстратор не запущений
       
       //Аналізуємо, чи стоїть умова запуску дискретного реєстратора
+       unsigned int cur_active_sources[N_BIG] =
+       {
+         (carrent_active_functions[0] & current_settings_prt.ranguvannja_digital_registrator[0]),
+         (carrent_active_functions[1] & current_settings_prt.ranguvannja_digital_registrator[1]),
+         (carrent_active_functions[2] & current_settings_prt.ranguvannja_digital_registrator[2]),
+         (carrent_active_functions[3] & current_settings_prt.ranguvannja_digital_registrator[3]),
+         (carrent_active_functions[4] & current_settings_prt.ranguvannja_digital_registrator[4]),
+         (carrent_active_functions[5] & current_settings_prt.ranguvannja_digital_registrator[5]),
+         (carrent_active_functions[6] & current_settings_prt.ranguvannja_digital_registrator[6]),
+         (carrent_active_functions[7] & current_settings_prt.ranguvannja_digital_registrator[7]),
+         (carrent_active_functions[8] & current_settings_prt.ranguvannja_digital_registrator[8]),
+         (carrent_active_functions[9] & current_settings_prt.ranguvannja_digital_registrator[9])
+       };
       if (
           (
-           ((carrent_active_functions[0] & current_settings_prt.ranguvannja_digital_registrator[0]) != 0) ||
-           ((carrent_active_functions[1] & current_settings_prt.ranguvannja_digital_registrator[1]) != 0) ||
-           ((carrent_active_functions[2] & current_settings_prt.ranguvannja_digital_registrator[2]) != 0) ||
-           ((carrent_active_functions[3] & current_settings_prt.ranguvannja_digital_registrator[3]) != 0) ||
-           ((carrent_active_functions[4] & current_settings_prt.ranguvannja_digital_registrator[4]) != 0) ||
-           ((carrent_active_functions[5] & current_settings_prt.ranguvannja_digital_registrator[5]) != 0) ||
-           ((carrent_active_functions[6] & current_settings_prt.ranguvannja_digital_registrator[6]) != 0) ||
-           ((carrent_active_functions[7] & current_settings_prt.ranguvannja_digital_registrator[7]) != 0) ||
-           ((carrent_active_functions[8] & current_settings_prt.ranguvannja_digital_registrator[8]) != 0) ||
-           ((carrent_active_functions[9] & current_settings_prt.ranguvannja_digital_registrator[9]) != 0) ||
+           ((cur_active_sources[0]) != 0) ||
+           ((cur_active_sources[1]) != 0) ||
+           ((cur_active_sources[2]) != 0) ||
+           ((cur_active_sources[3]) != 0) ||
+           ((cur_active_sources[4]) != 0) ||
+           ((cur_active_sources[5]) != 0) ||
+           ((cur_active_sources[6]) != 0) ||
+           ((cur_active_sources[7]) != 0) ||
+           ((cur_active_sources[8]) != 0) ||
+           ((cur_active_sources[9]) != 0) ||
            (state_dr_record == STATE_DR_FORCE_START_NEW_RECORD)
           )   
          )
@@ -7348,121 +7219,57 @@ inline void digital_registrator(unsigned int* carrent_active_functions)
           buffer_for_save_dr_record[FIRST_INDEX_START_START_RECORD_DR] = LABEL_START_RECORD_DR;
          
           //Записуємо час початку запису
-          unsigned char *label_to_time_array;
-          if (copying_time == 2) label_to_time_array = time_copy;
-          else label_to_time_array = time;
-          for(unsigned int i = 0; i < 7; i++) buffer_for_save_dr_record[FIRST_INDEX_DATA_TIME_DR + i] = *(label_to_time_array + i);
+          drDateTimeState = (realDateTime != 0) ? AVAT_DATE_TIMR_FIX_LEVEL2 : AVAR_DATE_TIME_NONE;
+
+          for(size_t i = 0; i < sizeof(time_t); i++)  buffer_for_save_dr_record[FIRST_INDEX_DATA_TIME_DR + i] = *((unsigned char*)(&time_dat) + i);
+          for(size_t i = 0; i < sizeof(int32_t); i++)  buffer_for_save_dr_record[FIRST_INDEX_DATA_TIME_DR + sizeof(time_t) + i] = *((unsigned char*)(&time_ms) + i);
           
            //І'мя комірки
           for(unsigned int i=0; i< MAX_CHAR_IN_NAME_OF_CELL; i++) 
             buffer_for_save_dr_record[FIRST_INDEX_NAME_OF_CELL_DR + i] = current_settings_prt.name_of_cell[i] & 0xff;
-          
-          //Помічаємо скільки часу пройшло з початку запуску запису
-          time_from_start_record_dr = 0;
-          
+
+           //Джерела запуску
+          for(unsigned int i = 0; i < NUMBER_BYTES_SAMPLE_DR; i++) 
+            buffer_for_save_dr_record[FIRST_INDEX_SOURCE_DR + i] = *(((unsigned char*)cur_active_sources) + i);
+
           //Записуємо попередній cтан сигналів перед аварією
           //Мітка часу попереднього стану сигналів до моменту початку запису
           buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  0] = 0xff;
           buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  1] = 0xff;
           buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  2] = 0xff;
-          //Попередній стан
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  3] =  previous_active_functions[0]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  4] = (previous_active_functions[0] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  5] = (previous_active_functions[0] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  6] = (previous_active_functions[0] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  7] =  previous_active_functions[1]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  8] = (previous_active_functions[1] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR +  9] = (previous_active_functions[1] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 10] = (previous_active_functions[1] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 11] =  previous_active_functions[2]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 12] = (previous_active_functions[2] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 13] = (previous_active_functions[2] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 14] = (previous_active_functions[2] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 15] =  previous_active_functions[3]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 16] = (previous_active_functions[3] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 17] = (previous_active_functions[3] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 18] = (previous_active_functions[3] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 19] =  previous_active_functions[4]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 20] = (previous_active_functions[4] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 21] = (previous_active_functions[4] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 22] = (previous_active_functions[4] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 23] =  previous_active_functions[5]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 24] = (previous_active_functions[5] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 25] = (previous_active_functions[5] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 26] = (previous_active_functions[5] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 27] =  previous_active_functions[6]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 28] = (previous_active_functions[6] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 29] = (previous_active_functions[6] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 30] = (previous_active_functions[6] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 31] =  previous_active_functions[7]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 32] = (previous_active_functions[7] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 33] = (previous_active_functions[7] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 34] = (previous_active_functions[7] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 35] =  previous_active_functions[8]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 36] = (previous_active_functions[8] >> 8)  & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 37] = (previous_active_functions[8] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 38] = (previous_active_functions[8] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 39] =  previous_active_functions[9]        & 0xff;
-          //Нулем позначаємо у цій позиції кількість змін
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 40] = 0;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 41] = 0;
 
+          //Помічаємо скільки часу пройшло з початку запуску запису
+          time_from_start_record_dr = 0;
+          
           //Помічаємо кількість нових зрізів
           number_items_dr = 1;
       
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  0] =  time_from_start_record_dr        & 0xff;
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  1] = (time_from_start_record_dr >> 8 ) & 0xff;
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  2] = (time_from_start_record_dr >> 16) & 0xff;
+          
+          for (size_t i = 0; i < NUMBER_BYTES_SAMPLE_DR; ++i)
+          {
+            size_t offset = i >> 2;
+            size_t shift = 8*(i & ((1u << 2) - 1));
+            
+            buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR                        + 3 + i] = (previous_active_functions[offset] >> shift) & 0xff;
+
+           buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + i] = (carrent_active_functions[offset] >> shift) & 0xff;;
+          }
+          //Нулем позначаємо у цій позиції кількість змін
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 0] = 0;
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 1] = 0;
+
           //Вираховуємо кількість змін сигналів
           number_changes_into_dr_record = 0;
           unsigned int number_changes_into_current_item;
           _NUMBER_CHANGES_INTO_UNSIGNED_INT_ARRAY(previous_active_functions, carrent_active_functions, N_BIG, number_changes_into_current_item);
           number_changes_into_dr_record += number_changes_into_current_item;
       
-          //Записуємо текучий cтан сигналів
-          //Мітка часу
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  0] =  time_from_start_record_dr        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  1] = (time_from_start_record_dr >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  2] = (time_from_start_record_dr >> 16) & 0xff;
-          //Текучий стан сигналів
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  3] =  carrent_active_functions[0]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  4] = (carrent_active_functions[0] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  5] = (carrent_active_functions[0] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  6] = (carrent_active_functions[0] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  7] =  carrent_active_functions[1]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  8] = (carrent_active_functions[1] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  9] = (carrent_active_functions[1] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 10] = (carrent_active_functions[1] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 11] =  carrent_active_functions[2]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 12] = (carrent_active_functions[2] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 13] = (carrent_active_functions[2] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 14] = (carrent_active_functions[2] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 15] =  carrent_active_functions[3]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 16] = (carrent_active_functions[3] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 17] = (carrent_active_functions[3] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 18] = (carrent_active_functions[3] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 19] =  carrent_active_functions[4]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 20] = (carrent_active_functions[4] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 21] = (carrent_active_functions[4] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 22] = (carrent_active_functions[4] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 23] =  carrent_active_functions[5]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 24] = (carrent_active_functions[5] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 25] = (carrent_active_functions[5] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 26] = (carrent_active_functions[5] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 27] =  carrent_active_functions[6]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 28] = (carrent_active_functions[6] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 29] = (carrent_active_functions[6] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 30] = (carrent_active_functions[6] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 31] =  carrent_active_functions[7]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 32] = (carrent_active_functions[7] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 33] = (carrent_active_functions[7] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 34] = (carrent_active_functions[7] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 35] =  carrent_active_functions[8]        & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 36] = (carrent_active_functions[8] >> 8 ) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 37] = (carrent_active_functions[8] >> 16) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 38] = (carrent_active_functions[8] >> 24) & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 39] =  carrent_active_functions[9]        & 0xff;
-          
           //Кількість змін сигналів у порівнянні із попереднім станом
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 40] = number_changes_into_current_item & 0xff;
-          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 41] = (number_changes_into_current_item >> 8) & 0xff;
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 0] = number_changes_into_current_item & 0xff;
+          buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 1] = (number_changes_into_current_item >> 8) & 0xff;
       
 //          //Решту масиву очищаємо, щоб у запис не пішла інформація із попередніх записів
 //          for(unsigned int i = FIRST_INDEX_FIRST_BLOCK_DR; i < FIRST_INDEX_FIRST_DATA_DR; i++)
@@ -7491,6 +7298,16 @@ inline void digital_registrator(unsigned int* carrent_active_functions)
     }
   case STATE_DR_EXECUTING_RECORD:
     {
+      if (
+          (drDateTimeState == AVAR_DATE_TIME_NONE) &&
+          (realDateTime != 0)  
+         )
+      {
+        drDateTimeState = AVAT_DATE_TIMR_FIX_LEVEL2;
+        for(size_t i = 0; i < sizeof(time_t); i++)  buffer_for_save_dr_record[FIRST_INDEX_DATA_TIME_DR + i] = *((unsigned char*)(&time_dat) + i);
+        for(size_t i = 0; i < sizeof(int32_t); i++)  buffer_for_save_dr_record[FIRST_INDEX_DATA_TIME_DR + sizeof(time_t) + i] = *((unsigned char*)(&time_ms) + i);
+      }
+
       //Збільшуємо час з початку запуску запису
       time_from_start_record_dr++;
       //Включно до цього часу іде процес запису
@@ -7541,67 +7358,40 @@ inline void digital_registrator(unsigned int* carrent_active_functions)
 
         //Збільшуємо на один кількість нових зрізів
         number_items_dr++;
-      
+
         //Вираховуємо кількість змін сигналів
         unsigned int number_changes_into_current_item;
         _NUMBER_CHANGES_INTO_UNSIGNED_INT_ARRAY(previous_active_functions, carrent_active_functions, N_BIG, number_changes_into_current_item);
         number_changes_into_dr_record += number_changes_into_current_item;
       
-        //Записуємо текучий cтан сигналів
-        //Мітка часу
+        //Записуємо поточний cтан сигналів
         buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  0] =  time_from_start_record_dr        & 0xff;
         buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  1] = (time_from_start_record_dr >> 8 ) & 0xff;
         buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  2] = (time_from_start_record_dr >> 16) & 0xff;
-        //Текучий стан сигналів
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  3] =  carrent_active_functions[0]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  4] = (carrent_active_functions[0] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  5] = (carrent_active_functions[0] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  6] = (carrent_active_functions[0] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  7] =  carrent_active_functions[1]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  8] = (carrent_active_functions[1] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR +  9] = (carrent_active_functions[1] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 10] = (carrent_active_functions[1] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 11] =  carrent_active_functions[2]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 12] = (carrent_active_functions[2] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 13] = (carrent_active_functions[2] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 14] = (carrent_active_functions[2] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 15] =  carrent_active_functions[3]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 16] = (carrent_active_functions[3] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 17] = (carrent_active_functions[3] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 18] = (carrent_active_functions[3] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 19] =  carrent_active_functions[4]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 20] = (carrent_active_functions[4] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 21] = (carrent_active_functions[4] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 22] = (carrent_active_functions[4] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 23] =  carrent_active_functions[5]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 24] = (carrent_active_functions[5] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 25] = (carrent_active_functions[5] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 26] = (carrent_active_functions[5] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 27] =  carrent_active_functions[6]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 28] = (carrent_active_functions[6] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 29] = (carrent_active_functions[6] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 30] = (carrent_active_functions[6] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 31] =  carrent_active_functions[7]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 32] = (carrent_active_functions[7] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 33] = (carrent_active_functions[7] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 34] = (carrent_active_functions[7] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 35] =  carrent_active_functions[8]        & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 36] = (carrent_active_functions[8] >> 8 ) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 37] = (carrent_active_functions[8] >> 16) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 38] = (carrent_active_functions[8] >> 24) & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 39] =  carrent_active_functions[9]        & 0xff;
+
+        for (size_t i = 0; i < NUMBER_BYTES_SAMPLE_DR; ++i)
+        {
+          size_t offset = i >> 2;
+          size_t shift = 8*(i & ((1u << 2) - 1));
+             
+         buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + i] = (carrent_active_functions[offset] >> shift) & 0xff;;
+        }
         //Кількість змін сигналів у порівнянні із попереднім станом
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 40] = number_changes_into_current_item & 0xff;
-        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 41] = (number_changes_into_current_item >> 8) & 0xff;
+        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 0] = number_changes_into_current_item & 0xff;
+        buffer_for_save_dr_record[FIRST_INDEX_FIRST_DATA_DR + number_items_dr*SD_DR + 3 + NUMBER_BYTES_SAMPLE_DR + 1] = (number_changes_into_current_item >> 8) & 0xff;
       }
         
       //Перевіряємо, чи стоїть умова завершення запису
       if (
           (state_dr_record == STATE_DR_MAKE_RECORD)                  ||
           (time_from_start_record_dr >= MAX_TIME_OFFSET_FROM_START)  ||  
-          ((number_items_dr + 1)     >= MAX_EVENTS_IN_ONE_RECORD  )  
+          ((number_items_dr + 1)     >= MAX_EVENTS_IN_ONE_RECORD  )  ||
+          (statePowerDown == STATE_POWER_DOWN_ETAP_CUT)
          )
       {
+          //Підтверджуємо примусовий запис у енергонезалежну пам'ять через пропадання живлення
+          if (statePowerDown == STATE_POWER_DOWN_ETAP_CUT) statePowerDown = STATE_POWER_DOWN_ETAP_CUT_CONFIRMED;
+ 
         //Немає умови продовження запису, або є умова завершення запису - завершуємо формування запису і подаємо команду на запис
         buffer_for_save_dr_record[FIRST_INDEX_NUMBER_ITEMS_DR      ] = number_items_dr;
         buffer_for_save_dr_record[FIRST_INDEX_NUMBER_CHANGES_DR    ] =  number_changes_into_dr_record       & 0xff;
@@ -7654,71 +7444,33 @@ inline void digital_registrator(unsigned int* carrent_active_functions)
 /*****************************************************/
 
 /*****************************************************/
-//Зафіксована невизначена помилка роботи аналогового реєстратора
-/*****************************************************/
-void fix_undefined_error_ar(unsigned int* carrent_active_functions)
-{
-  //Виставляємо помилку з записом в дисретний реєстратор
-  _SET_BIT(set_diagnostyka, ERROR_AR_UNDEFINED_BIT);
-  _SET_BIT(carrent_active_functions, RANG_DEFECT);
-  //Переводимо режим роботи з реєстратором у сатн "На даний момент ніких дій з дискретним реєстратором не виконується" 
-  continue_previous_record_ar = 0; /*помічаємо, що ми не чикаємо деактивації всіх джерел активації аналогового реєстратора*/
-  state_ar_record_prt = STATE_AR_NO_RECORD | ((unsigned int)(1 << 31));
-  //Скидаєсо сигнал роботи аналогового реєстратора
-  _CLEAR_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR);
-
-  //Виставляємо команду запису структуру для аналогового реєстратора у EEPROM
-  _SET_BIT(control_spi1_taskes, TASK_START_WRITE_INFO_REJESTRATOR_AR_EEPROM_BIT);
-  //Відновлюємо інформаційну структуру для аналогового реєстратора
-  /*
-  Адресу залишаємо попередню, тобто така яка і була
-  */
-  info_rejestrator_ar.saving_execution = 0;
-  /*
-  оскільки скоріше всього якась частна запису відбулася, а це значить, що, якщо там були корисні дані
-  якогось запису, то вони зіпсовані. Тому треба помітити, що якщо у аналоговому реєстраторі до цього часу була
-  максимально можлива кількість записів, то зараз оснанній з них є зіпсований, тобто кількість записів стала 
-  у такому випадку на одиницю менша
-  */
-  unsigned int max_number_records_ar_tmp = max_number_records_ar;
-  if (info_rejestrator_ar.number_records >= max_number_records_ar_tmp) 
-    info_rejestrator_ar.number_records = max_number_records_ar_tmp - 1; /*Умова мал аб бути ==, але щоб перестахуватися на невизначену помилку я поставив >=*/
-}
-/*****************************************************/
-
-/*****************************************************/
 //Функція обробки логіки дискретного реєстратора
 /*****************************************************/
 inline void analog_registrator(unsigned int* carrent_active_functions)
 {
-  static unsigned int unsaved_bytes_of_header_ar;
   static unsigned int prev_active_sources[N_BIG];
-  unsigned int cur_active_sources[N_BIG];
-  cur_active_sources[0] = carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0];
-  cur_active_sources[1] = carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1];
-  cur_active_sources[2] = carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2];
-  cur_active_sources[3] = carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3];
-  cur_active_sources[4] = carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4];
-  cur_active_sources[5] = carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5];
-  cur_active_sources[6] = carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6];
-  cur_active_sources[7] = carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7];
-  cur_active_sources[8] = carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8];
-  cur_active_sources[9] = carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9];
+  unsigned int cur_active_sources[N_BIG] = 
+  {
+    carrent_active_functions[0] & current_settings_prt.ranguvannja_analog_registrator[0],
+    carrent_active_functions[1] & current_settings_prt.ranguvannja_analog_registrator[1],
+    carrent_active_functions[2] & current_settings_prt.ranguvannja_analog_registrator[2],
+    carrent_active_functions[3] & current_settings_prt.ranguvannja_analog_registrator[3],
+    carrent_active_functions[4] & current_settings_prt.ranguvannja_analog_registrator[4],
+    carrent_active_functions[5] & current_settings_prt.ranguvannja_analog_registrator[5],
+    carrent_active_functions[6] & current_settings_prt.ranguvannja_analog_registrator[6],
+    carrent_active_functions[7] & current_settings_prt.ranguvannja_analog_registrator[7],
+    carrent_active_functions[8] & current_settings_prt.ranguvannja_analog_registrator[8],
+    carrent_active_functions[9] & current_settings_prt.ranguvannja_analog_registrator[9]
+  };
 
-  //Попередньо скидаємо невизначену помилку  роботи аналогового реєстратора
-  _SET_BIT(clear_diagnostyka, ERROR_AR_UNDEFINED_BIT);
-
-  if (continue_previous_record_ar != 0)
+  if (forbidden_new_record_ar_mode_0 != 0)
   {
     /*
     Ця ситуація означає, що були активними джерела аналогового реєстратора, які запустили
     в роботу аналоговий реєстратор, і тепер для розблокування можливості запускати новий запис ми 
     чекаємо ситуації, що
-    - всі джерела активації деактивуються (у будь-який час чи до завершення записування текучого
-    запису аналогового реєстратора, чи вже після завершення записування. Це буде умовою
-    розблокування можливості запису нового запису)
-    - попердній запис записаний  у DataFlash
-    - всі джерела не деактивувалися але появилося нове джерело
+    - всі джерела активації деактивуються 
+    - появитьс новий сигнал запуску, якого не було раніше
     */
     if(
        (cur_active_sources[0] == 0) &&
@@ -7734,9 +7486,9 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
       ) 
     {
       //Перша умова розблокування можливості початку нового запису виконана
-      continue_previous_record_ar = 0;
+      forbidden_new_record_ar_mode_0 = 0;
     }
-    else if  (state_ar_record == STATE_AR_NO_RECORD)
+    else if ((current_settings_prt.control_ar & CTR_AR_AVAR_STATE) == 0)
     {
       //Попередній запис повністю записаний у DataFlash, але ще деякі джерела активації не деакттивувалися
       unsigned int diff_active_sources[N_BIG];
@@ -7765,22 +7517,48 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
         ) 
       {
         //Друга умова розблокування можливості початку нового запису виконана
-        continue_previous_record_ar = 0;
+        forbidden_new_record_ar_mode_0 = 0;
       }
     }
   }
 
-  switch (state_ar_record)
+
+  static int prefault_number_periods_tmp;
+
+  if (
+      (global_timers[INDEX_TIMER_FULL_AR_RECORD] >= MAX_TIME_FULL_AR_RECORD) ||
+      (state_ar_record_m == STATE_AR_BLOCK_M) ||
+      (state_ar_record_fatfs == STATE_AR_MEMORY_FULL_FATFS) ||
+      (state_ar_record_fatfs == STATE_AR_BLOCK_FATFS)
+     )   
   {
-  case STATE_AR_NO_RECORD:
+    if (global_timers[INDEX_TIMER_FULL_AR_RECORD] >= MAX_TIME_FULL_AR_RECORD) _SET_BIT(set_diagnostyka, ERROR_AR_TEMPORARY_BUSY_BIT);
+
+    state_ar_record_prt = STATE_AR_BLOCK_PRT;
+    global_timers[INDEX_TIMER_POSTFAULT] = -1;
+    global_timers[INDEX_TIMER_FULL_AR_RECORD] = -1;
+  }
+  
+  if (
+      (arDateTimeState == AVAR_DATE_TIME_NONE) &&
+      (state_ar_record_fatfs != STATE_AR_NONE_FATFS) &&
+      (state_ar_record_fatfs != STATE_AR_BLOCK_FATFS) &&
+      (realDateTime != 0)  
+     )
+  {
+    arDateTimeState = AVAT_DATE_TIMR_FIX_LEVEL1;
+
+    header_ar.time_dat = time_dat;
+    header_ar.time_ms = time_ms;
+  }
+ 
+  switch (state_ar_record_prt)
+  {
+  case STATE_AR_NONE_PRT:
     {
-      if(semaphore_read_state_ar_record == 0)
+      if (state_ar_record_fatfs == STATE_AR_NONE_FATFS)
       {
-        /*
-        Можливо була ситуація, що при попередній роботі модуля аналогового реєстратора відбувалося блокування роботи аналоговго реєстратора
-        Знятий семафор semaphore_read_state_ar_record при умові, що стан роботи аналогового реєстратора STATE_AR_NO_RECORD означає,
-        що зараз немає перешкод на його запуск, тому знімаємо теоретично можливу подію про тимчасову неготовність роботи аналогового реєстратора
-        */
+        global_timers[INDEX_TIMER_FULL_AR_RECORD] = -1;
         _SET_BIT(clear_diagnostyka, ERROR_AR_TEMPORARY_BUSY_BIT);
       }
 
@@ -7799,255 +7577,203 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
            (cur_active_sources[9] != 0)
           )
           &&  
-          (continue_previous_record_ar == 0) /*при попередній роботі ан.реєстротора (якщо така була) вже всі джерела активації були зняті і зароз вони знову виникли*/ 
+          (forbidden_new_record_ar_mode_0 == 0) /*при попередній роботі ан.реєстротора (якщо така була) вже всі джерела активації були зняті і зароз вони знову виникли*/ 
          )
       {
-        //Перевіряємо, чи при початку нового запису у нас не іде спроба переналаштвати аналоговий реєстратор
-        if(semaphore_read_state_ar_record == 0)
+        //Є умова запуску аналогового реєстратора
+
+        if (state_ar_record_fatfs != STATE_AR_STOP_WRITE_FATFS)
         {
-          //Є умова запуску аналогового реєстратора
-          continue_previous_record_ar = 0xff; /*помічаємо будь-яким числом, що активувалися дзжерела ан.реєстратора, які запустили роботц аналогового реєстратора*/
-    
-          //Можна починати новий запис
-          
-          //Записуємо мітку початку запису
-          header_ar.label_start_record = LABEL_START_RECORD_AR;
-          //Записуємо час початку запису
-          unsigned char *label_to_time_array;
-          if (copying_time == 2) label_to_time_array = time_copy;
-          else label_to_time_array = time;
-          for(unsigned int i = 0; i < 7; i++) header_ar.time[i] = *(label_to_time_array + i);
-          //Коефіцієнт трансформації T0
-          header_ar.T0 = current_settings_prt.T0;
-          //Коефіцієнт трансформації TT
-          header_ar.TCurrent = current_settings_prt.TCurrent;
-          //Коефіцієнт трансформації TН
-          header_ar.TVoltage = current_settings_prt.TVoltage;
-          //І'мя ячейки
-          for(unsigned int i=0; i<MAX_CHAR_IN_NAME_OF_CELL; i++)
-            header_ar.name_of_cell[i] = current_settings_prt.name_of_cell[i] & 0xff;
-          
-          //Помічаємо, що ще ми ще не "відбирали" миттєві значення з масив для аналогового реєстратора
-          copied_number_samples = 0;
-          //Визначаємо загальну кількість миттєвих значень, які мають бути записані у мікросхему dataFlash2
-          total_number_samples = ((current_settings_prt.prefault_number_periods + current_settings_prt.postfault_number_periods) << VAGA_NUMBER_POINT_AR)*(NUMBER_ANALOG_CANALES + number_word_digital_part_ar);
-
-          //Визначаємо,що покищо заготовок аналогового реєстратора не скопійоманий у масив звідки будуть дані забирватися вже для запису у DataFlash
-          unsaved_bytes_of_header_ar = sizeof(__HEADER_AR);
-
-          //Визначаємо з якої адреси записувати
-          temporary_address_ar = info_rejestrator_ar.next_address;
-
-          //Визначаєом, що поки що немає підготовлених даних для запису
-          count_to_save = 0;
-          //Виставляємо будь-яким ненульовим числом дозвіл на підготовку нових даних для запису
-          permit_copy_new_data = 0xff;
-
-          //Робим спробу перекопіювати хоч частину заголовку аналогового реєстраторра і підготовлених даних у масив для запису в DataFlash
-          if (making_buffer_for_save_ar_record(&unsaved_bytes_of_header_ar) != 0)
+          //Переводимо режим роботи із аналоговим реєстратором у стан "Запус нового запису"
+          if (current_settings_prt.control_ar & CTR_AR_AVAR_STATE)
           {
-            //Відбулася незрозуміла ситуація - сюди програма теоретично ніколи не мала б заходити
-            fix_undefined_error_ar(carrent_active_functions);
+            state_ar_record_prt = STATE_AR_AVAR_PRT;
           }
           else
           {
-            //Переводимо режим роботи із аналоговим реєстратором у стан "Запус нового запису"
-            state_ar_record_prt = STATE_AR_START | ((unsigned int)(1 << 31));
-            //Виставляємо активну функцію
-            _SET_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR);
+            state_ar_record_prt = STATE_AR_POSTAVAR_PRT;
+            global_timers[INDEX_TIMER_POSTFAULT] = 0; //Запускаємо таймер післяаварійного процесу
+          }
+        
+          if (state_ar_record_fatfs == STATE_AR_NONE_FATFS)
+          {
+            //запис на рівні FATFs зараз не проводиться, тому треба підготувати інформацію про умову старту нового запису
+          
+//             global_timers[INDEX_TIMER_FULL_AR_RECORD] = 20*current_settings_prt.prefault_number_periods; //Запускаємо таймер цілого запису  з врахуванням щбуде доданий доаварійний масив
+            prefault_number_periods_tmp = ((POWER_CTRL->IDR & POWER_CTRL_PIN) != (uint32_t)Bit_RESET) ? current_settings_prt.prefault_number_periods : AR_TAIL_MIN_NUMBER_PERIOD;
+            global_timers[INDEX_TIMER_FULL_AR_RECORD] =  20*prefault_number_periods_tmp; //Запускаємо таймер цілого запису  з врахуванням що буде доданий доаварійний масив
 
-            //У структурі по інформації стану реєстраторів виставляємо повідомлення, що почався запис і ще не закінчився
-            _SET_BIT(control_spi1_taskes, TASK_START_WRITE_INFO_REJESTRATOR_AR_EEPROM_BIT);
-            info_rejestrator_ar.saving_execution = 1;
+          
+            //Записуємо мітку початку запису
+            header_ar.label_start_record = LABEL_START_RECORD_AR;
+            //Записуємо час початку запису
+            arDateTimeState = (realDateTime != 0) ? AVAT_DATE_TIMR_FIX_LEVEL2 : AVAR_DATE_TIME_NONE;
+            header_ar.time_dat = time_dat;
+            header_ar.time_ms = time_ms;
+
+            //Коефіцієнт трансформації T0
+            header_ar.T0 = current_settings_prt.T0;
+            //Коефіцієнт трансформації TT
+            header_ar.TCurrent = current_settings_prt.TCurrent;
+            //Коефіцієнт трансформації TН
+            header_ar.TVoltage = current_settings_prt.TVoltage;
+            //Час доаварійного масиву
+//            header_ar.prefault_number_periods = current_settings_prt.prefault_number_periods;
+
+//            header_ar.control_extra_settings_1 = current_settings_prt.control_extra_settings_1 & (CTR_EXTRA_SETTINGS_1_CTRL_PHASE_LINE | CTR_EXTRA_SETTINGS_1_CTRL_IB_I04);
+            //Час доаварійного масиву
+            header_ar.prefault_number_periods = prefault_number_periods_tmp;
+
+            //І'мя комірки
+            for(unsigned int i=0; i<MAX_CHAR_IN_NAME_OF_CELL; i++)
+              header_ar.name_of_cell[i] = current_settings_prt.name_of_cell[i] & 0xff;
+            //Сигнали, які запустили в роботу Аналоговий реєстратор
+            for (size_t i = 0; i < N_BIG; i++)
+              header_ar.cur_active_sources[i] = (prev_active_sources[i] ^ cur_active_sources[i]) & cur_active_sources[i];
           }
         }
         else
         {
-          //Виставляємо помилку, що тимчасово аналоговий реєстратор є занятий (черз те, що іде намаганні змінити часові витримки)
           _SET_BIT(set_diagnostyka, ERROR_AR_TEMPORARY_BUSY_BIT);
-          _SET_BIT(carrent_active_functions, RANG_DEFECT);
         }
       }
+
       break;
     }
-  case STATE_AR_START:
+  case STATE_AR_AVAR_PRT:
     {
-      //Ніяких дій не виконуємо, поки не встанвиться режим STATE_AR_SAVE_SRAM_AND_SAVE_FLASH,  або STATE_AR_ONLY_SAVE_FLASH
-      break;
-    }
-  case STATE_AR_SAVE_SRAM_AND_SAVE_FLASH:
-  case STATE_AR_ONLY_SAVE_FLASH:
-    {
-      if (state_ar_record == STATE_AR_ONLY_SAVE_FLASH)
+      if (
+          (
+           (cur_active_sources[0] == 0) &&
+           (cur_active_sources[1] == 0) &&
+           (cur_active_sources[2] == 0) &&
+           (cur_active_sources[3] == 0) &&
+           (cur_active_sources[4] == 0) &&
+           (cur_active_sources[5] == 0) &&
+           (cur_active_sources[6] == 0) &&
+           (cur_active_sources[7] == 0) &&
+           (cur_active_sources[8] == 0) &&
+           (cur_active_sources[9] == 0)
+          )
+          || 
+          ((current_settings_prt.control_ar & CTR_AR_AVAR_STATE) == 0) /*може статися хіба, коли під час роботи ан.реєстратора змінено це налаштування*/
+         )
       {
-        /*
-        Весь післяаварійний масив підготовлений до запису
-        */
-        if (_CHECK_SET_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR) != 0)
-        {
-          //Знімаємо сигнал роботи аналогового реєстратора
-          _CLEAR_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR);
-        }
+        state_ar_record_prt = STATE_AR_POSTAVAR_PRT;
+        global_timers[INDEX_TIMER_POSTFAULT] = 0; //Запускаємо таймер післяаварійного процесу
+      }
+      
+      break;
+    }
+  case STATE_AR_POSTAVAR_PRT:
+    {
+      if (
+          ((current_settings_prt.control_ar & CTR_AR_AVAR_STATE) != 0) &&
+          (
+           (cur_active_sources[0] != 0) ||
+           (cur_active_sources[1] != 0) ||
+           (cur_active_sources[2] != 0) ||
+           (cur_active_sources[3] != 0) ||
+           (cur_active_sources[4] != 0) ||
+           (cur_active_sources[5] != 0) ||
+           (cur_active_sources[6] != 0) ||
+           (cur_active_sources[7] != 0) ||
+           (cur_active_sources[8] != 0) ||
+           (cur_active_sources[9] != 0)
+          )
+         )
+      {
+        //Повертаємося до аварійного процесу
+        state_ar_record_prt = STATE_AR_AVAR_PRT;
+        global_timers[INDEX_TIMER_POSTFAULT] = -1; //Зупиняємо таймер післяаварійного процесу
+      }
+      else if (global_timers[INDEX_TIMER_POSTFAULT] >= (int)(20*current_settings_prt.postfault_number_periods))
+      {
+        //Завершився післяаварійний процес
+        global_timers[INDEX_TIMER_POSTFAULT] = -1; //Зупиняємо таймер післяаварійного процесу
+        state_ar_record_prt = STATE_AR_NONE_PRT;
         
-        if (_CHECK_SET_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR) == 0)
+        if (
+            /*перевірку на те, що режим "Власнеаварійний процес" ввімкнутий не треба, бо при умові активних джерел ми б попали у попередню умову де з післяаваріного процесу йде поворот до аварійного процесу*/
+            (cur_active_sources[0] != 0) ||
+            (cur_active_sources[1] != 0) ||
+            (cur_active_sources[2] != 0) ||
+            (cur_active_sources[3] != 0) ||
+            (cur_active_sources[4] != 0) ||
+            (cur_active_sources[5] != 0) ||
+            (cur_active_sources[6] != 0) ||
+            (cur_active_sources[7] != 0) ||
+            (cur_active_sources[8] != 0) ||
+            (cur_active_sources[9] != 0)
+           )
         {
-          /*
-          Враховуємо також той момент, коли сигнал запуску роботи аналогового реєсстратора був знятий
-          */
-          if  (continue_previous_record_ar == 0)
-          {
-            /*
-            Перевіряємо, чи немає умови запуску нового заппису до моменту, 
-            поки ще старий запис не закінчився повністю
-            */
-            if (
-                (cur_active_sources[0] != 0) ||
-                (cur_active_sources[1] != 0) ||
-                (cur_active_sources[2] != 0) ||
-                (cur_active_sources[3] != 0) ||
-                (cur_active_sources[4] != 0) ||
-                (cur_active_sources[5] != 0) ||
-                (cur_active_sources[6] != 0) ||
-                (cur_active_sources[7] != 0) ||
-                (cur_active_sources[8] != 0) ||
-                (cur_active_sources[9] != 0)
-               ) 
-            {
-              //Виставляємо помилку, що тимчасово аналоговий реєстратор є занятий (черз те, що завершується попередній запис)
-              _SET_BIT(set_diagnostyka, ERROR_AR_TEMPORARY_BUSY_BIT);
-              _SET_BIT(carrent_active_functions, RANG_DEFECT);
-            }
-          }
+          forbidden_new_record_ar_mode_0 = 0xff; /*помічаємо будь-яким числом, що є активними деякі сигнали від попереднього записту*/
         }
       }
       
-      if (permit_copy_new_data != 0)
-      {
-        /*
-        Робим спробу перекопіювати хоч частину заголовку аналогового реєстраторра 
-        і підготовлених даних у масив для запису в DataFlash тільки тоді, коли є дозвіл
-        на цю операцію
-        */
-        if (making_buffer_for_save_ar_record(&unsaved_bytes_of_header_ar) != 0)
-        {
-          //Відбулася незрозуміла ситуація - сюди програма теоретично ніколи не мала б заходити
-          fix_undefined_error_ar(carrent_active_functions);
-        }
-      }
-      else
-      {
-        if (
-            (copied_number_samples == total_number_samples) &&
-            (count_to_save == 0                           ) && 
-            (
-             (control_tasks_dataflash &
-              (
-               TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR | 
-               TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR
-              )
-             ) == 0
-            )   
-           )
-        {
-          //Умова зупинки роботи анаалогового реєстратора
-          if(
-             (index_array_ar_tail == index_array_ar_heat) &&
-             (state_ar_record == STATE_AR_ONLY_SAVE_FLASH)  
-            )  
-          {
-            //Коректна умова зупинки роботи аналогового реєстратора
-            state_ar_record_prt = STATE_AR_NO_RECORD | ((unsigned int)(1 << 31));
-
-            //Виставляємо команду запису структури аналогового реєстратора у EEPROM
-            _SET_BIT(control_spi1_taskes, TASK_START_WRITE_INFO_REJESTRATOR_AR_EEPROM_BIT);
-            //Визначаємо нову адресу наступного запису, нову кількість записів і знімаємо сигналізацію, що зараз іде запис
-            if ((temporary_address_ar + size_one_ar_record) > (NUMBER_PAGES_INTO_DATAFLASH_2 << VAGA_SIZE_PAGE_DATAFLASH_2))
-              temporary_address_ar = 0; 
-            info_rejestrator_ar.next_address = temporary_address_ar;
-            info_rejestrator_ar.saving_execution = 0;
-            unsigned int max_number_records_ar_tmp = max_number_records_ar;
-            if (info_rejestrator_ar.number_records < max_number_records_ar_tmp) info_rejestrator_ar.number_records += 1;
-            else info_rejestrator_ar.number_records = max_number_records_ar_tmp;
-          }
-          else
-          {
-            /*В процесі роботи аналогового реєстратора відбувся збій, який привів
-            до непередбачуваного завершення роботи аналогового реєстратора
-            
-            Це скоріше всього виникло внаслідок того, що ми досягнули передчасно
-            максимальної кількості зкопійованих миттєвих значень
-            */
-            fix_undefined_error_ar(carrent_active_functions);
-          }
-        }
-        else
-        {
-          //Треба подати команду на запис підготовлених даних
-          if (
-              (count_to_save != 0 ) 
-              && 
-              (
-               (control_tasks_dataflash &
-                (
-                 TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR | 
-                 TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR
-                )
-               ) == 0
-              )   
-             )
-          {
-            /*
-            Подаємо команду на запис нових даних тільки тоді коли не іде зараз запис
-            попередньо підготованих даних і коли є нові дані для запису
-            */
-            
-            if (((temporary_address_ar & 0x1ff) + count_to_save) <= SIZE_PAGE_DATAFLASH_2)
-            {
-              //Немає помилки при фомауванні кількості байт для запису (в одну сторінку дані поміщаються з текучої адреси)
-              
-              if (count_to_save == SIZE_PAGE_DATAFLASH_2) control_tasks_dataflash |= TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR;
-              else control_tasks_dataflash |= TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR;
-            }
-            else
-            {
-              //Відбулася незрозуміла ситуація - сюди програма теоретично ніколи не мала б заходити
-              fix_undefined_error_ar(carrent_active_functions);
-            }
-          }
-        }
-
-      }
       break;
     }
-  case STATE_AR_TEMPORARY_BLOCK:
+  case STATE_AR_BLOCK_PRT:
     {
-      //На даний момент певні внутрішні операції блокують роботу аналогового реєстратрора
-      //Аналізуємо, чи стоїть умова запуску аналогового реєстратора
+      //Аналізуємо чи немає умови почати новий запис поки ми не вийшли з блокованого стану
       if (
-          (cur_active_sources[0] != 0) ||
-          (cur_active_sources[1] != 0) ||
-          (cur_active_sources[2] != 0) ||
-          (cur_active_sources[3] != 0) ||
-          (cur_active_sources[4] != 0) ||
-          (cur_active_sources[5] != 0) ||
-          (cur_active_sources[6] != 0) ||
-          (cur_active_sources[7] != 0) ||
-          (cur_active_sources[8] != 0) ||
-          (cur_active_sources[9] != 0)
+          (state_ar_record_fatfs == STATE_AR_NONE_FATFS) &&
+          (state_ar_record_m == STATE_AR_NONE_M)
          )
       {
-        //Виставляємо помилку, що тимчасово аналоговий реєстратор є занятий
-        _SET_BIT(set_diagnostyka, ERROR_AR_TEMPORARY_BUSY_BIT);
-        _SET_BIT(carrent_active_functions, RANG_DEFECT);
+        state_ar_record_prt = STATE_AR_NONE_PRT;
+        
+        if(
+           (cur_active_sources[0] != 0) ||
+           (cur_active_sources[1] != 0) ||
+           (cur_active_sources[2] != 0) ||
+           (cur_active_sources[3] != 0) ||
+           (cur_active_sources[4] != 0) ||
+           (cur_active_sources[5] != 0) ||
+           (cur_active_sources[6] != 0) ||
+           (cur_active_sources[7] != 0) ||
+           (cur_active_sources[8] != 0) ||
+           (cur_active_sources[9] != 0)
+          )   
+        {
+          forbidden_new_record_ar_mode_0 = 0xff; /*помічаємо будь-яким числом, що є активними деякі сигнали від попереднього записту*/
+        }
       }
+      
       break;
     }
   default:
     {
-      //Відбулася незрозуміла ситуація - сюди програма теоретично ніколи не мала б заходити
-      fix_undefined_error_ar(carrent_active_functions);
+      //Теоретично цього ніколи не мало б бути
+      total_error_sw_fixed(32);
       break;
     }
+  }
+  
+  //Виставляння/скидання функції Роботи Аналогового реєстратора
+  if (
+      (state_ar_record_prt == STATE_AR_AVAR_PRT) ||
+      (state_ar_record_prt == STATE_AR_POSTAVAR_PRT)
+     )
+  {
+    _SET_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR);
+    if (truncPrefault)
+    {
+      truncPrefault = false;
+      int trunc = 20*(prefault_number_periods_tmp - AR_TAIL_MIN_NUMBER_PERIOD);
+      if (
+          (trunc > 0) && //перестраховка, бо завжди б так мало бути у цій ситуації
+          (global_timers[INDEX_TIMER_FULL_AR_RECORD] >= trunc) //перестраховка, бо завжди б так мало бути у цій ситуації
+         )   
+      {
+        global_timers[INDEX_TIMER_FULL_AR_RECORD] -= trunc;
+      }
+    }
+
+  }
+  else
+  {
+    _CLEAR_BIT(carrent_active_functions, RANG_WORK_A_REJESTRATOR);
   }
 
   prev_active_sources[0] = cur_active_sources[0];
@@ -8069,10 +7795,536 @@ inline void analog_registrator(unsigned int* carrent_active_functions)
 /*****************************************************/
 inline void main_protection(void)
 {
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /***
+  Зафіксувати чи є активними сигнали блокування Вх.GOOSE блоків і Вх.MMS блоків
+  ***/
+enum WRP_GOOSE_BIT_POS { 
+    GS_BLOCK_ORD_NUM_00,//0
+    GS_BLOCK_ORD_NUM_01,//1
+    GS_BLOCK_ORD_NUM_02,//2
+    GS_BLOCK_ORD_NUM_03,//3
+    GS_BLOCK_ORD_NUM_04,//4
+    GS_BLOCK_ORD_NUM_05,//5
+    GS_BLOCK_ORD_NUM_06,//6
+    GS_BLOCK_ORD_NUM_07,//7
+    GS_BLOCK_ORD_NUM_08,//8
+    GS_BLOCK_ORD_NUM_09,//9
+    GS_BLOCK_ORD_NUM_10,//10
+    GS_BLOCK_ORD_NUM_11,//11
+    GS_BLOCK_ORD_NUM_12,//12
+    GS_BLOCK_ORD_NUM_13,//13
+    GS_BLOCK_ORD_NUM_14,//14
+    GS_BLOCK_ORD_NUM_15,//15
+
+TOTAL_GOOSE_BLOCK
+//
+};
+enum WRP_MMS_BIT_POS { 
+    MMS_BLOCK_ORD_NUM_00,//0
+    MMS_BLOCK_ORD_NUM_01,//1
+    MMS_BLOCK_ORD_NUM_02,//2
+    MMS_BLOCK_ORD_NUM_03,//3
+TOTAL_MMS_BLOCK
+//
+};
+enum WRP_LAN_BIT_POS { 
+    LAN_BLOCK_ORD_NUM_00,//0
+    LAN_BLOCK_ORD_NUM_01,//1
+    LAN_BLOCK_ORD_NUM_02,//2
+    LAN_BLOCK_ORD_NUM_03,//3
+TOTAL_LAN_BLOCK
+//
+};
+
+//.typedef union lan_block_Unn{ 
+//.    unsigned char arCh[4];
+//.    unsigned short arSh[2];
+//.    unsigned long Lan_Vl;
+//.    struct{
+//.        struct {
+//.            unsigned int in1 : 1; //0
+//.            unsigned int in2 : 1; //1
+//.            unsigned int in3 : 1; //2
+//.            unsigned int in4 : 1; //3
+//.            unsigned int in5 : 1; //4 
+//.            unsigned int in6 : 1; //5 
+//.            unsigned int in7 : 1; //6 
+//.            unsigned int in8 : 1; //7    
+//.        } in_bool; //
+//.    unsigned char Blk;
+//.    struct {
+//.        unsigned int out1 : 1; //0
+//.        unsigned int out2 : 1; //1
+//.        unsigned int out3 : 1; //2
+//.        unsigned int out4 : 1; //3
+//.        unsigned int out5 : 1; //4 
+//.        unsigned int out6 : 1; //5 
+//.        unsigned int out7 : 1; //6 
+//.        unsigned int out8 : 1; //7    
+//.    } out_bool; //unsigned char Out;
+//.    unsigned char Res;
+//.   }Lan_Hld;
+//.    
+//.} LanBlock_stt; 
+  
+typedef union mms_block_Unn{ 
+    unsigned char arCh[4];
+    unsigned short arSh[2];
+    unsigned long Mms_Vl;
+    struct{
+        struct {
+            unsigned int in1 : 1; //0
+            unsigned int in2 : 1; //1
+            unsigned int in3 : 1; //2
+            unsigned int in4 : 1; //3
+            unsigned int in5 : 1; //4 
+            unsigned int in6 : 1; //5 
+            unsigned int in7 : 1; //6 
+            unsigned int in8 : 1; //7    
+        } in_bool; //
+    unsigned char Blk;
+    struct {
+        unsigned int out1 : 1; //0
+        unsigned int out2 : 1; //1
+        unsigned int out3 : 1; //2
+        unsigned int out4 : 1; //3
+        unsigned int out5 : 1; //4 
+        unsigned int out6 : 1; //5 
+        unsigned int out7 : 1; //6 
+        unsigned int out8 : 1; //7    
+    } out_bool; //unsigned char Out;
+    unsigned char Res;
+   }Mms_Hld;
+    
+} MmsBlock_stt; 
+typedef union goose_block_Unn{ 
+   unsigned char arCh[4];
+   unsigned short arSh[2];
+   unsigned long GS_Vl;
+   struct{
+        struct {
+            unsigned int in1 : 1; //0
+            unsigned int in2 : 1; //1
+            unsigned int in3 : 1; //2
+            unsigned int in4 : 1; //3
+            unsigned int in5 : 1; //4 
+            unsigned int in6 : 1; //5 
+            unsigned int in7 : 1; //6 
+            unsigned int in8 : 1; //7    
+        } in_bool; //
+    unsigned char Blk;
+    struct {
+        unsigned int out1 : 1; //0
+        unsigned int out2 : 1; //1
+        unsigned int out3 : 1; //2
+        unsigned int out4 : 1; //3
+        unsigned int out5 : 1; //4 
+        unsigned int out6 : 1; //5 
+        unsigned int out7 : 1; //6 
+        unsigned int out8 : 1; //7    
+    } out_bool; //unsigned char Out;
+    unsigned char Res;
+   }GS_Hld;
+    
+} GsBlock_stt; //
+typedef struct tag_GsBlkParam
+{
+    union {
+        unsigned char   u8Ar [4];
+        unsigned short  u16Ar [2];
+        unsigned long   ulV;
+        struct {
+        unsigned char OrdNumGsBlk;
+        //unsigned char Res;
+        } GsBlkHdr;
+    }unnV1[N_IN_GOOSE];
+    //void* pAddrGsBlk[N_IN_GOOSE];
+    char ch_amount_blk_src;
+    char ch_amount_active_src;
+    short sh_amount_gs_active_src;//use whith arrOrdNumsGsSignal
+}GsBlkParamDsc;
+typedef struct tag_MmsBlkParam
+{
+    union {
+        unsigned char   u8Ar [4];
+        unsigned short  u16Ar [2];
+        unsigned long   ulV;
+        struct {
+        unsigned char OrdNumMmsBlk;
+        //unsigned char Res;
+        } MmsBlkHdr;
+    }unnV1[N_IN_MMS];
+    //void* pAddrGsBlk[N_IN_MMS];
+    char ch_amount_blk_src;
+    char ch_amount_active_src;
+    short sh_amount_mms_active_src;//use whith arrOrdNumsGsSignal
+}MmsBlkParamDsc;
+typedef struct tag_LanBlkParam
+{
+    union {
+        unsigned char   u8Ar [4];
+        unsigned short  u16Ar [2];
+        unsigned long   ulV;
+        struct {
+        unsigned char OrdNumLanBlk;
+        //unsigned char Res;
+        } LanBlkHdr;
+    }unnV1[N_OUT_LAN];
+    //void* pAddrGsBlk[N_OUT_LAN];
+
+}LanBlkParamDsc;
+
+static GsBlock_stt  arrGsBlk [N_IN_GOOSE];
+static MmsBlock_stt arrMmsBlk[N_IN_MMS  ];
+//static LanBlock_stt arrLanBlk[N_OUT_LAN ];
+
+static GsBlkParamDsc hldGsBlkParam;
+static MmsBlkParamDsc hldMmsBlkParam;
+static LanBlkParamDsc hldLanBlkParam = {
+    LAN_BLOCK_ORD_NUM_00,0,0,0,
+    LAN_BLOCK_ORD_NUM_01,0,0,0,
+    LAN_BLOCK_ORD_NUM_02,0,0,0,
+    LAN_BLOCK_ORD_NUM_03,0,0,0
+};
+
+static short arrOrdNumsGsSignal [N_IN_GOOSE*N_IN_GOOSE_MMS_OUT];
+static short arrOrdNumsMmsSignal[N_IN_MMS  *N_IN_GOOSE_MMS_OUT];
+
+
+
+struct{
+    char  ch_while_breaker;
+    char ch_amount_blk_src,ch_amount_mms_blk_src;
+    char ch_amount_active_src,ch_amount_mms_active_src;
+    char ch_amount_GsSignal,ch_amount_MmsSignal;
+    __SETTINGS *p_current_settings_prt;
+    unsigned int *p_active_functions;
+
+}sLV;
+    sLV.p_active_functions = &active_functions[0];
+  //Check GOOSE Blk Cmd
+  //RANG_BLOCK_IN_GOOSE1
+//=====================================================================================================
+//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+//     GOOSE BLOCK             
+//....................................................................................................
+//=====================================================================================================
+    do{
+     sLV.ch_amount_active_src = sLV.ch_amount_blk_src = sLV.ch_while_breaker = 0;//! optimize then
+     sLV.ch_amount_GsSignal =  sLV.ch_amount_MmsSignal = 0;
+     register long i,lV;
+     //register void* pv;
+     register unsigned int *r_p_active_functions;
+// ----------------    -------------------------
+//    i = (RANG_BLOCK_IN_GOOSE1>>5);               <- old code
+//    lV = sLV.p_active_functions[i];//whole word  <- old code
+//    sLV.wrp.lVl = lV;                            <- old code
+    //pv = (void*) sLV.p_active_functions;
+    r_p_active_functions = sLV.p_active_functions;
+    
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), RANG_BLOCK_IN_GOOSE1) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_00;
+        sLV.ch_amount_blk_src++;
+		
+		arrGsBlk[GS_BLOCK_ORD_NUM_00].GS_Hld.Blk = 1;
+		
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_00;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_00].GS_Hld.Blk = 0;
+		
+    }
+	
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 1)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_01;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_01].GS_Hld.Blk = 1;
+    }else{
+        //Insert
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_01;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_01].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 2)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_02;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_02].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_02;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_02].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 3)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_03;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_03].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_03;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_03].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 4)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_04;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_04].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_04;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_04].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 5)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_05;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_05].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_05;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_05].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 6)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_06;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_06].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_06;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_06].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 7)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_07;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_07].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_07;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_07].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 8)) != 0){
+    //clr block
+                i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_08;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_08].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_08;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_08].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 9)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_09;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_09].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_09;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_09].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 10)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_10;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_10].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_10;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_10].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 11)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_11;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_11].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_11;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_11].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 12)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_12;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_12].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_12;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_12].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 13)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_13;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_13].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_13;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_13].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 14)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_14;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_14].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_14;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_14].GS_Hld.Blk = 0;
+    }
+    if(_CHECK_SET_BIT( ((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_GOOSE1 + 15)) != 0){
+    //clr block
+        i = GS_BLOCK_ORD_NUM_15 - sLV.ch_amount_blk_src;
+        hldGsBlkParam.unnV1[i].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_15;
+        sLV.ch_amount_blk_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_15].GS_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_active_src;
+        hldGsBlkParam.unnV1[lV].GsBlkHdr.OrdNumGsBlk = GS_BLOCK_ORD_NUM_15;
+        sLV.ch_amount_active_src++;
+		arrGsBlk[GS_BLOCK_ORD_NUM_15].GS_Hld.Blk = 0;
+    }
+        hldGsBlkParam.ch_amount_blk_src    = sLV.ch_amount_blk_src;
+        hldGsBlkParam.ch_amount_active_src = sLV.ch_amount_active_src;
+
+
+    }while(sLV.ch_while_breaker);
+//
+//--------------------------------------------------------------------------------------------------------
+//````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+
+//=====================================================================================================
+//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+//             MMS BLOCK     
+//....................................................................................................
+//=====================================================================================================
+do{
+    sLV.ch_while_breaker = 0;sLV.ch_amount_mms_blk_src = sLV.ch_amount_mms_active_src = 0;//! optimize then
+    register long i,lV;
+    register void* pv;
+    
+     register unsigned int *r_p_active_functions;
+// ----------------    -------------------------
+    r_p_active_functions = sLV.p_active_functions;
+    pv = (void*)&hldMmsBlkParam;
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_MMS1 + ((unsigned int)MMS_BLOCK_ORD_NUM_00))) != 0){
+    //clr block
+        i = MMS_BLOCK_ORD_NUM_03 - sLV.ch_amount_mms_blk_src;
+        ((MmsBlkParamDsc*)pv)->unnV1[i].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_00;
+        sLV.ch_amount_mms_blk_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_00].Mms_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_mms_active_src;
+        //hldGsBlkParam.pAddrGsBlk[lV] = (void*)(&arrMmsBlk[GS_BLOCK_ORD_NUM_00]);
+        hldMmsBlkParam.unnV1[lV].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_00;
+		//hldMmsBlkParam.unnV1[MMS_BLOCK_ORD_NUM_00].u8Ar[] = 
+		//arrMmsBlk[MMS_BLOCK_ORD_NUM_00].arCh[2] = 0;
+        sLV.ch_amount_mms_active_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_00].Mms_Hld.Blk = 0;
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_MMS1+((unsigned int)MMS_BLOCK_ORD_NUM_01))) != 0){
+    //clr block
+        i = MMS_BLOCK_ORD_NUM_03 - sLV.ch_amount_mms_blk_src;
+        hldMmsBlkParam.unnV1[i].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_01;
+        sLV.ch_amount_mms_blk_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_01].Mms_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_mms_active_src;
+        //hldGsBlkParam.pAddrGsBlk[lV] = (void*)(&arrMmsBlk[GS_BLOCK_ORD_NUM_00]);
+        hldMmsBlkParam.unnV1[lV].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_01;
+        sLV.ch_amount_mms_active_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_01].Mms_Hld.Blk = 0;
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_MMS1+((unsigned int)MMS_BLOCK_ORD_NUM_02))) != 0){
+    //clr block
+        i = MMS_BLOCK_ORD_NUM_03 - sLV.ch_amount_mms_blk_src;
+        hldMmsBlkParam.unnV1[i].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_02;
+        sLV.ch_amount_mms_blk_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_02].Mms_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_mms_active_src;
+        //hldGsBlkParam.pAddrGsBlk[lV] = (void*)(&arrMmsBlk[GS_BLOCK_ORD_NUM_00]);
+        hldMmsBlkParam.unnV1[lV].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_02;
+        sLV.ch_amount_mms_active_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_02].Mms_Hld.Blk = 0;
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_IN_MMS1+((unsigned int)MMS_BLOCK_ORD_NUM_03))) != 0){
+    //clr block
+        i = MMS_BLOCK_ORD_NUM_03 - sLV.ch_amount_mms_blk_src;
+        hldMmsBlkParam.unnV1[i].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_03;
+        sLV.ch_amount_mms_blk_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_03].Mms_Hld.Blk = 1;
+    }else{
+        lV = sLV.ch_amount_mms_active_src;
+        //hldGsBlkParam.pAddrGsBlk[lV] = (void*)(&arrMmsBlk[GS_BLOCK_ORD_NUM_00]);
+        hldMmsBlkParam.unnV1[lV].MmsBlkHdr.OrdNumMmsBlk = MMS_BLOCK_ORD_NUM_03;
+        sLV.ch_amount_mms_active_src++;
+		arrMmsBlk[MMS_BLOCK_ORD_NUM_03].Mms_Hld.Blk = 0;
+    }
+
+    hldMmsBlkParam.ch_amount_blk_src    = sLV.ch_amount_blk_src;
+    hldMmsBlkParam.ch_amount_active_src = sLV.ch_amount_active_src;
+	if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_MISCEVE_DYSTANCIJNE )) != 1)
+		hldMmsBlkParam.ch_amount_blk_src |= 0x80;
+
+
+
+   
+}while(sLV.ch_while_breaker);
+//
+//--------------------------------------------------------------------------------------------------------
+//````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+
+  
+  
+  /***/
+#endif
+
   copying_active_functions = 1; //Помічаємо, що зараз обновляємо значення активних функцій
   
   //Скижаємо ті сигнали, які відповідають за входи, кнопки і активацію з інтерфейсу
-  const unsigned int maska_input_signals[N_BIG] = 
+  static const unsigned int maska_input_signals[N_BIG] = 
   {
     MASKA_FOR_INPUT_SIGNALS_0, 
     MASKA_FOR_INPUT_SIGNALS_1, 
@@ -8106,13 +8358,21 @@ inline void main_protection(void)
       information_about_restart_counter  &= (unsigned int)(~(1 << RS485_RECUEST));
       information_about_clean_energy     &= (unsigned int)(~(1 << RS485_RECUEST));
     }
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    if ((reset_trigger_function_from_interface & (1 << LAN_RECUEST)) != 0)
+    {
+      for (unsigned int i = 0; i < N_BIG; i++) trigger_functions_LAN[i] = 0;
+      
+      information_about_restart_counter  &= (unsigned int)(~(1 << LAN_RECUEST));
+      information_about_clean_energy     &= (unsigned int)(~(1 << LAN_RECUEST));
+    }
+#endif
     
     //Помічаємо що ми виконали очистку по ВСІХ інтерфейсах
     reset_trigger_function_from_interface = 0;
   }
   /**************************/
 
-  unsigned int blocking_commands_from_DI = 0;
   unsigned int active_inputs_grupa_ustavok = 0;
   /**************************/
   //Опрацьовуємо ФК, дискретні входи і верхній рівень
@@ -8197,7 +8457,134 @@ inline void main_protection(void)
     }
   }
 
-  //Перевіряємо чи є зараз активні входи
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /***
+  Зафіксувати чи є активними виходи Вх.GOOSE блоків (з врахуванням, що вхід міг бути активований попердньо а зараз утримуєтьсґя у активному стані) і Вх.MMS блоків
+  ***/
+  
+    //=====================================================================================================
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    //    state_outs_copy = state_outs;
+    //    state_outs_copy &= Input_ctrl_In_GOOSE_block;//First clear changed bits
+    //    j = state_outs^Input_In_GOOSE_block;//Select changed position
+    //    l = j"Select changed position" & Input_In_GOOSE_block;//Select Ones in bits
+    //    state_outs_copy |= l&Input_In_GOOSE_block;//Move changed ones; <-have Error
+    //....................................................................................................
+    //=====================================================================================================
+    do{
+    // ----------------    -------------------------
+     
+     register long i,lV,j;
+     register long lIdxBlk;
+     
+     register void *pvl;
+     
+        pvl = (void*)&hldGsBlkParam;
+        sLV.ch_amount_active_src = i = N_IN_GOOSE;//hldGsBlkParam.ch_amount_active_src;
+        sLV.ch_amount_GsSignal = 0;
+        if(i > 0){
+            ((GsBlkParamDsc*)pvl)->sh_amount_gs_active_src = lV = lIdxBlk = 0;asm ("nop" ::"r"(lIdxBlk),"r"(lV));
+            while(lIdxBlk < N_IN_GOOSE){ //do{
+                //--i = ((GsBlkParamDsc*)pvl)-> unnV1[lIdxBlk].GsBlkHdr.OrdNumGsBlk;;
+                //--//Check State Inputs                                            ;
+                //--lV = arrGsBlk[i].arCh[2];//Outs                                 ;
+                i = lIdxBlk;
+                lV = arrGsBlk[i].arCh[2];//!!Outs arrGsBlk[i].arCh[0]
+                
+				
+                lV &= ~((unsigned long)(Input_ctrl_In_GOOSE_block[i]));//Clear all changeble bits
+                lV |= Input_In_GOOSE_block[i]&Input_ctrl_In_GOOSE_block[i];//Set ones only
+                //if(noerror)
+                    arrGsBlk[i].arCh[2] = lV;//arrGsBlk[i].arCh[0]
+                if(arrGsBlk[i].GS_Hld.Blk == 0){   
+					register unsigned long wrpLV;
+					wrpLV = arrGsBlk[i].arCh[2];//!!arrGsBlk[i].arCh[2] = arrGsBlk[i].arCh[0]
+					j = 0;lV = ((GsBlkParamDsc*)pvl)->sh_amount_gs_active_src;
+					while( (wrpLV != 0) ){//&& j < 8
+						if((wrpLV & (1<<j)) != 0 ){
+							arrOrdNumsGsSignal[lV] = (lIdxBlk<<3)+j;lV++;wrpLV &= ~(1<<j);
+						}
+						j++;
+						
+					}
+					((GsBlkParamDsc*)pvl)->sh_amount_gs_active_src = lV;
+				}
+                lIdxBlk++;//  += lV;//! ????
+            }//while(lIdxBlk);//(--sLV.ch_amount_active_src) != 0
+            sLV.ch_amount_GsSignal = ((GsBlkParamDsc*)pvl)->sh_amount_gs_active_src;
+        }
+    //Try bield list of outs which sets in ones.
+    
+    }while(sLV.ch_while_breaker);
+    //
+    //--------------------------------------------------------------------------------------------------------
+    //````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+
+    //=====================================================================================================
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    //   
+    //   
+    //   
+    //   
+    //   
+    //....................................................................................................
+    //=====================================================================================================
+    do{
+    // ----------------    -------------------------
+     register long i,lV,j;
+     register long lIdxBlk;
+     register void *pvl;
+        pvl = (void*)&hldMmsBlkParam;
+        sLV.ch_amount_active_src = i  = hldMmsBlkParam.ch_amount_active_src;
+        if(i > 0){
+            ((MmsBlkParamDsc*)pvl)->sh_amount_mms_active_src = lV = lIdxBlk = 0;asm ("nop" ::"r"(lIdxBlk),"r"(lV));
+            while(lIdxBlk < N_IN_MMS){ //do{
+                //--;
+                //--;
+                //--;
+                i = lIdxBlk;//.i = ((MmsBlkParamDsc*)pvl)-> unnV1[lIdxBlk].MmsBlkHdr.OrdNumMmsBlk;
+                //Check State Inputs
+                lV = arrMmsBlk[i].arCh[2];//Outs
+                lV &= ~((unsigned long)(Input_In_MMS_block[i]));//Clear all changeble bits
+                lV |= Input_In_MMS_block[i]&Input_ctrl_In_MMS_block[i];//Set ones only
+                //if(noerror)
+                    arrMmsBlk[i].arCh[2] = lV;//
+                if(arrMmsBlk[i].Mms_Hld.Blk == 0 && (((MmsBlkParamDsc*)pvl)->ch_amount_blk_src&0x80)){ 
+                    register unsigned long wrpLV;
+        
+					wrpLV = lV;//arrMmsBlk[i].arCh[2];
+					j = 0;lV = ((MmsBlkParamDsc*)pvl)->sh_amount_mms_active_src;
+					while( (wrpLV != 0) ){//&& j < 8
+						if((wrpLV & (1<<j)) != 0 ){
+							arrOrdNumsMmsSignal[lV] = (lIdxBlk<<3)+j;lV++;wrpLV &= ~(1<<j);
+						}
+						j++;
+					}
+                }
+                ((MmsBlkParamDsc*)pvl)->sh_amount_mms_active_src = lV;
+                lIdxBlk++;//  += lV;//! ????
+            }//while(lIdxBlk);//(--sLV.ch_amount_active_src) != 0
+            sLV.ch_amount_MmsSignal = ((MmsBlkParamDsc*)pvl)->sh_amount_mms_active_src; 
+        }    
+
+    //Try bield list of outs which sets in ones.
+    
+    }while(sLV.ch_while_breaker);
+    //
+    //--------------------------------------------------------------------------------------------------------
+    //````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+
+  
+  
+  
+  
+  
+  /***/
+#endif
+
+  //Перевіряємо чи є зараз активація вхідних функцій
   if (
       (pressed_buttons_united !=0)
       ||  
@@ -8210,12 +8597,102 @@ inline void main_protection(void)
        )
       )
       ||  
-      (active_inputs !=0)
+      (active_inputs !=0) 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+     /* якщо є активація виходів від Вх.GOOSE блоків і Вх.MMS блоків*/   
+      || ((sLV.ch_amount_MmsSignal+sLV.ch_amount_GsSignal)>0)
+#endif
      )   
   {
     unsigned int temp_value_for_activated_function_button_interface[N_SMALL] = {0, 0, 0};
     unsigned int temp_value_for_activated_function[N_SMALL] = {0, 0, 0};
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    /***
+    Опрацювати логіку Вх.GOOSE блоків і Вх.MMS блоків і виставити сигнали, які ними активуються
+    ***/
+ 
+    /**************************/
+    //Опрацьовуємо входи для Вх.GOOSE блоків і виставити потрібний біт у temp_value_for_activated_function масиві
+    /**************************/
+    /**************************/
+    //=====================================================================================================
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    //                  
+    //....................................................................................................
+    //=====================================================================================================
+    do{
+        sLV.ch_while_breaker = 0;
+    // ----------------    -------------------------       
+//        register unsigned long i,lV,j;
+//         unsigned long lCtrGsSrc;
+//         register void *pvlc,*pvll;
+//        pvlc = (void*)temp_value_for_activated_function;//ui32
+//        pvll = (void*)&current_settings_prt.ranguvannja_In_GOOSE;//uint32_t
+//        i = j = lV = 0;
+//        //sLV.ch_amount_active_src = hldGsBlkParam.ch_amount_active_src;
+//        //pvl = (void*)&hldGsBlkParam;((GsBlkParamDsc*)pvl)->
+//        lCtrGsSrc = hldGsBlkParam.sh_amount_gs_active_src;   
+//        asm ("nop" ::"r"(i),"r"(j),"r"(lV));
+//        while(lCtrGsSrc){
+//            lCtrGsSrc--;
+//            lV = arrOrdNumsGsSignal[lCtrGsSrc];
+//            i = lV>>3;j = lV - (i<<3);
+//            
+//            
+//            //temp_value_for_activated_function[N_SMALL];//;ranguvannja_In_GOOSE[i][j][0]
+//            lV = i*N_IN_GOOSE_MMS_OUT*N_SMALL*sizeof(long) +j*N_SMALL*sizeof(long);
+//            for(register unsigned long k = 0; k < N_SMALL; k++){
+//                ((unsigned long*)pvlc)[k] |= ((unsigned long*)pvll+lV) [k];
+//            }
+        proc_Gs_blk_out((void*)&temp_value_for_activated_function,hldGsBlkParam.sh_amount_gs_active_src,arrOrdNumsGsSignal );    
+//        }
+    }while(sLV.ch_while_breaker);
+    //
+    //--------------------------------------------------------------------------------------------------------
+    //````````````````````````````````````````````````````````````````````````````````````````````````````````
+    
+
+    /**************************/
+    //Опрацьовуємо входи для Вх.MMS блоківі виставити потрібний біт у temp_value_for_activated_function_button_interface масиві
+    /**************************/
+    /**************************/
+    //=====================================================================================================
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    //                  
+    //....................................................................................................
+    //=====================================================================================================
+    do{
+        sLV.ch_while_breaker = 0;
+    // ----------------    -------------------------       
+//        register long i,lV,j,lCtrMmsSrc;
+//         register void *pvlc,*pvll;
+//        pvlc = (void*)temp_value_for_activated_function;
+//        pvll = (void*)&current_settings_prt.ranguvannja_In_MMS;
+//        //sLV.ch_amount_active_src = hldGsBlkParam.ch_amount_active_src;
+//        //pvl = (void*)&hldGsBlkParam;((GsBlkParamDsc*)pvl)->
+//        lCtrMmsSrc = hldMmsBlkParam.sh_amount_mms_active_src;   
+        proc_Mms_blk_out((void*)&temp_value_for_activated_function_button_interface,hldMmsBlkParam.sh_amount_mms_active_src,arrOrdNumsMmsSignal );        
+//        while(lCtrMmsSrc){
+//            lV = arrOrdNumsMmsSignal[lCtrMmsSrc];
+//            i = lV>>3;j = lV - i;
+//            lCtrMmsSrc--;
+//            //temp_value_for_activated_function[N_SMALL];//;ranguvannja_In_GOOSE[i][j][0]
+//            lV = i*N_IN_GOOSE_MMS_OUT*N_SMALL*sizeof(long) +j*N_SMALL*sizeof(long);
+//            for(long k = 0; k < N_SMALL; k++){
+//                ((long*)pvlc)[k] |= ((long*)pvll+lV) [k];
+//            }
+//            
+//        }
+    }while(sLV.ch_while_breaker);
+    //
+    //--------------------------------------------------------------------------------------------------------
+    //````````````````````````````````````````````````````````````````````````````````````````````````````````
+            
+  
+    /***/
+#endif
+  
     //Активація з кнопуки
     if (pressed_buttons_united != 0)
     {
@@ -8224,9 +8701,7 @@ inline void main_protection(void)
         if ((pressed_buttons_united & (1 << i)) != 0)
         {
           unsigned int *point_temp_value_for_activated_function = ((pressed_buttons_tmp & (1 << i)) != 0) ? temp_value_for_activated_function_button_interface : temp_value_for_activated_function;
-          point_temp_value_for_activated_function[0] |= current_settings_prt.ranguvannja_buttons[N_SMALL*i  ];
-          point_temp_value_for_activated_function[1] |= current_settings_prt.ranguvannja_buttons[N_SMALL*i+1];
-          point_temp_value_for_activated_function[2] |= current_settings_prt.ranguvannja_buttons[N_SMALL*i+2];
+          for (size_t j = 0; j < N_SMALL; ++j ) point_temp_value_for_activated_function[j] |= current_settings_prt.ranguvannja_buttons[N_SMALL*i + j];
         }
       }
       if ((pressed_buttons_united & (1 << (BIT_KEY_C - BIT_KEY_1))) != 0)
@@ -8241,61 +8716,24 @@ inline void main_protection(void)
     //Активація з інтерфейсу
     if (mutex_interface == false)
     {
-      temp_value_for_activated_function_button_interface[0] |= activation_function_from_interface[0];
-      activation_function_from_interface[0] = 0;
-      temp_value_for_activated_function_button_interface[1] |= activation_function_from_interface[1];
-      activation_function_from_interface[1] = 0;
-      temp_value_for_activated_function_button_interface[2] |= activation_function_from_interface[2];
-      activation_function_from_interface[2] = 0;
+      for (size_t i = 0; i < N_SMALL; ++i)
+      {
+        temp_value_for_activated_function_button_interface[i] |= activation_function_from_interface[i];
+        activation_function_from_interface[i] = 0;
+      }
     }
     
     //Обєднуємо активації з кнопок (режим кнопка) + активації з інтерфейсу і кнопок (режим ключ) + кнопки фіксованого функціоналу
-    temp_value_for_activated_function[0] |= temp_value_for_activated_function_button_interface[0];
-    temp_value_for_activated_function[1] |= temp_value_for_activated_function_button_interface[1];
-    temp_value_for_activated_function[2] |= temp_value_for_activated_function_button_interface[2];
+    for (size_t i = 0; i < N_SMALL; ++i) temp_value_for_activated_function[i] |= temp_value_for_activated_function_button_interface[i];
 
     //Активація з Д.Входу
-    unsigned int vvimk_VV_vid_DV = false;
-    unsigned int vymk_VV_vid_DV = false;
     if (active_inputs != 0)
     {
       for (unsigned int i = 0; i < NUMBER_INPUTS; i++)
       {
         if ((active_inputs & (1 << i)) != 0)
         {
-          if (
-              (_CHECK_SET_BIT((current_settings_prt.ranguvannja_inputs + N_SMALL*i), RANG_SMALL_VKL_VV )) ||
-              (_CHECK_SET_BIT((current_settings_prt.ranguvannja_inputs + N_SMALL*i), RANG_SMALL_OTKL_VV))
-             )   
-          {
-            unsigned int ranguvannja_inputs_tmp[N_SMALL] = {
-                                                            current_settings_prt.ranguvannja_inputs[N_SMALL*i  ],
-                                                            current_settings_prt.ranguvannja_inputs[N_SMALL*i+1],
-                                                            current_settings_prt.ranguvannja_inputs[N_SMALL*i+2]
-                                                           };
-
-            if (_CHECK_SET_BIT((current_settings_prt.ranguvannja_inputs + N_SMALL*i), RANG_SMALL_VKL_VV ))
-            {
-              vvimk_VV_vid_DV = true;
-              _CLEAR_BIT(ranguvannja_inputs_tmp, RANG_SMALL_VKL_VV);
-            }
-
-            if (_CHECK_SET_BIT((current_settings_prt.ranguvannja_inputs + N_SMALL*i), RANG_SMALL_OTKL_VV ))
-            {
-              vymk_VV_vid_DV = true;
-              _CLEAR_BIT(ranguvannja_inputs_tmp, RANG_SMALL_OTKL_VV);
-            }
-
-            temp_value_for_activated_function[0] |= ranguvannja_inputs_tmp[0];
-            temp_value_for_activated_function[1] |= ranguvannja_inputs_tmp[1];
-            temp_value_for_activated_function[2] |= ranguvannja_inputs_tmp[2];
-          }
-          else
-          {
-            temp_value_for_activated_function[0] |= current_settings_prt.ranguvannja_inputs[N_SMALL*i  ];
-            temp_value_for_activated_function[1] |= current_settings_prt.ranguvannja_inputs[N_SMALL*i+1];
-            temp_value_for_activated_function[2] |= current_settings_prt.ranguvannja_inputs[N_SMALL*i+2];
-          }
+          for (size_t j = 0; j < N_SMALL; ++j) temp_value_for_activated_function[j] |= current_settings_prt.ranguvannja_inputs[N_SMALL*i + j];
         }
       }
     }
@@ -8394,7 +8832,38 @@ inline void main_protection(void)
       default: break;
       }
     }
-    
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    {
+      size_t word_n_small = RANG_SMALL_BLOCK_IN_GOOSE1 >> 5;
+      unsigned int maska_small = (unsigned int)(1 << (RANG_SMALL_BLOCK_IN_GOOSE1 & 0x1f));
+      
+      size_t word_n_full = RANG_BLOCK_IN_GOOSE1 >> 5;
+      unsigned int maska_full = (unsigned int)(1 << (RANG_BLOCK_IN_GOOSE1 & 0x1f));
+
+      for (size_t i = 0; i < (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN); i++)
+      {
+        if (temp_value_for_activated_function[word_n_small] & maska_small) 
+        {
+          active_functions[word_n_full] |= maska_full;
+        }
+        
+        maska_small <<= 1;
+        if (maska_small == 0)
+        {
+          word_n_small++;
+          maska_small = 1;
+        }
+        
+        maska_full <<= 1;
+        if (maska_full == 0)
+        {
+          word_n_full++;
+          maska_full = 1;
+        }
+      }
+    }
+#endif    
       
     //Загальні функції (без ОФ-ій і функцій, які можуть блокуватися у місцевому управлінні)
     active_functions[RANG_BLOCK_VKL_VV                      >> 5] |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_BLOCK_VKL_VV                     ) != 0) << (RANG_BLOCK_VKL_VV                      & 0x1f);
@@ -8412,36 +8881,11 @@ inline void main_protection(void)
     active_inputs_grupa_ustavok |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_3_GRUPA_USTAVOK    ) != 0) << (RANG_SMALL_3_GRUPA_USTAVOK - RANG_SMALL_1_GRUPA_USTAVOK);
     active_inputs_grupa_ustavok |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_4_GRUPA_USTAVOK    ) != 0) << (RANG_SMALL_4_GRUPA_USTAVOK - RANG_SMALL_1_GRUPA_USTAVOK);
       
-    //Загальні функції (які блокувються у місцевому управлінні)
     //Ввімкнення ВВ
     active_functions[RANG_VKL_VV >> 5] |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_VKL_VV) != 0) << (RANG_VKL_VV & 0x1f);
-    if (vvimk_VV_vid_DV)
-    {
-      if (
-          (_CHECK_SET_BIT(active_functions, RANG_MISCEVE_DYSTANCIJNE )) &&
-          (current_settings_prt.control_extra_settings_1 & CTR_EXTRA_SETTINGS_1_BLK_ON_CB_MISCEVE)
-         ) 
-      {
-        //Умова блокування командви "Ввімкнення ВВ" від ДВх.
-        blocking_commands_from_DI |= CTR_EXTRA_SETTINGS_1_BLK_ON_CB_MISCEVE;
-      }
-      else _SET_BIT(active_functions, RANG_VKL_VV);
-    }
 
     //Вимкнення ВВ
     active_functions[RANG_OTKL_VV >> 5] |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_OTKL_VV) != 0) << (RANG_OTKL_VV & 0x1f);
-    if (vymk_VV_vid_DV)
-    {
-      if (
-          (_CHECK_SET_BIT(active_functions, RANG_MISCEVE_DYSTANCIJNE )) &&
-          (current_settings_prt.control_extra_settings_1 & CTR_EXTRA_SETTINGS_1_BLK_OFF_CB_MISCEVE)
-         ) 
-      {
-        //Умова блокування командви "Вимкнення ВВ" від ДВх.
-        blocking_commands_from_DI |= CTR_EXTRA_SETTINGS_1_BLK_OFF_CB_MISCEVE;
-      }
-      else _SET_BIT(active_functions, RANG_OTKL_VV);
-    }
 
     //Блок для ДЗ
     active_functions[RANG_EXT_NKN_DZ   >> 5] |= (_CHECK_SET_BIT(temp_value_for_activated_function, RANG_SMALL_EXT_NKN_DZ    ) != 0) << (RANG_EXT_NKN_DZ   & 0x1f);
@@ -8665,7 +9109,6 @@ inline void main_protection(void)
   /***********************************************************/
   calc_measurement(number_group_stp);
 
-      
 //  //Діагностика справності раз на період
 //  diagnostyca_adc_execution();
   
@@ -8693,42 +9136,55 @@ inline void main_protection(void)
   /**************************/
   //Сигнал "Несправность Общая"
   /**************************/
-  unsigned int diagnostyka_tmp[3];
-  diagnostyka_tmp[0] = diagnostyka[0];
-  diagnostyka_tmp[1] = diagnostyka[1];
-  diagnostyka_tmp[2] = diagnostyka[2];
+  unsigned int diagnostyka_tmp[N_DIAGN];
+  for (size_t i = 0; i < N_DIAGN; i ++)
+  {
+    diagnostyka_tmp[i] = diagnostyka[i];
 
-  diagnostyka_tmp[0] &= (unsigned int)(~clear_diagnostyka[0]); 
-  diagnostyka_tmp[0] |= set_diagnostyka[0]; 
-
-  diagnostyka_tmp[1] &= (unsigned int)(~clear_diagnostyka[1]); 
-  diagnostyka_tmp[1] |= set_diagnostyka[1]; 
-
-  diagnostyka_tmp[2] &= (unsigned int)(~clear_diagnostyka[2]); 
-  diagnostyka_tmp[2] |= set_diagnostyka[2]; 
-  
-//  diagnostyka_tmp[2] &= USED_BITS_IN_LAST_INDEX; 
+    diagnostyka_tmp[i] &= (unsigned int)(~clear_diagnostyka[i]); 
+    diagnostyka_tmp[i] |= set_diagnostyka[i]; 
+  }
 
   _CLEAR_BIT(diagnostyka_tmp, EVENT_START_SYSTEM_BIT);
   _CLEAR_BIT(diagnostyka_tmp, EVENT_SOFT_RESTART_SYSTEM_BIT);
   _CLEAR_BIT(diagnostyka_tmp, EVENT_DROP_POWER_BIT);
-  if (
-      (diagnostyka_tmp[0] != 0) ||
-      (diagnostyka_tmp[1] != 0) ||
-      (diagnostyka_tmp[2] != 0)
-     )   
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  _CLEAR_BIT(diagnostyka_tmp, EVENT_RESTART_CB_BIT);
+#endif
+  unsigned int not_null = false;
+  for (size_t i = 0; i < N_DIAGN; i++) 
+  {
+    not_null |= (diagnostyka_tmp[i] != 0);
+    if (not_null) break;
+  }
+              
+  if (not_null)
   {
     _SET_BIT(active_functions, RANG_DEFECT);
     /**************************/
     //Сигнал "Несправность Аварийная"
     /**************************/
-    if (
-        ((diagnostyka_tmp[0] & MASKA_AVAR_ERROR_0) != 0) ||
-        ((diagnostyka_tmp[1] & MASKA_AVAR_ERROR_1) != 0) ||
-        ((diagnostyka_tmp[2] & MASKA_AVAR_ERROR_2) != 0)
-       )   
+    static const unsigned int maska_avar_error[N_DIAGN] = 
     {
-      _SET_BIT(active_functions, RANG_AVAR_DEFECT);
+      MASKA_AVAR_ERROR_0, 
+      MASKA_AVAR_ERROR_1, 
+      MASKA_AVAR_ERROR_2
+#if (N_DIAGN > 3)
+                        ,
+      MASKA_AVAR_ERROR_3
+#endif
+    };
+
+    not_null = false;
+    for (size_t i = 0; i < N_DIAGN; i++) 
+    {
+      not_null |= ((diagnostyka_tmp[i] & maska_avar_error[i])  != 0);
+      if (not_null) break;
+    }
+    if (not_null)
+    {
+      //_SET_BIT(active_functions, RANG_AVAR_DEFECT);
+//       #warning "No Avar Error"
     }
     else
     {
@@ -8773,7 +9229,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_dz_signals[N_BIG] = 
+      static const unsigned int maska_dz_signals[N_BIG] = 
       {
         MASKA_DZ_SIGNALS_0, 
         MASKA_DZ_SIGNALS_1, 
@@ -8828,7 +9284,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_mtz_signals[N_BIG] = 
+      static const unsigned int maska_mtz_signals[N_BIG] = 
       {
         MASKA_MTZ_SIGNALS_0,
         MASKA_MTZ_SIGNALS_1,
@@ -8878,7 +9334,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_nzz_signals[N_BIG] = 
+      static const unsigned int maska_nzz_signals[N_BIG] = 
       {
         MASKA_NZZ_SIGNALS_0, 
         MASKA_NZZ_SIGNALS_1, 
@@ -8909,7 +9365,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_tznp_signals[N_BIG] = 
+      static const unsigned int maska_tznp_signals[N_BIG] = 
       {
         MASKA_TZNP_SIGNALS_0, 
         MASKA_TZNP_SIGNALS_1, 
@@ -8943,7 +9399,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_zop_signals[N_BIG] = 
+      static const unsigned int maska_zop_signals[N_BIG] = 
       {
         MASKA_ZOP_SIGNALS_0, 
         MASKA_ZOP_SIGNALS_1, 
@@ -8978,7 +9434,7 @@ inline void main_protection(void)
     else 
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_umin_signals[N_BIG] = 
+      static const unsigned int maska_umin_signals[N_BIG] = 
       {
         MASKA_UMIN_SIGNALS_0, 
         MASKA_UMIN_SIGNALS_1, 
@@ -9014,7 +9470,7 @@ inline void main_protection(void)
     else 
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_umax_signals[N_BIG] = 
+      static const unsigned int maska_umax_signals[N_BIG] = 
       {
         MASKA_UMAX_SIGNALS_0, 
         MASKA_UMAX_SIGNALS_1, 
@@ -9044,7 +9500,7 @@ inline void main_protection(void)
     else 
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_achr_chapv_signals[N_BIG] = 
+      static const unsigned int maska_achr_chapv_signals[N_BIG] = 
       {
         MASKA_ACHR_CHAPV_SIGNALS_0, 
         MASKA_ACHR_CHAPV_SIGNALS_1, 
@@ -9089,10 +9545,11 @@ inline void main_protection(void)
     {
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
       //Вимикаємо можливий режим тестування оптоканалу
-      _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28) = (((current_settings_prt.zdz_ovd_porig + 1) & 0xf) << 8) | (0 << 12);
+      _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28_DD30) = (((current_settings_prt.zdz_ovd_porig + 1) & 0xf) << 8) | (0 << 12);
       if (zdz_ovd_diagnostyka)
       {
         if (zdz_ovd_diagnostyka & (1 << 0)) _SET_BIT(clear_diagnostyka, TEST_OVD1);
@@ -9105,7 +9562,7 @@ inline void main_protection(void)
 #endif
       
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_zdz_signals[N_BIG] = 
+      static const unsigned int maska_zdz_signals[N_BIG] = 
       {
         MASKA_ZDZ_SIGNALS_0, 
         MASKA_ZDZ_SIGNALS_1, 
@@ -9134,7 +9591,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_urov_signals[N_BIG] = 
+      static const unsigned int maska_urov_signals[N_BIG] = 
       {
         MASKA_UROV_SIGNALS_0, 
         MASKA_UROV_SIGNALS_1, 
@@ -9164,7 +9621,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_apv_signals[N_BIG] = 
+      static const unsigned int maska_apv_signals[N_BIG] = 
       {
         MASKA_APV_SIGNALS_0, 
         MASKA_APV_SIGNALS_1, 
@@ -9204,7 +9661,7 @@ inline void main_protection(void)
     else 
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_up_signals[N_BIG] = 
+      static const unsigned int maska_up_signals[N_BIG] = 
       {
         MASKA_UP_SIGNALS_0, 
         MASKA_UP_SIGNALS_1, 
@@ -9229,8 +9686,7 @@ inline void main_protection(void)
     {
       unsigned int active_functions_tmp[NUMBER_ITERATION_EL_MAX][N_BIG];
       unsigned int iteration = 0;
-	  unsigned int repeat_state = false;
-      unsigned int df_changed_state_with_start_new_timeout = 0;
+      unsigned int repeat_state = false;
       do
       {
         for (unsigned int i = 0; i < iteration; i++)
@@ -9269,7 +9725,7 @@ inline void main_protection(void)
         d_or_handler(active_functions);
         d_xor_handler(active_functions);
         d_not_handler(active_functions);
-        df_handler(active_functions, &df_changed_state_with_start_new_timeout);
+        df_handler(active_functions);
         dt_handler(active_functions);
         
         iteration++;
@@ -9306,7 +9762,7 @@ inline void main_protection(void)
     else
     {
       //Очищуємо сигнали, які не можуть бути у даній конфігурації
-      const unsigned int maska_el_signals[N_BIG] = 
+      static const unsigned int maska_el_signals[N_BIG] = 
       {
         MASKA_EL_SIGNALS_0, 
         MASKA_EL_SIGNALS_1, 
@@ -9324,6 +9780,8 @@ inline void main_protection(void)
       //Скидаємо всі таймери, які відповідають за розширену логіку
       for(unsigned int i = INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START; i < (INDEX_TIMER_DF_WORK_START + NUMBER_DEFINED_FUNCTIONS); i++)
         global_timers[i] = -1;
+      
+      static_logic_df = 0;
     }
     /**************************/
 
@@ -9384,15 +9842,8 @@ inline void main_protection(void)
     //Скидаємо всі таймери, які присутні у лозіці
     for(unsigned int i = INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START; i < MAX_NUMBER_GLOBAL_TIMERS; i++)
       global_timers[i] = -1;
-    
-//    //Стан всіх ОФ переводимо у пасивний
-//    state_df = 0;
-    
-    //Стан виконання ОФ переводимо у початковий
-    for(unsigned int i = 0; i < NUMBER_DEFINED_FUNCTIONS; i++)
-    {
-      etap_execution_df[i] = NONE_DF;
-    }
+
+    static_logic_df = 0;
   }
 
   /**************************/
@@ -9407,10 +9858,77 @@ inline void main_protection(void)
   digital_registrator(active_functions);
   /**************************/
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /***
+  Опрацювати логіку Вихідного Мережевого Блоку
+  ***/
+
+//=====================================================================================================
+//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+//             LAN BLOCK     
+//....................................................................................................
+//=====================================================================================================
+do{
+    sLV.ch_while_breaker = 0;//! optimize then
+    
+    register void* pvl;
+    
+     register unsigned int *r_p_active_functions;
+// ----------------    -------------------------
+    r_p_active_functions = sLV.p_active_functions;
+    pvl = (void*)&hldLanBlkParam;//hldMmsBlkParam;
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_OUT_LAN1 + ((unsigned int)LAN_BLOCK_ORD_NUM_00))) != 0){
+    //clr block
+        Output_Out_LAN_block[LAN_BLOCK_ORD_NUM_00] = 0;
+        //
+    }else{
+        proc_Lan_blk_out(&current_settings_prt.ranguvannja_Out_LAN[0][0][0],r_p_active_functions,(void*)&(((GsBlkParamDsc*)pvl)-> unnV1[LAN_BLOCK_ORD_NUM_00].ulV));
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_OUT_LAN1+((unsigned int)LAN_BLOCK_ORD_NUM_01))) != 0){
+    //clr block
+        Output_Out_LAN_block[LAN_BLOCK_ORD_NUM_01] = 0; 
+    }else{
+        proc_Lan_blk_out(&current_settings_prt.ranguvannja_Out_LAN[0][0][0],r_p_active_functions,(void*)&(((GsBlkParamDsc*)pvl)-> unnV1[LAN_BLOCK_ORD_NUM_01].ulV));
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_OUT_LAN1+((unsigned int)LAN_BLOCK_ORD_NUM_02))) != 0){
+    //clr block
+        Output_Out_LAN_block[LAN_BLOCK_ORD_NUM_02] = 0;
+    }else{
+        proc_Lan_blk_out(&current_settings_prt.ranguvannja_Out_LAN[0][0][0],r_p_active_functions,(void*)&(((GsBlkParamDsc*)pvl)-> unnV1[LAN_BLOCK_ORD_NUM_02].ulV));
+    }
+
+    if(_CHECK_SET_BIT(((unsigned int*)r_p_active_functions), (RANG_BLOCK_OUT_LAN1+((unsigned int)LAN_BLOCK_ORD_NUM_03))) != 0){
+    //clr block
+        Output_Out_LAN_block[LAN_BLOCK_ORD_NUM_03] = 0;
+    }else{
+        proc_Lan_blk_out(&current_settings_prt.ranguvannja_Out_LAN[0][0][0],r_p_active_functions,(void*)&(((GsBlkParamDsc*)pvl)-> unnV1[LAN_BLOCK_ORD_NUM_03].ulV));
+    }
+
+
+
+
+
+   
+}while(sLV.ch_while_breaker);
+//
+//--------------------------------------------------------------------------------------------------------
+//````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+  
+
+
+  
+
+  /***/
+#endif
+
+
   /**************************/
   //Робота з функціями, які мають записуватися у енергонезалежну пам'ять
   /**************************/
-  const unsigned int maska_trg_func_array[N_BIG] = {
+  static const unsigned int maska_trg_func_array[N_BIG] = {
                                                     MASKA_TRIGGER_SIGNALES_0,
                                                     MASKA_TRIGGER_SIGNALES_1,
                                                     MASKA_TRIGGER_SIGNALES_2,
@@ -9450,14 +9968,12 @@ inline void main_protection(void)
     unsigned int temp_data = active_functions[i];
     trigger_functions_USB[i]   |= temp_data;
     trigger_functions_RS485[i] |= temp_data;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    trigger_functions_LAN[i]   |= temp_data;
+#endif
   }
 
   copying_active_functions = 0; //Помічаємо, що обновлення значення активних функцій завершене
-  if ((state_ar_record_prt  & ((unsigned int)(1 << 31))) != 0) 
-  {
-    state_ar_record_prt &= (unsigned int)(~(1 << 31));
-    state_ar_record = state_ar_record_prt;
-  }
   
   /*
   Робимо копію значення активних функцій для того, щоб коли ці знаення будуть
@@ -9673,12 +10189,23 @@ inline void main_protection(void)
      ) state_leds_ctrl |=  (1 << LED_COLOR_RED_BIT) << ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E);
   else state_leds_ctrl &=  (uint32_t)(~((1 << LED_COLOR_RED_BIT) << ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E)));
   
+  static uint32_t state_leds_lock[2];
+  static uint32_t state_leds_ctrl_lock[2];
+  static uint32_t state_leds_Fx_lock[2][2];
+  static size_t bank_lock;
+  
+  size_t bank_lock_tmp1 = bank_lock;
+  size_t bank_lock_tmp2 = (bank_lock_tmp1 + 1) & 0x1;
+  
+  state_leds_lock[bank_lock_tmp2] |= state_leds;
+  state_leds_ctrl_lock[bank_lock_tmp2] |= state_leds_ctrl;
+  state_leds_Fx_lock[bank_lock_tmp2][0] |= state_leds_Fx[0];
+  state_leds_Fx_lock[bank_lock_tmp2][1] |= state_leds_Fx[1];
+
   static uint32_t current_LED_N_COL;
   
   //Очищаємо попередню інформацію
   _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD32_DD38) = ((1 << current_LED_N_COL) << LED_N_ROW) | ((uint32_t)(~0) & ((1 << LED_N_ROW) - 1));
-  //Переходимо на наступний стовбець
-  if (++current_LED_N_COL >= LED_N_COL) current_LED_N_COL = 0;
   
   uint32_t state_leds_tmp;
   
@@ -9686,126 +10213,105 @@ inline void main_protection(void)
   {
   case 0:
     {
-      state_leds_tmp = (((state_leds >>  0) & 0x1) << 0) |
-                       (((state_leds >>  2) & 0x1) << 1) |
-                       (((state_leds >>  4) & 0x1) << 2) |
-                       (((state_leds >>  6) & 0x1) << 3) |
-                       (((state_leds >>  8) & 0x1) << 4) |
-                       (((state_leds >> 10) & 0x1) << 5) |
-                       (((state_leds >> 12) & 0x1) << 6) |
-                       (((state_leds >> 14) & 0x1) << 7);
-
-//      state_leds_tmp = (((state_leds >> (2*0)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E)) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(6 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      uint32_t state_leds_auto = state_leds_lock[bank_lock_tmp1];
+      
+      state_leds_tmp = (((state_leds_auto >>  0) & 0x1) << 0) |
+                       (((state_leds_auto >>  2) & 0x1) << 1) |
+                       (((state_leds_auto >>  4) & 0x1) << 2) |
+                       (((state_leds_auto >>  6) & 0x1) << 3) |
+                       (((state_leds_auto >>  8) & 0x1) << 4) |
+                       (((state_leds_auto >> 10) & 0x1) << 5) |
+                       (((state_leds_auto >> 12) & 0x1) << 6) |
+                       (((state_leds_auto >> 14) & 0x1) << 7);
       break;
     }
   case 1:
     {
-      uint32_t temp_state = state_leds;
-      state_leds_tmp = (((temp_state >>  1) & 0x1) << 0) |
-                       (((temp_state >>  3) & 0x1) << 1) |
-                       (((temp_state >>  5) & 0x1) << 2) |
-                       (((temp_state >>  7) & 0x1) << 3) |
-                       (((temp_state >>  9) & 0x1) << 4) |
-                       (((temp_state >> 11) & 0x1) << 5) |
-                       (((temp_state >> 13) & 0x1) << 6) |
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
-
-//      state_leds_tmp = (((state_leds >> (2*1)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_START)) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(1 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      uint32_t state_leds_auto = state_leds_lock[bank_lock_tmp1];
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
+      
+      state_leds_tmp = (((state_leds_auto >>  1) & 0x1) << 0) |
+                       (((state_leds_auto >>  3) & 0x1) << 1) |
+                       (((state_leds_auto >>  5) & 0x1) << 2) |
+                       (((state_leds_auto >>  7) & 0x1) << 3) |
+                       (((state_leds_auto >>  9) & 0x1) << 4) |
+                       (((state_leds_auto >> 11) & 0x1) << 5) |
+                       (((state_leds_auto >> 13) & 0x1) << 6) |
+                       ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
       break;
     }
   case 2:
     {
-      state_leds_tmp = ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E  )) & (1 << LED_COLOR_RED_BIT)) != 0) << 0) |
-                      /*
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_START)) & (1 << LED_COLOR_RED_BIT)) != 0) << 1) |
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_TRIP )) & (1 << LED_COLOR_RED_BIT)) != 0) << 2) |
-                      */
-                       (((state_leds >> 15) & 0x1) << 1) |
-                       (((state_leds >> 16) & 0x1) << 2) |
+      uint32_t state_leds_auto = state_leds_lock[bank_lock_tmp1];
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
+      uint32_t state_leds_Fx0_auto = state_leds_Fx_lock[bank_lock_tmp1][0];
+
+      state_leds_tmp = ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E  )) & (1 << LED_COLOR_RED_BIT)) != 0) << 0) |
+
+                       (((state_leds_auto >> 15) & 0x1) << 1) |
+                       (((state_leds_auto >> 16) & 0x1) << 2) |
       
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 3) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 4) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 5) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 6) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
-      
-//      state_leds_tmp = (((state_leds >> (2*2)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_TRIP)) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(2 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 3) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 4) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 5) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 6) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
       break;
     }
   case 3:
     {
-      state_leds_tmp = ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E  )) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 0) |
-                      /*
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_START)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 1) |
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_TRIP )) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 2) |
-                      */
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 3) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 4) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 5) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 6) | 
-                       ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
-      
-//      state_leds_tmp = (((state_leds >> (2*3)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(1 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(3 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
+      uint32_t state_leds_Fx0_auto = state_leds_Fx_lock[bank_lock_tmp1][0];
+
+      state_leds_tmp = ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_R_E  )) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 0) |
+
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 3) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 4) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 5) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 6) | 
+                       ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
+
       break;
     }
   case 4:
     {
-      state_leds_tmp = ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 0) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 1) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 2) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 3) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 4) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 5) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 6) |
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_I)) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
+      uint32_t state_leds_Fx0_auto = state_leds_Fx_lock[bank_lock_tmp1][0];
+      uint32_t state_leds_Fx1_auto = state_leds_Fx_lock[bank_lock_tmp1][1];
 
-//      state_leds_tmp = (((state_leds >> (2*4)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(2 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(4 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      state_leds_tmp = ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 0) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 1) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 2) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 3) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 4) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 5) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_RED_BIT)) != 0) << 6) |
+                       ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_I)) & (1 << LED_COLOR_RED_BIT)) != 0) << 7);
       break;
     }
   case 5:
     {
-      state_leds_tmp = ((((state_leds_Fx[0] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 0) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 1) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 2) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 3) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 4) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 5) |
-                       ((((state_leds_Fx[1] >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 6) |
-                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_I)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
+      uint32_t state_leds_Fx0_auto = state_leds_Fx_lock[bank_lock_tmp1][0];
+      uint32_t state_leds_Fx1_auto = state_leds_Fx_lock[bank_lock_tmp1][1];
 
-//      state_leds_tmp = (((state_leds >> (2*5)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(3 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(5 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      state_leds_tmp = ((((state_leds_Fx0_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 0) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(1 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 1) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(2 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 2) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(3 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 3) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(4 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 4) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(5 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 5) |
+                       ((((state_leds_Fx1_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)(6 - 1))) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 6) |
+                       ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_I)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
       break;
     }
   case 6:
     {
-      state_leds_tmp = ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
+      uint32_t state_leds_ctrl_auto = state_leds_ctrl_lock[bank_lock_tmp1];
 
-//      state_leds_tmp = (((state_leds >> (2*6)) & ((1 << 2) - 1)) << 0) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(4 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_Fx[1] >> (NUMBER_LED_COLOR*(6 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 4);
+      state_leds_tmp = ((((state_leds_ctrl_auto >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 7);
       break;
     }
-//  case 7:
-//    {
-//      state_leds_tmp = (((state_leds >> (2*7)) & ((1 << 1) - 1)) << 0) |
-//                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_RED_BIT)) != 0) << 1) |
-//                       (((state_leds_Fx[0] >> (NUMBER_LED_COLOR*(5 - 1))) & ((1 << NUMBER_LED_COLOR) - 1)) << 2) |
-//                       (((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_I)) & ((1 << NUMBER_LED_COLOR) - 1)) << 4) |
-//                       ((((state_leds_ctrl >> ((uint32_t)NUMBER_LED_COLOR*(uint32_t)LED_CTRL_O)) & (1 << LED_COLOR_GREEN_BIT)) != 0) << 6);
-//      break;
-//    }
   default:
     {
       //Теоретично цього ніколи не мало б бути
@@ -9815,6 +10321,18 @@ inline void main_protection(void)
 
   //Виводимо інформацію по світлоіндикаторах на світлодіоди
   _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD32_DD38) = ((1 << current_LED_N_COL) << LED_N_ROW) | ((uint32_t)(~state_leds_tmp) & ((1 << LED_N_ROW) - 1));
+
+  //Переходимо на наступний стовбець
+  if (++current_LED_N_COL >= LED_N_COL) 
+  {
+    current_LED_N_COL = 0;
+    bank_lock = bank_lock_tmp2;
+
+    state_leds_lock[bank_lock_tmp1] = 0;
+    state_leds_ctrl_lock[bank_lock_tmp1] = 0;
+    state_leds_Fx_lock[bank_lock_tmp1][0] = 0;
+    state_leds_Fx_lock[bank_lock_tmp1][1] = 0;
+  }
   /**************************/
 
   /**************************/
@@ -9841,13 +10359,99 @@ void TIM2_IRQHandler(void)
     TIM2->SR = (uint16_t)((~(uint32_t)TIM_IT_CC1) & 0xffff);
     uint32_t current_tick = TIM2->CCR1;
     
+    /*************************************
+    Управління чсом у UNIX-форматі
+    *************************************/
+    ++clk_count;
+
+    if ( ++time_ms >= 1000) 
+    {
+      time_ms = 0;
+      time_dat++;
+    }
+      
+    if ((save_time_dat_h == 3) || (save_time_dat_l == 3))
+    {
+      //Процес запису нового часу
+      if (save_time_dat_l == 3)
+      {
+        time_ms = time_ms_save_l;
+        time_dat = time_dat_save_l;
+        
+        save_time_dat_l = 2;
+      }
+      if (save_time_dat_h == 3)
+      {
+        time_ms = time_ms_save_h;
+        time_dat = time_dat_save_h;
+        
+        save_time_dat_h = 2;
+      }
+      
+      if (copying_time_to_RTC == 1) copying_time_to_RTC = 0;
+    }
+    else 
+    {
+      //Перевірка чи не потрібно забрати час з RTC
+      if (copying_time_to_RTC == 1)
+      {
+        int32_t diff_ms = time_ms - time_ms_RTC;
+        time_t diff_s = time_dat - time_dat_RTC;
+        if (diff_ms < 0) 
+        {
+          diff_ms += 1000;
+          --diff_s;
+        }
+        if (llabs(diff_s*1000 + diff_ms) > 2000)
+        {
+          time_ms = time_ms_RTC;
+          time_dat = time_dat_RTC;
+        }
+        copying_time_to_RTC = 0;
+      }
+    }
+    
+    
+    if (!copying_time_dat)
+    {
+      time_ms_copy = time_ms;
+      time_dat_copy = time_dat;
+    }
+    /*************************************/
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    /***********************************************************/
+    //Прийом інформації з комунікаційної плати
+    /***********************************************************/
+    if (restart_KP_irq == 0)
+    {
+      //Перевіряємо чи прийшли дані по каналу CANAL1_MO з комунікаційної плати
+      GPIO_CANAL1_MO_Out1->BSRRL = GPIO_PIN_CANAL1_MO_Out1; //Переводимо пін canal1_Out1 в стан "1"
+    }
+    else
+    {
+      _CLEAR_STATE(queue_mo, STATE_QUEUE_MO_RESTART_KP);
+      
+      if (--restart_KP_irq != 0) GPIO_KP_SOFT_RESET->BSRRL = GPIO_PIN_KP_SOFT_RESET; //Подаємо команду на перезапуск комунікаціної плати
+      else 
+      {
+        _SET_BIT(clear_diagnostyka, EVENT_RESTART_CB_BIT);
+        GPIO_KP_SOFT_RESET->BSRRH = GPIO_PIN_KP_SOFT_RESET; //Знімаємо команду на перезапуск комунікаціної плати
+        
+        queue_mo_irq = 0;
+        IEC_board_uncall = 200;
+      }
+    }
+    start_receive_data_via_CANAL1_MO();
+    Canal1 = true;
+    GPIO_CANAL1_MO_Out1->BSRRH = GPIO_PIN_CANAL1_MO_Out1; //Переводимо пін canal1_Out1 в стан "0"
+    /***********************************************************/
+#endif
+
     /***********************************************************/
     //Перевіряємо, чи відбувалися зміни настройок
     /***********************************************************/
-    if (
-        (changed_settings == CHANGED_ETAP_ENDED) && /*Це є умова, що нові дані підготовлені для передачі їх у роботу системою захистів (і при цьому зараз дані не змінюються)*/
-        (state_ar_record  != STATE_AR_START    )    /*Це є умова, що на даний момент не може виникнути переривання від вимірювальної системи (з вищим пріоритетом за пріоритет системи захистів) з умовою початку формування запису аналогового реєстратора. де треба буде взяти ширину доаварійного і післяаварійного масивів*/ 
-       )   
+    if (changed_settings == CHANGED_ETAP_ENDED) /*Це є умова, що нові дані підготовлені для передачі їх у роботу системою захистів (і при цьому зараз дані не змінюються)*/
     {
       //Копіюємо таблицю настройок у копію цієї таблиці але з якою працює (читає і змінює) тільки система захистів
       current_settings_prt = current_settings;
@@ -9867,46 +10471,8 @@ void TIM2_IRQHandler(void)
     /***********************************************************/
 
     /***********************************************************/
-    //Перевіряємо необхідність очистки аналогового і дискретного реєстраторів
+    //Перевіряємо необхідність очистки дискретного реєстраторів
     /***********************************************************/
-    //Аналоговий реєстратор
-    if (
-        ((clean_rejestrators & CLEAN_AR) != 0 )
-        &&  
-        (state_ar_record == STATE_AR_NO_RECORD)
-        &&  
-        (
-         (control_tasks_dataflash & (
-                                     TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR |
-                                     TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR      |
-                                     TASK_MAMORY_READ_DATAFLASH_FOR_AR_USB                         |
-                                     TASK_MAMORY_READ_DATAFLASH_FOR_AR_RS485                       |
-                                     TASK_MAMORY_READ_DATAFLASH_FOR_AR_MENU
-                                    )
-         ) == 0
-        )   
-       )
-    {
-      //Виставлено каманда очистити аналогового реєстратора
-
-      //Виставляємо команду запису цієї структури у EEPROM
-      _SET_BIT(control_spi1_taskes, TASK_START_WRITE_INFO_REJESTRATOR_AR_EEPROM_BIT);
-    
-      //Очищаємо структуру інформації по дискретному реєстраторі
-      info_rejestrator_ar.next_address = MIN_ADDRESS_AR_AREA;
-      info_rejestrator_ar.saving_execution = 0;
-      info_rejestrator_ar.number_records = 0;
-    
-      //Помічаємо, що номер запису не вибраний
-      number_record_of_ar_for_menu = 0xffff;
-      number_record_of_ar_for_USB = 0xffff;
-      number_record_of_ar_for_RS485 = 0xffff;
-
-      //Знімаємо команду очистки аналогового реєстратора
-      clean_rejestrators &= (unsigned int)(~CLEAN_AR);
-    }
-    
-    //Дискретний реєстратор
     if (
         ((clean_rejestrators & CLEAN_DR) != 0)
         &&  
@@ -9915,6 +10481,9 @@ void TIM2_IRQHandler(void)
                                      TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_DR | 
                                      TASK_MAMORY_READ_DATAFLASH_FOR_DR_USB                    |
                                      TASK_MAMORY_READ_DATAFLASH_FOR_DR_RS485                  |
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                                     TASK_MAMORY_READ_DATAFLASH_FOR_DR_LAN                    |
+#endif  
                                      TASK_MAMORY_READ_DATAFLASH_FOR_DR_MENU
                                     )
          ) == 0
@@ -9935,6 +10504,9 @@ void TIM2_IRQHandler(void)
       number_record_of_dr_for_menu  = 0xffff;
       number_record_of_dr_for_USB   = 0xffff;
       number_record_of_dr_for_RS485 = 0xffff;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      number_record_of_dr_for_LAN = 0xffff;
+#endif  
 
       //Знімаємо команду очистки дискретного реєстратора
       clean_rejestrators &= (unsigned int)(~CLEAN_DR);
@@ -9972,10 +10544,10 @@ void TIM2_IRQHandler(void)
           {
             if (error_rele[index] < 3) error_rele[index]++;
             if (error_rele[index] >= 3 ) _SET_BIT(set_diagnostyka, (ERROR_DIGITAL_OUTPUT_1_BIT + index));
-        }
+          }
           else error_rele[index] = 0;
+        }
       }
-    }
       else
       {
         for (unsigned int index = 0; index < NUMBER_OUTPUTS; index++) error_rele[index] = 0;
@@ -10009,7 +10581,8 @@ void TIM2_IRQHandler(void)
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
       if ((board_register_tmp & 0x04) !=  0x4) _SET_BIT(set_diagnostyka, ERROR_BDVV5_2_FIX);
       else if (board_register_diff & 0x04)
@@ -10023,7 +10596,8 @@ void TIM2_IRQHandler(void)
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
     if ((board_register_tmp & 0x010) != 0x10) 
 #if (MODYFIKACIA_VERSII_PZ == 0)
@@ -10053,37 +10627,42 @@ void TIM2_IRQHandler(void)
     }
     
     //Перевіряємо достовірність значень для аналогового реєстратора
-    if (
-        (state_ar_record  != STATE_AR_TEMPORARY_BLOCK) &&
-        (changed_settings == CHANGED_ETAP_NONE       )  
-       )   
-    {
-      //Перевірку здійснюємо тільки тоді, коли не іде зміна часових параметрів
-      unsigned int size_one_ar_record_tmp = size_one_ar_record, max_number_records_ar_tmp = max_number_records_ar;
-      if (
-          ((number_word_digital_part_ar*8*sizeof(short int)) < NUMBER_TOTAL_SIGNAL_FOR_RANG)
-          ||  
-          (size_one_ar_record_tmp != (sizeof(__HEADER_AR) + ((current_settings_prt.prefault_number_periods + current_settings_prt.postfault_number_periods) << VAGA_NUMBER_POINT_AR)*(NUMBER_ANALOG_CANALES + number_word_digital_part_ar)*sizeof(short int)))
-          ||
-          (
-           !(
-             (size_one_ar_record_tmp* max_number_records_ar_tmp      <= ((NUMBER_PAGES_INTO_DATAFLASH_2 << VAGA_SIZE_PAGE_DATAFLASH_2))) &&
-             (size_one_ar_record_tmp*(max_number_records_ar_tmp + 1) >  ((NUMBER_PAGES_INTO_DATAFLASH_2 << VAGA_SIZE_PAGE_DATAFLASH_2)))
-            ) 
-          ) 
-         )
-      {
-        //Теоретично ця помилка ніколи не малаб реєструватися
-        /*Якщо виникла така ситуація то треба зациклити пророграму, щоб вона пішла на перезапуск - 
-        бо відбулася недопустима незрозуміла помилка у розраховуваних параметрах аналогового реєстратора.
-        Не зрозумілу чого вона виникла, коли і де, коректність роботи пригоамного забезпечення під питанням!*/
-        total_error_sw_fixed(5);
-      }
-    }
+//    //Перевіряємо достовірність значень для аналогового реєстратора
+//    if ((number_word_digital_part_ar*8*sizeof(short int)) < NUMBER_TOTAL_SIGNAL_FOR_RANG)
+//    {
+//      //Теоретично ця помилка ніколи не малаб реєструватися
+//      /*Якщо виникла така ситуація то треба зациклити ропаграму, щоб вона пішла на перезапуск - 
+//      бо відбулася недопустима незрозуміла помилка у розраховуваних параметрах аналогового реєстратора.
+//      Не зрозумілу чого вона виникла, коли і де, коректність роботи пригоамного забезпечення під питанням!*/
+//      total_error_sw_fixed(5);
+//    }
 
     //Функції захистів
     main_protection();
     /***********************************************************/
+
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    /***
+    Очікування, щоб попередній пакет гарантовано завершив передаватися
+    ***/
+//    while ((DMA_StreamCANAL1_MO_Tx->CR & DMA_IT_TC) != 0);
+    while (DMA_StreamCANAL1_MO_Tx->NDTR != 0);
+
+//    uint32_t tick_for_Canal_1_tmp = tick_for_Canal_1;
+    uint32_t tick_for_Canal_1_tmp = TIM2->CNT;
+    uint64_t delta_tmp = 0;
+    do
+    {
+      uint32_t tick_tmp = TIM2->CNT;
+      delta_tmp = (tick_tmp < tick_for_Canal_1_tmp) ? (tick_tmp + 0x100000000 - tick_for_Canal_1_tmp) : (tick_tmp - tick_for_Canal_1_tmp);
+    }
+    while(delta_tmp < 2);
+    /***/
+
+    //Ініціюємо передачу даних по каналу CANAL1_MO у комунікаційну плату
+    start_transmint_data_via_CANAL1_MO();
+#endif
 
     /***********************************************************/
     //Перевірка на необхідність зроботи резервні копії даних для самоконтролю
@@ -10348,4 +10927,183 @@ void setpoints_selecting(unsigned int *p_active_functions, unsigned int act_inp_
 }
 /*****************************************************/
 
+/*****************************************************/
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+void proc_Gs_blk_out(void* pv,unsigned long lCtrGsSrc,short* p_arrOrdNumsGsSignal ){
+
+    // ----------------    -------------------------       
+        register unsigned long i,lV,j;
+         
+         register void *pvll;
+
+        pvll = (void*)&current_settings_prt.ranguvannja_In_GOOSE;//
+        i = j = lV = 0;
+
+        asm ("nop" ::"r"(i),"r"(j),"r"(lV));
+        while(lCtrGsSrc){
+            lCtrGsSrc--;
+            lV = p_arrOrdNumsGsSignal[lCtrGsSrc];
+            i = lV>>3;j = lV - (i<<3);
+
+            lV = i*N_IN_GOOSE_MMS_OUT*N_SMALL +j*N_SMALL;
+            for(register unsigned long k = 0; k < N_SMALL; k++){
+                ((unsigned long*)pv)[k] |= ((unsigned long*)pvll+lV) [k];
+            }
+            
+        }
+
+}
+void proc_Mms_blk_out(void* pv,unsigned long lCtrMmsSrc,short* p_arrOrdNumsMmsSignal ){
+
+    // ----------------    -------------------------       
+        register unsigned long i,lV,j;
+         
+         register void *pvll;
+
+        pvll = (void*)&current_settings_prt.ranguvannja_In_MMS;//
+        i = j = lV = 0;
+
+        asm ("nop" ::"r"(i),"r"(j),"r"(lV));
+        while(lCtrMmsSrc){
+            lCtrMmsSrc--;
+            lV = p_arrOrdNumsMmsSignal[lCtrMmsSrc];
+            i = lV>>3;j = lV - (i<<3);
+
+            lV = i*N_IN_GOOSE_MMS_OUT*N_SMALL +j*N_SMALL;
+            for(register unsigned long k = 0; k < N_SMALL; k++){
+                ((unsigned long*)pv)[k] |= ((unsigned long*)pvll+lV) [k];
+            }
+			
+        }
+		//
+		/*
+		2. У момент ,коли ти активовуєш "Вхід ВФх" (вхід будь-якої визначуваної функції) з MMS (GOOSE це не стосується!), то тобі треба запустити таймер:
+
+global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + _n] = 0;
+
+Де _n - це номер визначуваної функції
+
+Все.
+-----------------------------------------
+
+Для прикладу, як я це роблю у рядках 10140-10152 protection.c
+
+Це недолік у програмі. Бо неможливо активуватьи визначувану функцію з MMS, якщо у неї виставлено таймер павзи ненульовий. Тому, я вважаю, що це неайпріоритетніша робота зараз для тебе мала б бути.
+		*/
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF1_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 0] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 0] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF2_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 1] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 1] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF3_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 2] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 2] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF4_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 3] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 3] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF5_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 4] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 4] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF6_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 5] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 5] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF7_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 6] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 6] = 0;
+//.			}
+//.		}
+//.		if (_CHECK_SET_BIT(((unsigned long*)pv), RANG_SMALL_DF8_IN) == 0){
+//.			//Зараз має активуватися В-ФункціяХ, тому треба запустити таймер її утримування,
+//.			//для того, щоб потім час цей можна було зрівняти з часом таймера павзи
+//.			if (global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 7] < 0)
+//.			{
+//.			//Запускаємо таймер таймер утримування цієї функції в активному стані (емітація активного входу)
+//.			//Запуск робимо тільки ту тому випадкук, якщо він ще не почався
+//.			global_timers[INDEX_TIMER_DF_PROLONG_SET_FOR_BUTTON_INTERFACE_START + 7] = 0;
+//.			}
+//.		}
+}
+
+void proc_Lan_blk_out(unsigned short *p_rang_Out_LAN,unsigned int *p_active_functions, void *pLanDsc){
+    register unsigned long rU_V,rU_bit,rU_out, rU_Idx;
+   
+    unsigned long IdxBlk,l_O;
+// ----------------    -------------------------
+    IdxBlk = *((unsigned char*)pLanDsc);l_O = 0;//sLV.IdxBlk = LAN_BLOCK_ORD_NUM_00;    
+    for(rU_out = 0; rU_out < 8; rU_out++){
+        rU_bit = rU_V = 0;
+        while( rU_bit < MAX_FUNCTIONS_IN_OUT_LAN ){
+            //
+            rU_V = (IdxBlk*N_OUT_LAN_IN*MAX_FUNCTIONS_IN_OUT_LAN) + (rU_out*MAX_FUNCTIONS_IN_OUT_LAN) + rU_bit;//find index
+            rU_Idx = p_rang_Out_LAN[rU_V];//find index
+            if(rU_Idx>0){
+                rU_Idx--;
+                //Create 32 bit mask
+                rU_V = p_active_functions[rU_Idx >> 5] & ( (unsigned int)( 1 << (rU_Idx & 0x1f)));
+                if(rU_V != 0){
+                    ;//Set Val
+                    rU_bit = MAX_FUNCTIONS_IN_OUT_LAN+1;
+                }
+            }
+            rU_bit++;
+        }
+        rU_Idx = IdxBlk;//sLV.IdxBlk;
+        if(rU_bit == (MAX_FUNCTIONS_IN_OUT_LAN+2) ){ //Activate Out
+            //((unsigned char*)pLanDsc+1)[rU_Idx] |= 1<< rU_out;
+            l_O  |= 1<< rU_out;
+        }
+    
+    }   
+    Output_Out_LAN_block[IdxBlk] = l_O;
+}
+
+#endif
 /*****************************************************/

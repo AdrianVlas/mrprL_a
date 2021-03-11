@@ -64,6 +64,8 @@
 
 #define _SET_STATE(_output, _output_bit) _output |= (unsigned int)(1 << _output_bit)
 
+#define _GET_STATE(_input, _input_bit) ((_input >> (_input_bit)) & 0x1)
+
 #define _GET_OUTPUT_STATE(_input, _input_bit) ((_input & ((unsigned int)(1 << _input_bit))) != 0)
 
 #define _INVERTOR(                                         \
@@ -541,6 +543,8 @@
                                                                                         \
   array_ar[index++] = data;                                                             \
 }
+
+#define INT_TO_BCD(_data) ((((_data) / 10) << 4) | ((_data) % 10))
 
 #endif 
 

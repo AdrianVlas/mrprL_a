@@ -21,12 +21,20 @@
 ///* Адресний простір тестування Watch dog*/
 ///*****************************************************/
 //#define MA_TEST_WATCHDOGS                     63472
-//#define CMD_TEST_EXTERNAL_WATCHDOG            0xCDEF
+#define CMD_TEST_EXTERNAL_WATCHDOG            0xCDEF
 ///*****************************************************/
 
+enum _INTERFACE
+{
+  USB_RECUEST = 0,
+  RS485_RECUEST,
 
-#define USB_RECUEST           0
-#define RS485_RECUEST         1
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  LAN_RECUEST,
+#endif
+  
+  MAX_INTERFACES
+};
 
 enum __data_changed_bit
 {
@@ -41,8 +49,12 @@ DEFAULT_SETTINGS_SET_BIT
 
 #define BUFFER_RS485          256
 #define BUFFER_USB            256
+#define BUFFER_USB_IN         (3*BUFFER_USB)
+#define BUFFER_USB_OUT        (3*BUFFER_USB)
+#define BUFFER_LAN            256
 
 #define MAX_TIMEOUT_PACKET    5000 // 50 мс, якщо врахувати, що ТІM4 тактує з періодом 10 мкс
+#define MAX_TIMEOUT_PACKET_USB 200 /*один тік - 1 мс*/
 
 #define ERROR_ILLEGAL_FUNCTION                        1
 #define ERROR_ILLEGAL_DATA_ADDRESS                    2 

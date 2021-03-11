@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_choose_CBOn_CBOff(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_RANG_SWITCH][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_RANG_SWITCH][MAX_COL_LCD] = 
   {
     {
       " ÁÎ             ",
@@ -61,7 +61,7 @@ void make_ekran_choose_CBOn_CBOff(void)
 /*****************************************************/
 void make_ekran_setpoint_switch()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_SWITCH][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_SWITCH][MAX_COL_LCD] = 
   {
     {
       "     I íîì.     ",
@@ -202,7 +202,7 @@ void make_ekran_setpoint_switch()
             else if (j == COL_SETPOINT_Inom_vymk_COMMA )working_ekran[i][j] = ',';
             else if ((j >= (COL_SETPOINT_Inom_vymk_END + 2)) && (j <= (COL_SETPOINT_Inom_vymk_END + 3))) 
             {
-              const unsigned char kA[MAX_NAMBER_LANGUAGE][2] = {"êÀ", "êÀ", "kA", "êÀ"};
+              static const unsigned char kA[MAX_NAMBER_LANGUAGE][2] = {"êÀ", "êÀ", "kA", "êÀ"};
               
               working_ekran[i][j] = kA[index_language][j - (COL_SETPOINT_Inom_vymk_END + 2)];
             }
@@ -312,7 +312,7 @@ void make_ekran_setpoint_switch()
 /*****************************************************/
 void make_ekran_timeout_switch()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_SWITCH][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_SWITCH][MAX_COL_LCD] = 
   {
     {
       "     T âêë.     ",
@@ -494,7 +494,7 @@ void make_ekran_timeout_switch()
 /*****************************************************/
 void make_ekran_control_switch()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_SWITCH][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_SWITCH][MAX_COL_LCD] = 
   {
     {
       "  Êîíòðîëü ÂÂ   ",

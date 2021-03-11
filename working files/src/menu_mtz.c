@@ -46,7 +46,7 @@ void calc_symbol_and_put_into_working_ekran(unsigned char* point_in_working_ekra
 /*****************************************************/
 void make_ekran_setpoint_mtz(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_MTZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_MTZ][MAX_COL_LCD] = 
   {
     {
       "      МТЗ1      ",
@@ -744,7 +744,7 @@ void make_ekran_setpoint_mtz(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_mtz(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_MTZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_MTZ][MAX_COL_LCD] = 
   {
     {
       "      МТЗ1      ",
@@ -1369,7 +1369,7 @@ void make_ekran_timeout_mtz(unsigned int group)
 /*****************************************************/
 void make_ekran_control_mtz()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_MTZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_MTZ][MAX_COL_LCD] = 
   {
     {
       "      МТЗ1      ",
@@ -1497,14 +1497,14 @@ void make_ekran_control_mtz()
           else if (index_ctr == INDEX_ML_CTRMTZ_3_TYPE) value = point->type_mtz3;
           else if (index_ctr == INDEX_ML_CTRMTZ_4_TYPE) value = point->type_mtz4;
 
-          const unsigned char information[MAX_NAMBER_LANGUAGE][8][MAX_COL_LCD] = 
+          static const unsigned char information[MAX_NAMBER_LANGUAGE][8][MAX_COL_LCD] = 
           {
             {"    Простая     ", "  Направленная  ", " С пуском по U  ", " Завис.(Тип A)  ", " Завис.(Тип B)  ", " Завис.(Тип C)  ", " Завис.(РТ-80)  ", " Завис.(РТВ-1)  "},
             {"     Проста     ", "   Направлена   ", " Із пуском по U ", " Залежна (Тип A)", " Залежна (Тип B)", " Залежна (Тип C)", " Залежна (РТ-80)", " Залежна (РТВ-1)"},
             {"    Простая     ", "  Направленная  ", " С пуском по U  ", "  Dep.(Type A)  ", "  Dep.(Type B)  ", "  Dep.(Type C)  ", "  Dep.(RT-80)   ", "  Dep.(RTV-1)   "},
             {"    Простая     ", "  Направленная  ", " С пуском по U  ", " Завис.(Тип A)  ", " Завис.(Тип B)  ", " Завис.(Тип C)  ", " Завис.(РТ-80)  ", " Завис.(РТВ-1)  "}
           };
-          const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][8] = 
+          static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][8] = 
           {
             {3, 1, 0, 0, 0, 0, 0, 0},
             {4, 2, 0, 0, 0, 0, 0, 0},

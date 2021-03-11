@@ -8,7 +8,8 @@
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
 //конечный регистр в карте памяти
 #define END_ADR_REGISTER 1355
@@ -26,8 +27,6 @@ int getDOUTBigModbusBit(int);//получить содержимое бита
 int setDOUTBigModbusRegister(int, int);// регистра
 int setDOUTBigModbusBit(int, int);// бита
 
-void preDOUTBigReadAction(void);//action до чтения
-void preDOUTBigWriteAction(void);//action до записи
 int  postDOUTBigWriteAction(void);//action после записи
 
 COMPONENT_OBJ *doutbigcomponent;
@@ -44,11 +43,7 @@ void constructorDOUTBigComponent(COMPONENT_OBJ *doutcomp)
   doutbigcomponent->setModbusRegister = setDOUTBigModbusRegister;// регистра
   doutbigcomponent->setModbusBit      = setDOUTBigModbusBit;// бита
 
-  doutbigcomponent->preReadAction   = preDOUTBigReadAction;//action до чтения
-  doutbigcomponent->preWriteAction  = preDOUTBigWriteAction;//action до записи
   doutbigcomponent->postWriteAction = postDOUTBigWriteAction;//action после записи
-
-  doutbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getDOUTBigModbusRegister(int adrReg)
@@ -86,18 +81,6 @@ int setDOUTBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preDOUTBigReadAction(void)
-{
-//action до чтения
-  doutbigcomponent->isActiveActualData = 1;
-}//
-void preDOUTBigWriteAction(void)
-{
-//action до записи
-  doutbigcomponent->operativMarker[0] = -1;
-  doutbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  doutbigcomponent->isActiveActualData = 1;
-}//
 int postDOUTBigWriteAction(void)
 {
 extern int upravlSchematic;//флаг Rang

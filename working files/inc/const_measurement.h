@@ -34,7 +34,7 @@
 #define VAGA_NUMBER_POINT                5
 #define NUMBER_POINT                     (1 << VAGA_NUMBER_POINT)
 
-#define NUMBER_PERIOD_TRANSMIT           10
+//#define NUMBER_PERIOD_TRANSMIT           10
 
 /*
 Коефіцієнт, який переводить число з АЦП у мА
@@ -326,8 +326,8 @@ enum _resistance_index
   R_B,
   X_B,
   Z_B,
-  R_С,
-  X_С,
+  R_C,
+  X_C,
   Z_C,
   
   R_AB,

@@ -22,7 +22,7 @@ const unsigned int input_adc[NUMBER_INPUTs_ADCs][2]={
                                                      {1,0xb370},
                                                      {1,0xb770},
                                                      {1,0xbb70},
-                                                     {1,0xbf70},
+                                                     {1,0xbf70}
                                                     };
 EXTENDED_OUTPUT_DATA output_adc[NUMBER_INPUTs_ADCs];
 ROZSHYRENA_VYBORKA rozshyrena_vyborka;
@@ -79,9 +79,7 @@ unsigned int index_array_of_one_value_fourier;
 
 EXTENDED_SAMPLE ADCs_data_raw[NUMBER_ANALOG_CANALES];
 int ADCs_data[NUMBER_ANALOG_CANALES];
-//int current_data[NUMBER_ANALOG_CANALES*NUMBER_POINT*NUMBER_PERIOD_TRANSMIT];
 unsigned long long sqr_current_data_3I0[NUMBER_POINT];
-unsigned int index_array_of_current_data_value;
 
 unsigned int changed_ustuvannja = CHANGED_ETAP_NONE; 
 unsigned char crc_ustuvannja;
@@ -223,7 +221,8 @@ unsigned int measurement_low[_NUMBER_IM];
 const unsigned int index_converter[NUMBER_ANALOG_CANALES]  = {FULL_ORT_3I0, FULL_ORT_Ia, FULL_ORT_Ib , FULL_ORT_Ic, FULL_ORT_Ua , FULL_ORT_Ub , FULL_ORT_Uc , FULL_ORT_3U0};
 int ortogonal_calc[2*FULL_ORT_MAX];
 int ortogonal_calc_low[2*FULL_ORT_MAX];
-int phi_angle[FULL_ORT_MAX];
+int phi_angle[2][FULL_ORT_MAX];
+uint32_t bank_for_calc_phi_angle, state_calc_phi_angle;
 int base_index_for_angle = -1;
 
 int P_plus[2];
@@ -234,10 +233,11 @@ int Q_3q[2];
 int Q_4q[2];
 unsigned int lichylnyk_1s_po_20ms;
 unsigned int bank_for_enegry;
-unsigned int mutex_power;
-int P[2], Q[2], cos_phi_x1000;
+int P[2], Q[2], cos_phi_x1000[2];
 unsigned int S[2];
-double energy[MAX_NUMBER_INDEXES_ENERGY];
+uint32_t bank_for_calc_power, state_calc_power;
+double energy[2][MAX_NUMBER_INDEXES_ENERGY];
+uint32_t state_calc_energy;
 unsigned int clean_energy;
 unsigned int information_about_clean_energy;
 
@@ -348,7 +348,8 @@ unsigned int temp_states_for_mtz;
 //ЗДЗ
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
 uint32_t delta_time_test = PERIOD_ZDZ_TEST;
 uint32_t zdz_ovd_diagnostyka;
@@ -377,9 +378,14 @@ unsigned int TZNP_3I0_r_bilshe_porogu;
 unsigned int sector_directional_tznp[3];
 
 //Направлена ДЗ
-int32_t sector_directional_dz[4 - 1][3] = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
-unsigned int Uxy_bilshe_porogu_dz[3];
-unsigned int Ix_bilshe_porogu_dz[3];
+int32_t sector_directional_dz[4 - 1][2*3] = 
+{
+  {-1, -1, -1, -1, -1, -1}, 
+  {-1, -1, -1, -1, -1, -1}, 
+  {-1, -1, -1, -1, -1, -1}
+};
+unsigned int Uxy_bilshe_porogu_dz[2*3];
+unsigned int Ix_bilshe_porogu_dz[2*3];
 
 unsigned int i1_bilshe_porogu, i2_bilshe_porogu;
 
@@ -410,18 +416,17 @@ unsigned int fix_active_buttons, fix_active_buttons_ctrl;
 unsigned int mutex_interface;
 unsigned int activation_function_from_interface[N_SMALL];
 unsigned int reset_trigger_function_from_interface;
-unsigned int diagnostyka_before[3];
-volatile unsigned int diagnostyka[3];
-unsigned int set_diagnostyka[3];
-unsigned int clear_diagnostyka[3];
+unsigned int diagnostyka_before[N_DIAGN];
+volatile unsigned int diagnostyka[N_DIAGN];
+unsigned int set_diagnostyka[N_DIAGN];
+unsigned int clear_diagnostyka[N_DIAGN];
 
 uint32_t board_register;
 
 int global_timers[MAX_NUMBER_GLOBAL_TIMERS]; //Масив глобальних таймерів
 unsigned int timer_prt_signal_output_mode_2;
 unsigned int output_timer_prt_signal_output_mode_2;
-unsigned int etap_execution_df[NUMBER_DEFINED_FUNCTIONS] = {NONE_DF, NONE_DF, NONE_DF, NONE_DF, NONE_DF, NONE_DF, NONE_DF, NONE_DF}; //Етап виконання опреділюваної функції
-//unsigned int state_df = 0; //Текучий стан опреділюваних функцій
+unsigned int static_logic_df;
 
 unsigned int previous_states_APV_0;
 unsigned int trigger_APV_0;
@@ -454,9 +459,26 @@ SRAM1 int position_in_current_level_menu[MAX_LEVEL_MENU]; //Масив у якому збкріг
 SRAM1 int previous_level_in_current_level_menu[MAX_LEVEL_MENU]; //Масив у якому збкрігається занчення попередніх екранів для даного рівня меню
 const uint32_t buttons_mode[NUMBER_BUTTON_MODE][N_SMALL] = 
 {
-  {MASKA_BUTTON_MODE_0_SIGNALS_0, MASKA_BUTTON_MODE_0_SIGNALS_1, MASKA_BUTTON_MODE_0_SIGNALS_2},
-  {MASKA_BUTTON_MODE_1_SIGNALS_0, MASKA_BUTTON_MODE_1_SIGNALS_1, MASKA_BUTTON_MODE_1_SIGNALS_2}
+  {
+    MASKA_BUTTON_MODE_0_SIGNALS_0, 
+    MASKA_BUTTON_MODE_0_SIGNALS_1, 
+    MASKA_BUTTON_MODE_0_SIGNALS_2
+#ifdef MASKA_BUTTON_MODE_0_SIGNALS_3
+                                 ,
+      MASKA_BUTTON_MODE_0_SIGNALS_3
+#endif
+  },
+  {
+    MASKA_BUTTON_MODE_1_SIGNALS_0, 
+    MASKA_BUTTON_MODE_1_SIGNALS_1, 
+    MASKA_BUTTON_MODE_1_SIGNALS_2
+#ifdef MASKA_BUTTON_MODE_1_SIGNALS_3
+                                 ,
+    MASKA_BUTTON_MODE_1_SIGNALS_3      
+#endif
+  }
 };
+
 const uint32_t output_boards[N_OUTPUT_BOARDS][2] = 
 {
   { 2, 1},
@@ -464,19 +486,22 @@ const uint32_t output_boards[N_OUTPUT_BOARDS][2] =
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
   ,
   {16, 5}
 #endif
 };
+
 const uint32_t input_boards[N_INPUT_BOARDS][2] = 
 {
   { 8, 4}
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
   ,
   {16, 5}
@@ -485,6 +510,66 @@ const uint32_t input_boards[N_INPUT_BOARDS][2] =
   {20, 7}
 #endif
 #endif
+};
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+
+const uint32_t index_n_In_GOOSE[MAX_NAMBER_LANGUAGE][1] = 
+{
+  {14}, 
+  {14}, 
+  {13}, 
+  {14} 
+};
+
+const uint32_t index_n_In_MMS[MAX_NAMBER_LANGUAGE][1] = 
+{
+  {13}, 
+  {13}, 
+  {12}, 
+  {13} 
+};
+
+const uint32_t index_n_Out_LAN[MAX_NAMBER_LANGUAGE][1] = 
+{
+  {11}, 
+  {11}, 
+  {11}, 
+  {11} 
+};
+
+unsigned int edit_rang_Out_LAN[N_BIG];
+
+const uint32_t rang_iec61850_blocks[2][N_SMALL] = 
+{
+  {
+    MASKA_IN_GOOSE_SIGNALS_0, 
+    MASKA_IN_GOOSE_SIGNALS_1, 
+    MASKA_IN_GOOSE_SIGNALS_2
+#ifdef MASKA_IN_GOOSE_SIGNALS_3
+                            , 
+    MASKA_IN_GOOSE_SIGNALS_3
+#endif
+  },
+  {
+    MASKA_IN_MMS_SIGNALS_0,
+    MASKA_IN_MMS_SIGNALS_1,
+    MASKA_IN_MMS_SIGNALS_2
+#ifdef MASKA_IN_MMS_SIGNALS_3
+                          ,
+    MASKA_IN_MMS_SIGNALS_3
+#endif
+  }
+};
+
+#endif  
+  
+const uint32_t index_number_UP[MAX_NAMBER_LANGUAGE][3] = 
+{
+  {11, 10, 8}, 
+  {11, 10, 8}, 
+  {12,  7, 8}, 
+  {11, 10, 8}, 
 };
 
 unsigned int periodical_tasks_TEST_SETTINGS;
@@ -579,39 +664,210 @@ const uint32_t max_value_for_tf[1 + TOTAL_NUMBER_PROTECTION][MAX_ROW_LIST_SOURCE
   }
 };
 
+unsigned int realDateTime;
 
-unsigned int fixed_power_down_into_RTC; 
-unsigned char time[7]; 
-unsigned char time_copy[7]; 
 unsigned char calibration;
-unsigned char calibration_copy;
-unsigned int copying_time;
 unsigned char time_edit[7]; 
 unsigned char calibration_edit;
-unsigned int copy_register8_RTC;
 int etap_reset_of_bit = ETAP_CLEAR_OF_NONE;
-int etap_settings_test_frequency = -1;
-unsigned char temp_register_rtc[2];
+
+char getzone_string[2][55];
+size_t bank_getzone;
+unsigned int lt_or_utc;
+clock_t clk_count;
+int32_t time_ms, time_ms_copy;
+time_t time_dat, time_dat_copy;
+unsigned int copying_time_to_RTC;
+int32_t time_ms_RTC;
+time_t time_dat_RTC;
+unsigned int copying_time_dat;
+int32_t time_ms_save_l, time_ms_save_h;
+time_t time_dat_save_l, time_dat_save_h;
+unsigned int save_time_dat_l, save_time_dat_h;
 
 unsigned int changed_settings = CHANGED_ETAP_NONE; 
 unsigned char crc_settings;
-__SETTINGS current_settings_prt, current_settings;
-SRAM1 __SETTINGS edition_settings, current_settings_interfaces;
-unsigned int mtz_settings_prt[NUMBER_LEVEL_MTZ][MTZ_SETTINGS_LENGTH];
-unsigned int mtz_tmr_const[NUMBER_LEVEL_MTZ][NUMBER_LEVEL_TMR_CONST];
-int * type_mtz_arr[NUMBER_LEVEL_MTZ];
-unsigned int mtz_const_menu_settings_prt[NUMBER_LEVEL_MTZ][MTZ_CONST_MENU_SETTINGS_LENGTH];
+__SETTINGS current_settings_prt;
+
+#if (MODYFIKACIA_VERSII_PZ < 10)
+__SETTINGS current_settings, edition_settings, current_settings_interfaces;
+#else
+SRAM1 __SETTINGS current_settings, edition_settings, current_settings_interfaces;
+#endif
+
+int * const type_mtz_arr[NUMBER_LEVEL_MTZ] = 
+{
+  &current_settings_prt.type_mtz1,
+  &current_settings_prt.type_mtz2,
+  &current_settings_prt.type_mtz3,
+  &current_settings_prt.type_mtz4,
+};
+const unsigned int mtz_settings_prt[NUMBER_LEVEL_MTZ][MTZ_SETTINGS_LENGTH] = 
+{
+  {
+    RANG_BLOCK_MTZ1, 
+    0,
+    RANG_SECTOR_VPERED_MTZN1,
+    RANG_SECTOR_NAZAD_MTZN1,
+    RANG_PO_MTZ1,
+    RANG_PO_MTZN1_VPERED,
+    RANG_PO_MTZN1_NAZAD,
+    RANG_PO_U_MTZPN1,
+    RANG_PO_MTZPN1,
+    RANG_MTZ1
+  },
+  {
+    RANG_BLOCK_MTZ2, 
+    RANG_BLOCK_USK_MTZ2,
+    RANG_SECTOR_VPERED_MTZN2,
+    RANG_SECTOR_NAZAD_MTZN2,
+    RANG_PO_MTZ2,
+    RANG_PO_MTZN2_VPERED,
+    RANG_PO_MTZN2_NAZAD,
+    RANG_PO_U_MTZPN2,
+    RANG_PO_MTZPN2,
+    RANG_MTZ2
+  },
+  {
+    RANG_BLOCK_MTZ3, 
+    0,
+    RANG_SECTOR_VPERED_MTZN3,
+    RANG_SECTOR_NAZAD_MTZN3,
+    RANG_PO_MTZ3,
+    RANG_PO_MTZN3_VPERED,
+    RANG_PO_MTZN3_NAZAD,
+    RANG_PO_U_MTZPN3,
+    RANG_PO_MTZPN3,
+    RANG_MTZ3
+  },
+  {
+    RANG_BLOCK_MTZ4, 
+    0,
+    RANG_SECTOR_VPERED_MTZN4,
+    RANG_SECTOR_NAZAD_MTZN4,
+    RANG_PO_MTZ4,
+    RANG_PO_MTZN4_VPERED,
+    RANG_PO_MTZN4_NAZAD,
+    RANG_PO_U_MTZPN4,
+    RANG_PO_MTZPN4,
+    RANG_MTZ4
+  }
+};
+const unsigned int mtz_tmr_const[NUMBER_LEVEL_MTZ][NUMBER_LEVEL_TMR_CONST] = 
+{
+  {
+    INDEX_TIMER_MTZ1,
+    INDEX_TIMER_MTZ1_N_VPERED,
+    INDEX_TIMER_MTZ1_N_NAZAD,
+    INDEX_TIMER_MTZ1_PO_NAPRUZI
+  },
+  {
+    INDEX_TIMER_MTZ2,
+    INDEX_TIMER_MTZ2_N_VPERED,
+    INDEX_TIMER_MTZ2_N_NAZAD,
+    INDEX_TIMER_MTZ2_PO_NAPRUZI
+  },
+  {
+    INDEX_TIMER_MTZ3,
+    INDEX_TIMER_MTZ3_N_VPERED,
+    INDEX_TIMER_MTZ3_N_NAZAD,
+    INDEX_TIMER_MTZ3_PO_NAPRUZI
+  },
+  {
+    INDEX_TIMER_MTZ4,
+    INDEX_TIMER_MTZ4_N_VPERED,
+    INDEX_TIMER_MTZ4_N_NAZAD,
+    INDEX_TIMER_MTZ4_PO_NAPRUZI
+  },
+};
+const unsigned int mtz_const_menu_settings_prt[NUMBER_LEVEL_MTZ][MTZ_CONST_MENU_SETTINGS_LENGTH] = 
+{
+  {
+    CTR_MTZ_1,
+    CTR_MTZ_1_VPERED,
+    CTR_MTZ_1_NAZAD
+  },
+  {
+    CTR_MTZ_2,
+    CTR_MTZ_2_VPERED,
+    CTR_MTZ_2_NAZAD
+  },
+  {
+    CTR_MTZ_3,
+    CTR_MTZ_3_VPERED,
+    CTR_MTZ_3_NAZAD
+  },
+  {
+    CTR_MTZ_4,
+    CTR_MTZ_4_VPERED,
+    CTR_MTZ_4_NAZAD
+  }
+};
 unsigned int const i_nom_const = I_NOM * KOEF_1_2_I;
 unsigned int const u_f_nom_const = U_PHASE_NOM * KOEF_0_2_U;
-unsigned int * setpoint_mtz[NUMBER_LEVEL_MTZ];
-unsigned int * setpoint_mtz_n_vpered[NUMBER_LEVEL_MTZ];
-unsigned int * setpoint_mtz_n_nazad[NUMBER_LEVEL_MTZ];
-unsigned int * setpoint_mtz_U[NUMBER_LEVEL_MTZ];
-unsigned int * setpoint_mtz_po_napruzi[NUMBER_LEVEL_MTZ];
-int * timeout_mtz[NUMBER_LEVEL_MTZ];
-int * timeout_mtz_n_vpered[NUMBER_LEVEL_MTZ];
-int * timeout_mtz_n_nazad[NUMBER_LEVEL_MTZ];
-int * timeout_mtz_po_napruzi[NUMBER_LEVEL_MTZ];
+unsigned int * const setpoint_mtz[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.setpoint_mtz_1,
+  current_settings_prt.setpoint_mtz_2,
+  current_settings_prt.setpoint_mtz_3,
+  current_settings_prt.setpoint_mtz_4
+};
+unsigned int * const setpoint_mtz_n_vpered[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.setpoint_mtz_1_n_vpered,
+  current_settings_prt.setpoint_mtz_2_n_vpered,
+  current_settings_prt.setpoint_mtz_3_n_vpered,
+  current_settings_prt.setpoint_mtz_4_n_vpered
+};
+unsigned int * const setpoint_mtz_n_nazad[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.setpoint_mtz_1_n_nazad,
+  current_settings_prt.setpoint_mtz_2_n_nazad,
+  current_settings_prt.setpoint_mtz_3_n_nazad,
+  current_settings_prt.setpoint_mtz_4_n_nazad
+};
+unsigned int * const setpoint_mtz_U[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.setpoint_mtz_1_U,
+  current_settings_prt.setpoint_mtz_2_U,
+  current_settings_prt.setpoint_mtz_3_U,
+  current_settings_prt.setpoint_mtz_4_U
+};
+unsigned int * const setpoint_mtz_po_napruzi[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.setpoint_mtz_1_po_napruzi,
+  current_settings_prt.setpoint_mtz_2_po_napruzi,
+  current_settings_prt.setpoint_mtz_3_po_napruzi,
+  current_settings_prt.setpoint_mtz_4_po_napruzi
+};
+int * const timeout_mtz[NUMBER_LEVEL_MTZ] =
+{
+  current_settings_prt.timeout_mtz_1,
+  current_settings_prt.timeout_mtz_2,
+  current_settings_prt.timeout_mtz_3,
+  current_settings_prt.timeout_mtz_4
+};
+int * const timeout_mtz_n_vpered[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.timeout_mtz_1_n_vpered,
+  current_settings_prt.timeout_mtz_2_n_vpered,
+  current_settings_prt.timeout_mtz_3_n_vpered,
+  current_settings_prt.timeout_mtz_4_n_vpered
+};
+int * const timeout_mtz_n_nazad[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.timeout_mtz_1_n_nazad,
+  current_settings_prt.timeout_mtz_2_n_nazad,
+  current_settings_prt.timeout_mtz_3_n_nazad,
+  current_settings_prt.timeout_mtz_4_n_nazad
+};
+int * const timeout_mtz_po_napruzi[NUMBER_LEVEL_MTZ] = 
+{
+  current_settings_prt.timeout_mtz_1_po_napruzi,
+  current_settings_prt.timeout_mtz_2_po_napruzi,
+  current_settings_prt.timeout_mtz_3_po_napruzi,
+  current_settings_prt.timeout_mtz_4_po_napruzi
+};
 _Bool previous_state_mtz_po_incn = 0;
 _Bool previous_state_mtz_po_uncn = 0;
 unsigned int p_global_trigger_state_mtz2;
@@ -682,40 +938,49 @@ unsigned char buffer_for_USB_read_record_pr_err[SIZE_ONE_RECORD_PR_ERR];
 unsigned char buffer_for_RS485_read_record_pr_err[SIZE_ONE_RECORD_PR_ERR];
 
 unsigned int what_we_are_reading_from_dataflash_1;
-unsigned int what_we_are_reading_from_dataflash_2;
+
+//FATFS
+uint32_t FATFS_command;
 
 //Аналоговий реєстратор
 unsigned char crc_info_rejestrator_ar;
-__INFO_REJESTRATOR info_rejestrator_ar;
+__INFO_AR_REJESTRATOR info_rejestrator_ar;
 unsigned char crc_info_rejestrator_ar_ctrl;
-__INFO_REJESTRATOR info_rejestrator_ar_ctrl;
-unsigned int size_one_ar_record;
-const unsigned int number_word_digital_part_ar = (NUMBER_TOTAL_SIGNAL_FOR_RANG / (8*sizeof(short int))) + ((NUMBER_TOTAL_SIGNAL_FOR_RANG % (8*sizeof(short int))) != 0);
-unsigned int max_number_records_ar; //Максимальна кількість записів в аналоговому реєстраторі при вибраних витримках (розраховується з витрмиок доаварійного і післяаварійного часу)
-unsigned int semaphore_read_state_ar_record; //Коли цей симафор встановлений, то якщо не йде запис, то новий запис не можна починати, а якщо іде, то можна продовжувати запис
-unsigned int continue_previous_record_ar; //Сигналізує, не зняті вще всі джерела запуску аналогового реєстратора після його попе6реднього запуску
-int state_ar_record = STATE_AR_NO_RECORD;
-unsigned int state_ar_record_prt = STATE_AR_NO_RECORD;
+__INFO_AR_REJESTRATOR info_rejestrator_ar_ctrl;
+//const unsigned int number_word_digital_part_ar = ( NUMBER_TOTAL_SIGNAL_FOR_RANG / (8*sizeof(short int)) ) + ( ( NUMBER_TOTAL_SIGNAL_FOR_RANG % (8*sizeof(short int))) != 0);
+unsigned int forbidden_new_record_ar_mode_0 /*= 0*/; 
+unsigned int state_ar_record_m = STATE_AR_NONE_M, state_ar_record_prt = STATE_AR_NONE_PRT, state_ar_record_fatfs = STATE_AR_NONE_FATFS;
+unsigned int prev_state_ar_record_m = STATE_AR_NONE_M;
 SRAM1_AR short int array_ar[SIZE_BUFFER_FOR_AR];
 SRAM1 short int word_SRAM1;
-unsigned int index_array_ar_current;
+unsigned int index_array_ar_current /*= 0*/;
 unsigned int index_array_ar_heat;
 unsigned int index_array_ar_tail;
-unsigned int prescaler_ar; //Потрібний для того, щоб з 32 виборок на секунду зробити 16 виборки на секунду
+unsigned char tail_to_heat, current_to_tail;
+int diff_index_heat_tail; /*ця змінна поки використовується мною тільки для діагностики*/
+unsigned int prescaler_ar /*= 0*/; //Потрібний для того, щоб з 32 виборок на секунду зробити 16 виборки на секунду
 __HEADER_AR header_ar;
-unsigned char buffer_for_save_ar_record[SIZE_PAGE_DATAFLASH_2];
-unsigned int temporary_address_ar;
-volatile unsigned int count_to_save;
-unsigned int permit_copy_new_data;
-unsigned int copied_number_samples, total_number_samples;
-unsigned int etap_writing_part_page_ar_into_dataflash = ETAP_NONE;
-unsigned int number_record_of_ar_for_menu = 0xffff; //Це число означає, що номер запису не вибраний
-unsigned int number_record_of_ar_for_USB = 0xffff; //Це число означає, що номер запису не вибраний
-unsigned int number_record_of_ar_for_RS485 = 0xffff; //Це число означає, що номер запису не вибраний
+unsigned char buffer_for_fs[SIZE_PAGE_DATAFLASH_2];
+unsigned int fs_temporary_address;
+volatile unsigned int fs_count_to_transfer;
+unsigned int etap_writing_part_page_fs_into_dataflash = ETAP_NONE;
+int number_record_of_ar_for_menu = -1; //Це число означає, що номер запису не вибраний
+int number_record_of_ar_for_USB = -1; //Це число означає, що номер запису не вибраний
+char id_ar_record_for_USB[8 + 1 + 3 + 1];
+int max_number_time_sample_USB;
+int number_record_of_ar_for_RS485 = -1; //Це число означає, що номер запису не вибраний
 int first_number_time_sample_for_USB;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
 int last_number_time_sample_for_USB;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
 int first_number_time_sample_for_RS485;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
 int last_number_time_sample_for_RS485;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
+char id_ar_record_for_RS485[8 + 1 + 3 + 1];
+int max_number_time_sample_RS485;
+
+int32_t timePowerDown = -1;
+unsigned int truncPrefault;
+unsigned int index_array_tail_min;
+enum _fix_date_time_avar arDateTimeState = AVAR_DATE_TIME_NONE;
+
 
 //Дискретний реєстратор
 unsigned char crc_info_rejestrator_dr;
@@ -734,6 +999,8 @@ unsigned int number_record_of_dr_for_RS485 = 0xffff; //Це число означає, що номе
 unsigned int part_reading_dr_from_dataflash_for_menu;
 unsigned int part_reading_dr_from_dataflash_for_USB;
 unsigned int part_reading_dr_from_dataflash_for_RS485;
+
+enum _fix_date_time_avar drDateTimeState = AVAR_DATE_TIME_NONE;
 
 //Реєстратор програмних помилок
 unsigned char crc_info_rejestrator_pr_err;
@@ -778,47 +1045,61 @@ SRAM1 unsigned char RxBuffer_RS485[BUFFER_RS485];
 SRAM1 int TxBuffer_RS485_count;
 SRAM1 int RxBuffer_RS485_count;
 SRAM1 int RxBuffer_RS485_count_previous;
-SRAM1 unsigned int time_last_receive_byte;
+SRAM1 unsigned int time_last_receive_byte_RS485;
 SRAM1 unsigned int max_reaction_time_rs_485;
 SRAM1 unsigned int make_reconfiguration_RS_485;
 SRAM1 unsigned int number_bits_rs_485_waiting;
 SRAM1 unsigned int mark_current_tick_RS_485;
 SRAM1 unsigned int timeout_idle_RS485;
 
-//USB
-uint8_t  USART_Rx_Buffer[USART_RX_DATA_SIZE]; 
-uint32_t USART_Rx_ptr_in;
-uint32_t USART_Rx_ptr_out;
-uint32_t USART_Rx_length;
-
-extern uint8_t  USB_Tx_State;
-
 //Для UDP
-u32 count_out;
-u32 count_out_previous;
+int count_out /*= 0*/;
+int count_out_previous /*= 0*/;
 uint16_t previous_count_tim4_USB;
-u8 buffer_out[BUFFER_USB];
+u8 buffer_USB_in[BUFFER_USB_IN];
+int from_USB_ptr_in;
+int from_USB_ptr_in_irq;
+int from_USB_ptr_out_irq;
 unsigned char usb_received[BUFFER_USB];
+u8 buffer_USB_out[BUFFER_USB_OUT];
+int to_USB_ptr_in_irq;
+int to_USB_ptr_out;
 unsigned char usb_transmiting[BUFFER_USB];
-int usb_received_count;
-int usb_transmiting_count;
-unsigned char data_usb_transmiting;
+int usb_received_count /*= 0*/;
+int usb_transmiting_count /*= 0*/;
+unsigned char data_usb_transmiting /*= false*/;
 unsigned int timeout_idle_USB;
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+//MODBUS-TCP
+unsigned char LAN_received[BUFFER_LAN];
+int LAN_received_count;
+unsigned char LAN_transmiting[BUFFER_LAN];
+int LAN_transmiting_count;
+
+SRAM1 unsigned int timeout_idle_LAN;
+SRAM1 unsigned int password_set_LAN;
+
+char id_ar_record_for_LAN[8 + 1 + 3 + 1];
+unsigned int trigger_functions_LAN[N_BIG]/* = {0, 0, 0, 0, 0, 0, 0, 0, 0}*/;
+
+unsigned char buffer_for_LAN_read_record_dr[SIZE_BUFFER_FOR_DR_RECORD];
+unsigned int number_record_of_dr_for_LAN = 0xffff; //Це число означає, що номер запису не вибраний
+unsigned int part_reading_dr_from_dataflash_for_LAN/* = 0*/;
+
+unsigned char buffer_for_LAN_read_record_pr_err[SIZE_ONE_RECORD_PR_ERR];
+unsigned int number_record_of_pr_err_into_LAN = 0xffff;
+
+int max_number_time_sample_LAN;
+unsigned char buffer_for_LAN_read_record_ar[SIZE_PAGE_DATAFLASH_2];
+int number_record_of_ar_for_LAN = -1; //Це число означає, що номер запису не вибраний
+int first_number_time_sample_for_LAN;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
+int last_number_time_sample_for_LAN;// -1 - заголовок запису ан.р.; 0 - перший часовий зріз доаварійного масиву і т.д.
+#endif
+
 //MODBUS-RTU
-//unsigned int registers_address_read =0x20000000;
-//unsigned int registers_address_write =0x20000000;
-//unsigned int data_write_to_memory;
-//unsigned int number_registers_read/* = 0*/;
-//unsigned short int registers_values[64]/* @ "variables_RAM1"*/;
-//unsigned int action_is_continued/* = false*/;
-//unsigned int part_transmit_carrent_data/* = 0*/;
-//unsigned int command_to_receive_current_data/* = false*/;
-//int current_data_transmit[NUMBER_ANALOG_CANALES*NUMBER_POINT*NUMBER_PERIOD_TRANSMIT] /*@ "variables_RAM1"*/; 
-//volatile unsigned int wait_of_receiving_current_data/*  = false*/; 
 SRAM1 unsigned int password_set_USB, password_set_RS485;
 SRAM1 unsigned int password_changed;
-SRAM1 unsigned int password_ustuvannja;
 unsigned int information_about_restart_counter;
 unsigned int restart_timeout_interface;
 unsigned int timeout_idle_new_settings;
@@ -830,17 +1111,45 @@ unsigned int edit_serial_number_dev;
 
 //Для відображення інформації про причину відключення
 unsigned int info_vidkluchennja_vymykacha[2];
-unsigned char info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MAX_NUMBER][7]; 
+__info_vymk info_vidkluchennja_vymykachatime[VYMKNENNJA_VID_MAX_NUMBER]; 
 
 unsigned int  watchdog_l2;
 unsigned int control_word_of_watchdog;
-//unsigned int test_watchdogs/* = 0*/;
+unsigned int test_watchdogs/* = 0*/;
 
 /**************************************************************
  * Змінна використовується в функції вибору групи уставок:
  * protections.c --> setpoints_selecting()
  **************************************************************/
 unsigned int gr_ustavok_tmp = 0xf;
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+//Міжпроцесорний обмін
+uint8_t Canal1_MO_Transmit[BUFFER_CANAL1_MO];
+uint8_t Canal1_MO_Received[BUFFER_CANAL1_MO];
+uint32_t confirm_diagnostyka_mo;
+uint8_t Canal2_MO_Transmit[BUFFER_CANAL2_MO];
+uint8_t Canal2_MO_Received[BUFFER_CANAL2_MO];
+unsigned int Canal1, Canal2;
+const uint8_t my_address_mo = 0;
+uint32_t IEC_board_uncall = 500;
+uint32_t IEC_board_address;
+uint32_t queue_mo = (1u << STATE_QUEUE_MO_READ_FW_VERSION);
+uint32_t queue_mo_irq;
+unsigned int restart_KP_irq;
+uint32_t state_array_control_state;
+uint8_t fwKP[4];
+uint8_t fwDTKP[6];
+
+uint8_t Input_In_GOOSE_block[N_IN_GOOSE];
+uint8_t Input_ctrl_In_GOOSE_block[N_IN_GOOSE];
+
+uint8_t Input_In_MMS_block[N_IN_MMS];
+uint8_t Input_ctrl_In_MMS_block[N_IN_MMS];
+
+uint8_t Output_Out_LAN_block[N_OUT_LAN];
+
+#endif
 
 //Змінна глобальної помилки
 unsigned int total_error;
@@ -935,6 +1244,21 @@ const unsigned char extra_letters[12][1 + MAX_NAMBER_LANGUAGE] =
 { 0x90, 0xFF, 0xFF, 0xFF, 0x05}  // ђ - замінний символ з даним кодом для WIN1251
 };
 
+const unsigned char string_off_on[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+{
+  {"     Откл.      ", "      Вкл.      "},
+  {"     Вимк.      ", "     Ввімк.     "},
+  {"      Off       ", "       On       "},
+  {"     Сљнд.      ", "     Косу.      "}
+};
+const unsigned int cursor_x_string_off_on[MAX_NAMBER_LANGUAGE][2] = 
+{
+  {4, 5},
+  {4, 4},
+  {5, 6},
+  {4, 4}
+};
+
 int current_language = LANGUAGE_ABSENT;
 
 const uint8_t information_off_on[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
@@ -970,8 +1294,6 @@ extern unsigned int __checksum_end;
 
 
 #endif
-
-//unsigned int test_array[2][3];
 
 
 #endif

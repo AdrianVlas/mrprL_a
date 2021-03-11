@@ -6,7 +6,7 @@
 /*****************************************************/
 void make_ekran_setpoint_dz(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_DZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_DZ][MAX_COL_LCD] = 
   {
     {
       " К компенсации  ",
@@ -497,7 +497,7 @@ void make_ekran_setpoint_dz(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_dz(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_DZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_DZ][MAX_COL_LCD] = 
   {
     {
       "  Выдержка ДЗ1  ",
@@ -1290,7 +1290,7 @@ void make_ekran_timeout_dz(unsigned int group)
 /*****************************************************/
 void make_ekran_control_dz(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_DZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_DZ][MAX_COL_LCD] = 
   {
     {
       "      ДЗ1       ",

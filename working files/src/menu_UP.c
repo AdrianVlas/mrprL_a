@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_setpoint_UP(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UP][MAX_COL_LCD] = 
   {
     {
       "      ÓÇx       ",
@@ -24,7 +24,7 @@ void make_ekran_setpoint_UP(unsigned int group)
       "     ÊÂ ÓÇx     "
     },
   };
-  const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UP] = 
+  static const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UP] = 
   {
     {8, 10},
     {8, 10},
@@ -32,14 +32,14 @@ void make_ekran_setpoint_UP(unsigned int group)
     {8, 10}
   };
   
-  const uint8_t string_W[MAX_NAMBER_LANGUAGE][2] = 
+  static const uint8_t string_W[MAX_NAMBER_LANGUAGE][2] = 
   {
     "Âò",
     "Âò",
     "W ",
     "Âò"
   };
-  const uint8_t string_VAR[MAX_NAMBER_LANGUAGE][3] = 
+  static const uint8_t string_VAR[MAX_NAMBER_LANGUAGE][3] = 
   {
     "ÂÀð",
     "ÂÀð",
@@ -47,7 +47,7 @@ void make_ekran_setpoint_UP(unsigned int group)
     "ÂÀð"
   };
 
-  const uint8_t string_VA[MAX_NAMBER_LANGUAGE][3] = 
+  static const uint8_t string_VA[MAX_NAMBER_LANGUAGE][3] = 
   {
     "ÂÀ",
     "ÂÀ",
@@ -334,7 +334,7 @@ void make_ekran_setpoint_UP(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_UP(unsigned int group)
 {
-  const uint8_t name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UP][MAX_COL_LCD] = 
+  static const uint8_t name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UP][MAX_COL_LCD] = 
   {
     {
       "      ÓÇx       "
@@ -349,7 +349,7 @@ void make_ekran_timeout_UP(unsigned int group)
       "      ÓÇx       "
     }
   };
-  const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UP] = 
+  static const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UP] = 
   {
     {8},
     {8},
@@ -363,15 +363,15 @@ void make_ekran_timeout_UP(unsigned int group)
   {
     {-1, COL_TMO_UP_BEGIN, COL_TMO_UP_COMMA, COL_TMO_UP_END, COL_TMO_UP_END + 2, COL_TMO_UP_END + 2, &odynyci_vymirjuvannja[index_language][INDEX_SECOND]}
   };
-  const uint32_t vaga_arr[MAX_ROW_FOR_TIMEOUT_UP] = 
+  static const uint32_t vaga_arr[MAX_ROW_FOR_TIMEOUT_UP] = 
   {
     100000
   };
-  int32_t (* const p_value_current[MAX_ROW_FOR_TIMEOUT_UP])[1][NUMBER_GROUP_USTAVOK] = 
+  static int32_t (* const p_value_current[MAX_ROW_FOR_TIMEOUT_UP])[1][NUMBER_GROUP_USTAVOK] = 
   {
     current_settings.timeout_UP 
   };
-  int32_t (* const p_value_edit[MAX_ROW_FOR_TIMEOUT_UP])[1][NUMBER_GROUP_USTAVOK] = 
+  static int32_t (* const p_value_edit[MAX_ROW_FOR_TIMEOUT_UP])[1][NUMBER_GROUP_USTAVOK] = 
   {
     edition_settings.timeout_UP
   };
@@ -472,7 +472,7 @@ void make_ekran_timeout_UP(unsigned int group)
 /*****************************************************/
 void make_ekran_control_UP()
 {
-  const uint8_t name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UP][MAX_COL_LCD] = 
+  static const uint8_t name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UP][MAX_COL_LCD] = 
   {
     {
       "    Âõîä ÓÇx    ",
@@ -499,7 +499,7 @@ void make_ekran_control_UP()
       "  >/< äëÿ ÓÇx   "
     },
   };
-  const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UP] = 
+  static const uint32_t index_number[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UP] = 
   {
     {11, 8, 13, 12},
     {11, 8, 13, 12},
@@ -533,16 +533,16 @@ void make_ekran_control_UP()
     "       Q        ",
     "       S        "
   };
-  const uint32_t cursor_x_2[_UP_CTRL_NUMBER] = {3, 6, 6, 6, 6, 6, 5, 6, 5, 3, 1, 6, 5, 6, 5, 6, 5, 6, 6, 6, 6, 6, 6};
+  static const uint32_t cursor_x_2[_UP_CTRL_NUMBER] = {3, 6, 6, 6, 6, 6, 5, 6, 5, 3, 1, 6, 5, 6, 5, 6, 5, 6, 6, 6, 6, 6, 6};
   
-  const uint8_t information_3[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] =
+  static const uint8_t information_3[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] =
   {
     {"      ÈËÈ       ", "       È        "},
     {"      ÀÁÎ       ", "       ²        "},
     {"       OR       ", "      AND       "},
     {"      ÈËÈ       ", "       È        "}
   };
-  const uint32_t cursor_x_3[MAX_NAMBER_LANGUAGE][2] = 
+  static const uint32_t cursor_x_3[MAX_NAMBER_LANGUAGE][2] = 
   {
     {5, 6},
     {5, 6},
@@ -550,12 +550,12 @@ void make_ekran_control_UP()
     {5, 6}
   };
     
-  const uint8_t information_4[2][MAX_COL_LCD] = 
+  static const uint8_t information_4[2][MAX_COL_LCD] = 
   {
     "       >        ",
     "       <        "
   };
-  const uint32_t cursor_x_4 = 6;
+  static const uint32_t cursor_x_4 = 6;
         
   int index_language = index_language_in_array(current_settings.language);
 

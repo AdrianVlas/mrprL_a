@@ -1,10 +1,10 @@
-#include "header.h"
-
 //начальный регистр в карте памяти
 #define BEGIN_ADR_REGISTER 10300
 
 //конечный регистр в карте памяти
 #define END_ADR_REGISTER 11900
+
+#include "header.h"
 
 int privateUSTBigGetReg2(int adrReg);
 
@@ -13,9 +13,6 @@ int getUSTBigModbusBit(int);//получить содержимое бита
 int setUSTBigModbusRegister(int, int);//получить содержимое регистра
 int setUSTBigModbusBit(int, int);//получить содержимое бита
 
-void setUSTBigCountObject(void);//записать к-во обектов
-void preUSTBigReadAction(void);//action до чтения
-void preUSTBigWriteAction(void);//action до записи
 int  postUSTBigWriteAction(void);//action после записи
 int  ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **editValue);
 int grupa_ustavok_control(int  offset, int *grupa_ustavok, int *adresGruppa);
@@ -503,8 +500,9 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
     if(regUst<SETPOINT_CHAPV2_F_RAB_MIN/10 || regUst>SETPOINT_CHAPV2_F_RAB_MAX/10) diapazon=0;
     break;
   case 199:
+    (*multer) = 100;
     (*editValue) = (uint32_t*)&edition_settings.setpoint_achr_chapv_uf[gruppa];
-    if(regUst<SETPOINT_ACHR_CHAPV_UF_MIN/10 || regUst>SETPOINT_ACHR_CHAPV_UF_MAX/10) diapazon=0;
+    if(regUst<SETPOINT_ACHR_CHAPV_UF_MIN/100 || regUst>SETPOINT_ACHR_CHAPV_UF_MAX/100) diapazon=0;
     break;
   case 200:
     (*editValue) = (uint32_t*)&edition_settings.timeout_achr_1[gruppa];
@@ -822,7 +820,7 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
   case MARKER1214:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.type_of_input_signal;
-//      if(regUst&(~(0xFFFF))) diapazon=0;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_INPUTS)-1)))) != 0) diapazon=0;
     break;
   case 1215:
     (*multer) = 1;
@@ -833,6 +831,7 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
   case MARKER1216:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.type_of_input;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_INPUTS)-1)))) != 0) diapazon=0;
     break;
   case 1217:
     (*multer) = 1;
@@ -842,27 +841,34 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
   case 1218:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.type_of_output;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_OUTPUTS)-1)))) != 0) diapazon=0;
     break;
-  case 1219:
-    (*multer) = 1;
-    (*editValue) = (uint32_t*)&edition_settings.type_of_output_modif;
-    break;
+
+//  count_bit = 9;
   case 1220:
     (*multer) = 1;
-    (*editValue) = (uint32_t*)&edition_settings.type_df;
-    if(regUst&(~(0xFF))) diapazon=0;
+    (*editValue) = (uint32_t*)&edition_settings.type_of_output_modif;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_OUTPUTS)-1)))) != 0) diapazon=0;
     break;
-#define MARKER1221  1221
-  case MARKER1221:
+
+//  count_bit = 9;
+  case 1222:
+    (*multer) = 1;
+    (*editValue) = (uint32_t*)&edition_settings.type_df;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_DEFINED_FUNCTIONS)-1)))) != 0) diapazon=0;
+    break;
+#define MARKER1223  1223
+  case MARKER1223:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.type_of_led;
+    if ((regUst & ((unsigned int)(~((1<<NUMBER_LEDS)-1)))) != 0) diapazon=0;
     break;
-  case 1222:
+  case 1224:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.type_of_led;
     if(regUst&(~(0x1))) diapazon=0;
     break;
-  case 1223:
+  case 1225:
     (*multer) = 1;
     (*editValue) = (uint32_t*)&edition_settings.buttons_mode;
     if(regUst&(~(0xFFF))) diapazon=0;
@@ -887,13 +893,14 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
     }//if
     break;
 
-//IF ВСТАВКА 1224-1243
-//IF ВСТАВКА 1244-1251
-//IF ВСТАВКА 1254-1261
+//IF ВСТАВКА 1226-1245
+//IF ВСТАВКА 1246-1253
+//IF ВСТАВКА 1256-1263
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
   case 1600:
     (*multer) = 1;
@@ -1030,19 +1037,20 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
   }//if(inOffset>=988 && inOffset<1021 && inOffset!=1004)
 
 #if (MODYFIKACIA_VERSII_PZ == 0)
-  if(inOffset>=1224 && inOffset<1244)
+  if(inOffset>=1226 && inOffset<1246)
 #endif
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
-    if(inOffset>=1224 && inOffset<1240)
+    if(inOffset>=1226 && inOffset<1242)
 #endif
 #if (MODYFIKACIA_VERSII_PZ == 2)
-      if(inOffset>=1224 && inOffset<1232)
+      if(inOffset>=1226 && inOffset<1234)
 #endif
       {
-        int item = inOffset-1224;
+        int item = inOffset-1226;
         (*editValue) = (uint32_t*)&edition_settings.dopusk_dv[item];
         (*multer) = 1;
         if(regUst<KOEF_DOPUSK_DV_POST_MIN || regUst>KOEF_DOPUSK_DV_MAX) diapazon=0;
@@ -1058,16 +1066,16 @@ int ustFunc000(int inOffset, int gruppa, int *multer, int regUst, uint32_t **edi
         }
       }//if
 
-  if(inOffset>=1244 && inOffset<1252)
+  if(inOffset>=1246 && inOffset<1254)
   {
-    int item = inOffset-1244;
+    int item = inOffset-1246;
     (*editValue) = (uint32_t*)&edition_settings.timeout_pause_df[item];
     if(regUst<TIMEOUT_DF_PAUSE_MIN/10 || regUst>TIMEOUT_DF_PAUSE_MAX/10) diapazon=0;
   }//if(inOffset>=1076 && inOffset<1084)
 
-  if(inOffset>=1254 && inOffset<1262)
+  if(inOffset>=1256 && inOffset<1264)
   {
-    int item = inOffset-1254;
+    int item = inOffset-1256;
     (*editValue) = (uint32_t*)&edition_settings.timeout_work_df[item];
     if(regUst<TIMEOUT_DF_WORK_MIN/10 || regUst>TIMEOUT_DF_WORK_MAX/10) diapazon=0;
   }//if(inOffset>=1076 && inOffset<1084)
@@ -1087,11 +1095,7 @@ void constructorUSTBigComponent(COMPONENT_OBJ *ustbigcomp)
   ustbigcomponent->setModbusRegister = setUSTBigModbusRegister;//получить содержимое регистра
   ustbigcomponent->setModbusBit      = setUSTBigModbusBit;//получить содержимое бита
 
-  ustbigcomponent->preReadAction   = preUSTBigReadAction;//action до чтения
-  ustbigcomponent->preWriteAction  = preUSTBigWriteAction;//action до записи
   ustbigcomponent->postWriteAction = postUSTBigWriteAction;//action после записи
-
-  ustbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getUSTBigModbusRegister(int adrReg)
@@ -1273,7 +1277,7 @@ int getUSTBigModbusRegister(int adrReg)
     }
     else
     {
-      return ((*editValue)>>16)  & (uint32_t)0xffff;
+      return ((*editValue)>>16)  & (uint32_t)0xf;//fff;
     }//else
 #else
     if(offset==MARKER1214)
@@ -1292,16 +1296,17 @@ int getUSTBigModbusRegister(int adrReg)
 #if MODYFIKACIA_VERSII_PZ == 0
     if(offset==MARKER1216)
     {
-      return (*editValue) & (uint32_t)0xffff;
+      return (~(*editValue)) & (uint32_t)0xffff;
     }
     else
     {
-      return ((*editValue)>>16)  & (uint32_t)0xffff;
+      return ((~(*editValue))>>16)  & (uint32_t)0xf;//fff;
     }//else
 #else
     if(offset==MARKER1216)
     {
-      return (*editValue) & (uint32_t)0xffff;
+//      return (~(*editValue)) & (uint32_t)0xffff;
+      return (~(*editValue)) & ((1<<NUMBER_INPUTS)-1);//(uint32_t)0xffff;
     }
     else
     {
@@ -1312,13 +1317,13 @@ int getUSTBigModbusRegister(int adrReg)
   }//if(editValue == (uint32_t*)&edition_settings.type_of_input)
   if(editValue == (uint32_t*)&edition_settings.type_of_led)
   {
-    if(offset==MARKER1221)
+    if(offset==MARKER1223)
     {
       return (*editValue) & (uint32_t)0xffff;
     }
     else
     {
-      return ((*editValue)>>16)  & (uint32_t)0xffff;
+      return ((*editValue)>>16)  & (uint32_t)0x1;//fff;
     }//else
   }//if(editValue == (uint32_t*)&edition_settings.type_of_led)
 
@@ -1367,18 +1372,6 @@ int setUSTBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preUSTBigReadAction(void)
-{
-//action до чтения
-  ustbigcomponent->isActiveActualData = 1;
-}//
-void preUSTBigWriteAction(void)
-{
-//action до записи
-  ustbigcomponent->operativMarker[0] = -1;
-  ustbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  ustbigcomponent->isActiveActualData = 1;
-}//
 int postUSTBigWriteAction(void)
 {
   extern int upravlSetting;//флаг Setting
@@ -1518,6 +1511,7 @@ int postUSTBigWriteAction(void)
     }//for(int item=0; item<NUMBER_UP; item++)
     if(editValue == (uint32_t*)&edition_settings.type_of_input_signal)
     {
+#if MODYFIKACIA_VERSII_PZ == 0
       if(offset==MARKER1214)
       {
         (*editValue) &= (uint32_t)~0xffff;
@@ -1530,25 +1524,43 @@ int postUSTBigWriteAction(void)
         (*editValue)  |= ((value & 0xffff)<<16);//
         goto m1;
       }//else
-    }//if(editValue == (uint32_t*)&edition_settings.type_of_input_signal)
-    if(editValue == (uint32_t*)&edition_settings.type_of_input)
-    {
-      if(offset==MARKER1216)
+#else
+      if(offset==MARKER1214)
       {
         (*editValue) &= (uint32_t)~0xffff;
         (*editValue) |= (value & 0xffff);
         goto m1;
       }
+#endif
+    }//if(editValue == (uint32_t*)&edition_settings.type_of_input_signal)
+    if(editValue == (uint32_t*)&edition_settings.type_of_input)
+    {
+#if MODYFIKACIA_VERSII_PZ == 0
+      if(offset==MARKER1216)
+      {
+        (*editValue) &= (uint32_t)~0xffff;
+        (*editValue) |= ((~value) & 0xffff);
+        goto m1;
+      }
       else
       {
         (*editValue)  &= (uint32_t)~(0xffff<<16);
-        (*editValue)  |= ((value & 0xffff)<<16);//
+        (*editValue)  |= (((~value) & 0xf)<<16);//
         goto m1;
       }//else
+#else
+      if(offset==MARKER1216)
+      {
+        (*editValue) &= (uint32_t)~((1<<NUMBER_INPUTS)-1);//(uint32_t)~0xffff;
+        (*editValue) |= ((~value) & ((1<<NUMBER_INPUTS)-1));//0xffff);
+        goto m1;
+      }
+
+#endif
     }//if(editValue == (uint32_t*)&edition_settings.type_of_input)
     if(editValue == (uint32_t*)&edition_settings.type_of_led)
     {
-      if(offset==MARKER1221)
+      if(offset==MARKER1223)
       {
         (*editValue) &= (uint32_t)~0xffff;
         (*editValue) |= (value & 0xffff);

@@ -16,28 +16,119 @@
 8  - визначувані "Викл.АБО"
 9  - визначувані "НЕ"
 10 - Передавальні функції
+11 - Вхідний GOOSE блок
+12 - Вхідний MMS блок
+13 - Вихідний мережевий блок
 -------------------------------------------------------
 */
 /*****************************************************/
-void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_input_output type_of_window)
+void make_ekran_chose_of_list_for_ranguvannja(__id_input_output type_of_window)
 {
-  const unsigned char information[MAX_NAMBER_LANGUAGE][11][MAX_COL_LCD] = 
+  static const unsigned char information[MAX_NAMBER_LANGUAGE][_MAX_ID_INPUT_OUPUT][MAX_COL_LCD] = 
   {
-    {" Двх.           ", " Двых.          ", " Св             ", " О-функция      ", " F              ", " О-триггер      ", " О-И            ", " О-ИЛИ          ", " О-Искл.ИЛИ     ", " О-НЕ           ", " Пер.ф.         "},
-    {" Двх.           ", " Двих.          ", " Св             ", " В-функція      ", " F              ", " В-триґер       ", " В-І            ", " В-АБО          ", " В-Викл.АБО     ", " В-НЕ           ", " Пер.ф.         "},
-    {" DI.            ", " DO.            ", " LED            ", " UD Function    ", " F              ", " UD Flip-Flop   ", " UD AND         ", " UD OR          ", " UD XOR         ", " UD NOT         ", " Tr.F.          "},
-    {" Двх.           ", " Двых.          ", " Св             ", " О-функция      ", " F              ", " О-триггер      ", " О-И            ", " О-ИЛИ          ", " О-Искл.ИЛИ     ", " О-НЕ           ", " Пер.ф.         "}
+    {
+      " Двх.           ", 
+      " Двых.          ", 
+      " Св             ", 
+      " О-функция      ", 
+      " F              ", 
+      " О-триггер      ", 
+      " О-И            ", 
+      " О-ИЛИ          ", 
+      " О-Искл.ИЛИ     ", 
+      " О-НЕ           ",
+      " Пер.ф.         " 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 
+      " Вх.GOOSE Блок  ", 
+      " Вх.MMS Блок    ", 
+      " ВМБ            "
+#endif
+    },
+    {
+      " Двх.           ",
+      " Двих.          ",
+      " Св             ",
+      " В-функція      ",
+      " F              ",
+      " В-триґер       ",
+      " В-І            ",
+      " В-АБО          ",
+      " В-Викл.АБО     ",
+      " В-НЕ           ",
+      " Пер.ф.         "
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 
+      " Вх.GOOSE Блок  ",
+      " Вх.MMS Блок    ", 
+      " ВМБ            "
+#endif
+    },
+    {
+      " DI.            ",
+      " DO.            ",
+      " LED            ",
+      " UD Function    ",
+      " F              ",
+      " UD Flip-Flop   ",
+      " UD AND         ",
+      " UD OR          ",
+      " UD XOR         ",
+      " UD NOT         ",
+      " Tr.F.          "
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      ,
+      " In.GOOSE Bl.   ",
+      " In.MMS Block   ",
+      " ВМБ            "
+#endif
+    },
+    {
+      " Двх.           ", 
+      " Двых.          ",
+      " Св             ",
+      " О-функция      ", 
+      " F              ", 
+      " О-триггер      ", 
+      " О-И            ",
+      " О-ИЛИ          ",
+      " О-Искл.ИЛИ     ",
+      " О-НЕ           ",
+      " Пер.ф.         "
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+        ,
+      " Вх.GOOSE Блок  ",
+      " Вх.MMS Блок    ",
+      " ВМБ            "
+#endif
+    }
   };
 
-  const unsigned int first_index_number[MAX_NAMBER_LANGUAGE][11] = 
+  static const unsigned int first_index_number[MAX_NAMBER_LANGUAGE][_MAX_ID_INPUT_OUPUT] = 
   {
-    {5, 6, 3, 10, 2, 10, 4, 6, 11, 5, 7},
-    {5, 6, 3, 10, 2,  9, 4, 6, 11, 5, 7},
-    {4, 4, 4, 12, 2, 13, 7, 6,  7, 6, 6},
-    {5, 6, 3, 10, 2, 10, 4, 6, 11, 5, 7}
+    {5, 6, 3, 10, 2, 10, 4, 6, 11, 5, 7
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 14, 12, 4 
+#endif
+    },
+    {5, 6, 3, 10, 2,  9, 4, 6, 11, 5, 7
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 14, 12, 4
+#endif
+    },
+    {4, 4, 4, 12, 2, 13, 7, 6,  7, 6, 6
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 13, 13, 4
+#endif
+    },
+    {5, 6, 3, 10, 2, 10, 4, 6, 11, 5, 7
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      , 14, 12, 4
+#endif
+    }
   };
   
-  const unsigned int max_row[11] =
+  static const unsigned int max_row[_MAX_ID_INPUT_OUPUT] =
   {
     MAX_ROW_LIST_INPUTS_FOR_RANGUVANNJA,
     MAX_ROW_LIST_OUTPUTS_FOR_RANGUVANNJA,
@@ -50,7 +141,15 @@ void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_inp
     MAX_ROW_FOR_LIST_D_XOR,
     MAX_ROW_FOR_LIST_D_NOT,
     MAX_ROW_FOR_LIST_TF
+      
+#if (MODYFIKACIA_VERSII_PZ >= 10)    
+    ,
+    N_IN_GOOSE,
+    N_IN_MMS,
+    N_OUT_LAN
+#endif
   };
+  
   int index_language = index_language_in_array(current_settings.language);
   unsigned int first_index_number_1 = first_index_number[index_language][type_of_window];
         
@@ -100,7 +199,7 @@ void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_inp
     {
       for (unsigned int j = 0; j<MAX_COL_LCD; j++)
       {
-        if ((j < first_index_number_1) || (j >= (first_index_number_1 + 3 + 3)))
+        if ((j < first_index_number_1) || (j >= (first_index_number_1 + 3)))
            working_ekran[i][j] = information[index_language][type_of_window][j];
         else
         {
@@ -159,36 +258,11 @@ void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_inp
               else
               {
                 working_ekran[i][j - 1] = tmp_2 + 0x30;
-                working_ekran[i][j] = '.';
+                working_ekran[i][j] = ' ';
               }
             }
           }
-          else   
-          {
-            if (
-                (
-                 (type_of_window == ID_INPUT) ||
-                 (type_of_window == ID_OUTPUT)
-                )
-                ||  
-                ( j < (first_index_number_1 + 2 + 3 - 1))
-                ||  
-                (
-                 ( j == (first_index_number_1 + 2 + 3 - 1)) && 
-                 (
-                  (tmp_1 > 0 ) ||
-                  (tmp_1 < 0 )  
-                 ) 
-                )   
-               )  
-            {
-              working_ekran[i][j] = '.';
-            }
-            else
-            {
-              working_ekran[i][j] = ' ';
-            }
-          }
+          else working_ekran[i][j] = ' ';  
         }
       }
     }
@@ -216,13 +290,19 @@ void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_inp
 /*****************************************************/
 //Формуємо екран відображення зранжованих сигналів на вибраний вхід
 /*****************************************************/
-void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_ekran)
+void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_ekran, uint32_t temp_state[]
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                                                                                                            , int type_LN, int n_LN
+#endif
+                                                                                                                          )
 {
 #define NUMBER_ROW_FOR_NOTHING_INFORMATION 2
   
-  unsigned int state_viewing_input[N_SMALL];
-  unsigned int max_row_ranguvannja;
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL + 1 + NUMBER_ROW_FOR_NOTHING_INFORMATION][MAX_COL_LCD] = 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + (1 - N_IN_GOOSE)  + (1 - N_IN_MMS) + (1 - N_OUT_LAN) + (1 - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)][MAX_COL_LCD] = 
+#else
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + (1 - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)][MAX_COL_LCD] = 
+#endif
   {
     {
       "      Нет       ",
@@ -245,107 +325,153 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
       NAME_RANG_SMALL_KZ
     }
   };
-  const uint32_t index_number_UP[MAX_NAMBER_LANGUAGE][1] = 
+  
+  static const uint32_t index_number_UP_small[MAX_NAMBER_LANGUAGE][1] = 
   {
     {11}, 
     {11}, 
     {12}, 
-    {11}, 
+    {11} 
   };
   
-  unsigned char name_string_tmp[NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION][MAX_COL_LCD];
+  unsigned char name_string_tmp[NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL][MAX_COL_LCD];
 
   int index_language = index_language_in_array(current_settings.language);
-  for(int index_1 = 0; index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION); index_1++)
+  for(size_t index_1 = 0; index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL); index_1++)
   {
-    unsigned int index_row;
-    if (index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)) 
+    size_t index_row;
+    if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL)) 
     {
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN))) 
+      {
+        index_row = index_1;
+      }
+      else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_MMS + N_OUT_LAN))) 
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_GOOSE1 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN))) % 1);
+      }
+      else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_OUT_LAN))) 
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_MMS1 + (1 - N_IN_GOOSE) + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_MMS + N_OUT_LAN))) % 1);
+      }
+      else
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_OUT_LAN1 + (1 - N_IN_GOOSE) + (1 - N_IN_MMS) + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_OUT_LAN))) % 1);
+      }
+#else
       index_row = index_1;
+#endif        
     }
-    else if (index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL))
+    else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1)) 
     {
-      index_row = (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL) + ((index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)) % 1);
+      index_row = index_1
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                   + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif        
+                  ;
+    }
+    else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1 + NUMBER_UP_SIGNAL_FOR_RANG_SMALL))
+    {
+      index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                   + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif
+                   + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1)) % 1);
     }
     else
     {
-      index_row = index_1 - NUMBER_UP_SIGNAL_FOR_RANG_SMALL + 1;
+      index_row = index_1 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                  + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif        
+                  + 1 - NUMBER_UP_SIGNAL_FOR_RANG_SMALL;
     }
       
-    for(int index_2 = 0; index_2 < MAX_COL_LCD; index_2++)
+    for(size_t index_2 = 0; index_2 < MAX_COL_LCD; index_2++)
     {
+#if (MODYFIKACIA_VERSII_PZ >= 10)
       if (
-          (index_1 >= (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL))  &&
-          (index_1 <  (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL)) &&
-          (index_2 == index_number_UP[index_language][(index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)) % 1]) 
-         )
+          (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN)))  &&
+          (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_MMS + N_OUT_LAN))) &&
+          (index_2 >=  index_n_In_GOOSE[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_GOOSE1)) % 1]) &&
+          (index_2 <= (index_n_In_GOOSE[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_GOOSE1)) % 1] + 1)) 
+         )   
       {
-        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG_SMALL - NUMBER_VMP_SIGNAL_FOR_RANG_SMALL - NUMBER_UP_SIGNAL_FOR_RANG_SMALL)) / 1 + 1);
+        unsigned int n = index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_GOOSE1);
+        if ((n + 1) < 10)
+        {
+          if (index_2 == index_n_In_GOOSE[index_language][n % 1])
+            name_string_tmp[index_1][index_2] = 0x30 + (n + 1);
+          else
+            name_string_tmp[index_1][index_2] = ' ';
+        }
+        else
+        {
+          if (index_2 == index_n_In_GOOSE[index_language][n % 1])
+            name_string_tmp[index_1][index_2] = 0x30 + (n / 1 + 1) / 10;
+          else
+            name_string_tmp[index_1][index_2] = 0x30 + (n / 1 + 1) % 10;
+        }
       }
-      else name_string_tmp[index_1][index_2] = name_string[index_language][index_row][index_2];
+      else if (
+               (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_IN_MMS + N_OUT_LAN)))  &&
+               (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_OUT_LAN))) &&
+               (index_2 == index_n_In_MMS[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_MMS1)) % 1]) 
+              )   
+      {
+        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_IN_MMS1)) / 1 + 1);
+      }
+      else if (
+               (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL - (N_OUT_LAN)))  &&
+               (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL)) &&
+               (index_2 == index_n_Out_LAN[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_OUT_LAN1)) % 1]) 
+              )   
+      {
+        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_OUT_LAN1)) / 1 + 1);
+      }
+      else 
+#endif
+      {
+        if (
+            (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1))  &&
+            (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1 + NUMBER_UP_SIGNAL_FOR_RANG_SMALL)) &&
+            (index_2 == index_number_UP_small[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1)) % 1]) 
+           )   
+        {
+          name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_UP1)) / 1 + 1);
+        }
+        else name_string_tmp[index_1][index_2] = name_string[index_language][index_row][index_2];
+      }
     }
   }
   
   if ((current_settings.control_zz & CTR_ZZ1_TYPE) != 0)
   {
-    const unsigned char name_block_zz[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+    static const unsigned char name_block_zz[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
     {
       "    Блок.ЗЗ     ",
       "    Блок.ЗЗ     ",
       "    Блок.ЗЗ     ",
       "    Блок.ЗЗ     "
     };
-    for (unsigned int index_1 = 0; index_1 < MAX_COL_LCD; index_1++)
+    for (size_t index_1 = 0; index_1 < MAX_COL_LCD; index_1++)
     {
-      name_string_tmp[RANG_SMALL_BLOCK_NZZ + NUMBER_ROW_FOR_NOTHING_INFORMATION][index_1] = name_block_zz[index_language][index_1];
+      name_string_tmp[NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_SMALL_BLOCK_NZZ][index_1] = name_block_zz[index_language][index_1];
     }
   }
   
-  if (type_ekran == INDEX_VIEWING_BUTTON)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_SMALL; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_buttons[N_SMALL*(number_ekran - EKRAN_RANGUVANNJA_BUTTON_1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_SMALL; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_buttons[N_SMALL*(number_ekran - EKRAN_RANGUVANNJA_BUTTON_1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_BUTTON;
-  }
-  else if (type_ekran == INDEX_VIEWING_INPUT)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_SMALL; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_inputs[N_SMALL*(number_ekran - EKRAN_RANGUVANNJA_INPUT_1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_SMALL; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_inputs[N_SMALL*(number_ekran - EKRAN_RANGUVANNJA_INPUT_1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_INPUT;
-  }
-
+  unsigned int state_viewing_input[N_SMALL];
+  for (size_t i = 0; i < N_SMALL; i++ ) state_viewing_input[i] = temp_state[i];
   if(current_ekran.edition == 0)
   {
     //Випадок, коли ми продивляємося зранжовані функції на вході
-    if (
-        (state_viewing_input[0] == 0) &&
-        (state_viewing_input[1] == 0) &&
-        (state_viewing_input[2] == 0)
-       )
+    unsigned int comp = true;
+    for (size_t i = 0; ((comp == true) && (i < N_SMALL)); ++i)
+    {
+      comp &= (state_viewing_input[i] == 0);
+    }
+    if (comp)
     {
       //Це означає, що на даний вхід нічого не відранжовано
       
@@ -378,15 +504,15 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
       unsigned int i = 0, offset = 0;
       unsigned int state_current_bit;
 
-      while ((i + offset) < max_row_ranguvannja)
+      while ((i + offset) < NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL)
       {
         state_current_bit = state_viewing_input[(i + offset)>>5] & (1<<((i + offset) & 0x1f));
 
         if (state_current_bit == 0)
         {
-          for (unsigned int j = i; j < (max_row_ranguvannja - offset); j++)
+          for (unsigned int j = i; j < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset); j++)
           {
-            if ((j + 1) < (max_row_ranguvannja - offset))
+            if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset))
             {
               for (unsigned int k = 0; k<MAX_COL_LCD; k++)
                 name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -410,7 +536,7 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
       for (i=0; i< MAX_ROW_LCD; i++)
       {
         //Наступні рядки треба перевірити, чи їх требе відображати у текучій коффігурації
-        if (index_of_ekran < max_row_ranguvannja)
+        if (index_of_ekran < NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL)
         {
           for (unsigned int j = 0; j<MAX_COL_LCD; j++) working_ekran[i][j] = name_string_tmp[index_of_ekran + NUMBER_ROW_FOR_NOTHING_INFORMATION][j];
 
@@ -513,23 +639,46 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
     /*************************************************************/
     //Фільтруємо сигнали, яких у даній конфігурації неприсутні
     /*************************************************************/
-    if(type_ekran == INDEX_VIEWING_BUTTON)
+    if(
+       (type_ekran == INDEX_VIEWING_BUTTON)
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+       ||
+       (type_ekran == INDEX_VIEWING_IEC61850_RANG)
+#endif
+      )   
     {
       /*************************************************************/
-      //У випадку, якщо відображення здійснюється вікна функціональних кнопок
+      //У випадку, якщо відображення здійснюється вікна функціональних кнопок, Вх.GOOSE блоіків, або  Вх.MMS блоіків
       /*************************************************************/
-      uint32_t mode = (current_settings.buttons_mode >> (number_ekran - EKRAN_RANGUVANNJA_BUTTON_1)) & 0x1;
+      const uint32_t *p_array;
+      if (type_ekran == INDEX_VIEWING_BUTTON) p_array = buttons_mode[(current_settings.buttons_mode >> (number_ekran - EKRAN_RANGUVANNJA_BUTTON_1)) & 0x1];
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      else 
+      {
+        if ((type_LN == INDEX_TYPE_IEC61850_IN_GOOSE) || (type_LN == INDEX_TYPE_IEC61850_IN_MMS)) p_array = rang_iec61850_blocks[type_LN];
+        else total_error_sw_fixed(184);
+      }
+#endif
 
       for (unsigned int index_deleted_function = 0; index_deleted_function < NUMBER_GENERAL_SIGNAL_FOR_RANG_SMALL; index_deleted_function++)
       {
-        if (_CHECK_SET_BIT(buttons_mode[mode], index_deleted_function) == 0)
+        if (
+            (_CHECK_SET_BIT(p_array, index_deleted_function) == 0) 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+            ||
+            ((type_LN == INDEX_TYPE_IEC61850_IN_GOOSE) && (index_deleted_function == (RANG_SMALL_BLOCK_IN_GOOSE1 + n_LN)))
+            ||
+            ((type_LN == INDEX_TYPE_IEC61850_IN_MMS) && (index_deleted_function == (RANG_SMALL_BLOCK_IN_MMS1 + n_LN)))
+#endif
+           )   
         {
           /*************************************************************/
           //Відкидаємо ім'я даної функції і зміщаємо біти
           /*************************************************************/
 
           //Формуємо маску біт, які не треба переміщати при переміщенні імен полів
-          unsigned int maska[N_SMALL] = {0, 0, 0};
+          unsigned int maska[N_SMALL];
+          for (size_t j = 0; j < N_SMALL; ++j ) maska[j] = 0;
           for (unsigned int j = 0; j < (index_deleted_function - offset); j++) _SET_BIT(maska, j);
           
           /***/
@@ -555,9 +704,9 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
             state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
           }
           /***/
-          for (unsigned int j = (index_deleted_function - offset); j < (max_row_ranguvannja - offset); j++)
+          for (unsigned int j = (index_deleted_function - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset); j++)
           {
-            if ((j + 1) < (max_row_ranguvannja - offset))
+            if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset))
             {
               for (unsigned int k = 0; k < MAX_COL_LCD; k++)
                 name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -589,23 +738,38 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
         //бо інкаше ми вже знаходимося на індексі наступного захисту
         if(min_max_number[i][0] >=0)
         {
-          if(type_ekran == INDEX_VIEWING_BUTTON)
+          if(
+             (type_ekran == INDEX_VIEWING_BUTTON)
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+             ||
+             (type_ekran == INDEX_VIEWING_IEC61850_RANG)
+#endif
+            )   
           {
             /*
             Випадок коли деякі сигнали треба відфільтрувати
             */
-            uint32_t mode = (current_settings.buttons_mode >> (number_ekran - EKRAN_RANGUVANNJA_BUTTON_1)) & 0x1;
+            const uint32_t *p_array;
+            if (type_ekran == INDEX_VIEWING_BUTTON) p_array = buttons_mode[(current_settings.buttons_mode >> (number_ekran - EKRAN_RANGUVANNJA_BUTTON_1)) & 0x1];
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+            else 
+            {
+              if ((type_LN == INDEX_TYPE_IEC61850_IN_GOOSE) || (type_LN == INDEX_TYPE_IEC61850_IN_MMS)) p_array = rang_iec61850_blocks[type_LN];
+              else total_error_sw_fixed(185);
+            }
+#endif
 
             //Відкидати імена функцій і зміщати біти треба тільки у тому випадку, якщо функції пристні у списку для ранжування для даного захисту
             //Формуємо маску біт, які не треба переміщати при переміщенні імен полів
-            unsigned int maska[N_SMALL] = {0, 0, 0};
+            unsigned int maska[N_SMALL];
+            for (size_t j1 = 0; j1 < N_SMALL; ++j1 ) maska[j1] = 0;
             unsigned int j1;
             for (j1 = 0; j1 < (min_max_number[i][0] - offset); j1++) _SET_BIT(maska, j1);
           
             //Відкидаємо назви функцій із списку, які є зайвими
             while(index_in_list <= min_max_number[i][1])
             {
-              if (_CHECK_SET_BIT(buttons_mode[mode], index_in_list) == 0) 
+              if (_CHECK_SET_BIT(p_array, index_in_list) == 0) 
               {
                 /***/
                 //Зміщуємо біти стану реанжування функцій разом із їх назвами
@@ -630,9 +794,9 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
                   state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
                 }
                 /***/
-                for (unsigned int j = (index_in_list - offset); j < (max_row_ranguvannja - offset); j++)
+                for (unsigned int j = (index_in_list - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset); j++)
                 {
-                  if ((j + 1) < (max_row_ranguvannja - offset))
+                  if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset))
                   {
                     for (unsigned int k = 0; k < MAX_COL_LCD; k++)
                       name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -664,7 +828,8 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
       {
         //Відкидати імена функцій і зміщати біти треба тільки у тому випадку, якщо функції пристні у списку для ранжування для даного захисту
         //Формуємо маску біт, які не треба переміщати при переміщенні імен полів
-        unsigned int maska[N_SMALL] = {0, 0, 0};
+        unsigned int maska[N_SMALL];
+        for (size_t j = 0; j < N_SMALL; ++j ) maska[j] = 0;
         for (unsigned int j = 0; j < (min_max_number[i][0] - offset); j++) _SET_BIT(maska, j);
           
         //Відкидаємо назви функцій із списку, які є зайвими
@@ -693,9 +858,9 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
             state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
            }
           /***/
-          for (unsigned int j = (index_in_list - offset); j < (max_row_ranguvannja - offset); j++)
+          for (unsigned int j = (index_in_list - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset); j++)
           {
-            if ((j + 1) < (max_row_ranguvannja - offset))
+            if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset))
             {
               for (unsigned int k = 0; k<MAX_COL_LCD; k++)
                 name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -720,7 +885,7 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
 
     for (i=0; i< MAX_ROW_LCD; i++)
     {
-     if (index_of_ekran < ((max_row_ranguvannja - offset) <<1))//Множення на два константи  max_row_ranguvannja потрібне для того, бо на одну позицію ми використовуємо два рядки (назва + значення)
+     if (index_of_ekran < ((NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL - offset) <<1))//Множення на два константи  NUMBER_TOTAL_SIGNAL_FOR_RANG_SMALL потрібне для того, бо на одну позицію ми використовуємо два рядки (назва + значення)
      {
        if ((i & 0x1) == 0)
        {
@@ -730,7 +895,7 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
        else
        {
          //У парному номері рядку виводимо стан функції
-         const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+         static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
          {
            {"      ОТКЛ      ", "      ВКЛ       "},
            {"      ВИМК      ", "     ВВІМК      "},
@@ -748,7 +913,7 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
      index_of_ekran++;
     }
     
-    const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+    static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
     {
       {5, 5},
       {5, 4},
@@ -772,16 +937,13 @@ void make_ekran_set_function_in_bi(unsigned int number_ekran, unsigned int type_
 }
 /*****************************************************/
 
-/*****************************************************/
-//Формуємо екран відображення зранжованих сигналів на вибраний вихід-світлоіндикаторів-о-функцій-реєстраторів
-/*****************************************************/
-void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, unsigned int type_ekran)
-{
 #define NUMBER_ROW_FOR_NOTHING_INFORMATION 2
-  
-  unsigned int state_viewing_input[N_BIG] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  unsigned int max_row_ranguvannja;
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][NUMBER_TOTAL_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG + 3 + NUMBER_ROW_FOR_NOTHING_INFORMATION][MAX_COL_LCD] = 
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  static const unsigned char name_string_static[MAX_NAMBER_LANGUAGE][NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG + (1 - N_IN_GOOSE)  + (1 - N_IN_MMS) + (1 - N_OUT_LAN) + (3  - NUMBER_UP_SIGNAL_FOR_RANG)][MAX_COL_LCD] = 
+#else
+  static const unsigned char name_string_static[MAX_NAMBER_LANGUAGE][NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG + (3 - NUMBER_UP_SIGNAL_FOR_RANG)][MAX_COL_LCD] = 
+#endif
   {
     {
       "      Нет       ",
@@ -804,49 +966,131 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
       NAME_RANG_KZ
     }
   };
-  const uint32_t index_number_UP[MAX_NAMBER_LANGUAGE][3] = 
-  {
-    {11, 10, 8}, 
-    {11, 10, 8}, 
-    {12,  7, 8}, 
-    {11, 10, 8}, 
-  };
-  unsigned char name_string_tmp[NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION][MAX_COL_LCD];
+
+/*****************************************************/
+//Формуємо екран відображення зранжованих сигналів на вибраний вихід-світлоіндикаторів-о-функцій-реєстраторів
+/*****************************************************/
+void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, unsigned int type_ekran, uint32_t temp_state[])
+{
+  
+  unsigned char name_string_tmp[NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG][MAX_COL_LCD];
 
   int index_language = index_language_in_array(current_settings.language);
-  for(int index_1 = 0; index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION); index_1++)
+  for(int index_1 = 0; index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_TOTAL_SIGNAL_FOR_RANG); index_1++)
   {
-    unsigned int index_row;
-    if (index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG)) 
+    size_t index_row;
+    if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG)) 
     {
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN))) 
+      {
+        index_row = index_1;
+      }
+      else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_MMS + N_OUT_LAN))) 
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_GOOSE1 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN))) % 1);
+      }
+      else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_OUT_LAN))) 
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_MMS1 + (1 - N_IN_GOOSE) + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_MMS + N_OUT_LAN))) % 1);
+      }
+      else
+      {
+        index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_OUT_LAN1 + (1 - N_IN_GOOSE) + (1 - N_IN_MMS) + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_OUT_LAN))) % 1);
+      }
+#else
       index_row = index_1;
+#endif        
     }
-    else if (index_1 < (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG))
+    else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1)) 
     {
-      index_row = (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG) + ((index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG)) % 3);
+      index_row = index_1
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                   + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif        
+                  ;
+    }
+    else if (index_1 < (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1 + NUMBER_UP_SIGNAL_FOR_RANG))
+    {
+      index_row = NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                   + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif
+                   + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1)) % 3);
     }
     else
     {
-      index_row = index_1 - NUMBER_UP_SIGNAL_FOR_RANG + 3;
+      index_row = index_1 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                  + 1 - N_IN_GOOSE + 1 - N_IN_MMS + 1 - N_OUT_LAN
+#endif        
+                  + 3 - NUMBER_UP_SIGNAL_FOR_RANG;
     }
       
-    for(int index_2 = 0; index_2 < MAX_COL_LCD; index_2++)
+    for(size_t index_2 = 0; index_2 < MAX_COL_LCD; index_2++)
     {
+#if (MODYFIKACIA_VERSII_PZ >= 10)
       if (
-          (index_1 >= (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG))  &&
-          (index_1 <  (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG)) &&
-          (index_2 == index_number_UP[index_language][(index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG)) % 3]) 
-         )
+          (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_GOOSE + N_IN_MMS + N_OUT_LAN)))  &&
+          (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_MMS + N_OUT_LAN))) &&
+          (index_2 >=  index_n_In_GOOSE[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_GOOSE1)) % 1]) &&
+          (index_2 <= (index_n_In_GOOSE[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_GOOSE1)) % 1] + 1)) 
+         )   
       {
-        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_TOTAL_SIGNAL_FOR_RANG + NUMBER_ROW_FOR_NOTHING_INFORMATION - NUMBER_EL_SIGNAL_FOR_RANG - NUMBER_VMP_SIGNAL_FOR_RANG - NUMBER_UP_SIGNAL_FOR_RANG)) / 3 + 1);
+        unsigned int n = index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_GOOSE1);
+        if ((n + 1) < 10)
+        {
+          if (index_2 == index_n_In_GOOSE[index_language][n % 1])
+            name_string_tmp[index_1][index_2] = 0x30 + (n + 1);
+          else
+            name_string_tmp[index_1][index_2] = ' ';
+        }
+        else
+        {
+          if (index_2 == index_n_In_GOOSE[index_language][n % 1])
+            name_string_tmp[index_1][index_2] = 0x30 + (n / 1 + 1) / 10;
+          else
+            name_string_tmp[index_1][index_2] = 0x30 + (n / 1 + 1) % 10;
+        }
       }
-      else name_string_tmp[index_1][index_2] = name_string[index_language][index_row][index_2];
+      else if (
+               (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_IN_MMS + N_OUT_LAN)))  &&
+               (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_OUT_LAN))) &&
+               (index_2 == index_n_In_MMS[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_MMS1)) % 1]) 
+              )   
+      {
+        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_IN_MMS1)) / 1 + 1);
+      }
+      else if (
+               (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG - (N_OUT_LAN)))  &&
+               (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + NUMBER_GENERAL_SIGNAL_FOR_RANG)) &&
+               (index_2 == index_n_Out_LAN[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_OUT_LAN1)) % 1]) 
+              )   
+      {
+        name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_OUT_LAN1)) / 1 + 1);
+      }
+      else 
+#endif
+      {
+        if (
+            (index_1 >= (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1))  &&
+            (index_1 <  (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1 + NUMBER_UP_SIGNAL_FOR_RANG)) &&
+            (index_2 == index_number_UP[index_language][(index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1)) % 3]) 
+           )   
+        {
+          name_string_tmp[index_1][index_2] = 0x30 + ((index_1 - (NUMBER_ROW_FOR_NOTHING_INFORMATION + RANG_BLOCK_UP1)) / 3 + 1);
+        }
+        else name_string_tmp[index_1][index_2] = name_string_static[index_language][index_row][index_2];
+      }
     }
   }
   
+  unsigned int state_viewing_input[N_BIG];
+  for (size_t i = 0; i < N_BIG; i++ ) state_viewing_input[i] = temp_state[i];
+  
   if ((current_settings.control_zz & CTR_ZZ1_TYPE) != 0)
   {
-    const unsigned char name_block_zz[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+    static const unsigned char name_block_zz[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
     {
       "    Блок.ЗЗ     ",
       "    Блок.ЗЗ     ",
@@ -857,326 +1101,6 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
     {
       name_string_tmp[RANG_BLOCK_NZZ + NUMBER_ROW_FOR_NOTHING_INFORMATION][index_1] = name_block_zz[index_language][index_1];
     }
-  }
-
-  if(type_ekran == INDEX_VIEWING_DF)
-  {
-    unsigned int index_in_ekran_list = number_ekran - EKRAN_RANGUVANNJA_DF1_PLUS;
-    unsigned int type_source = index_in_ekran_list % 3;
-    unsigned int index_of_df = index_in_ekran_list / 3;
-    
-    if(current_ekran.edition == 0)
-    {
-      if(type_source == 0)
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = current_settings.ranguvannja_df_source_plus[N_BIG*index_of_df + i];
-        }
-      }
-      else if(type_source == 1)
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = current_settings.ranguvannja_df_source_minus[N_BIG*index_of_df + i];
-        }
-      }
-      else
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = current_settings.ranguvannja_df_source_blk[N_BIG*index_of_df + i];
-        }
-      }
-    }
-    else
-    {
-      if(type_source == 0)
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = edition_settings.ranguvannja_df_source_plus[N_BIG*index_of_df + i];
-        }
-      }
-      else if(type_source == 1)
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = edition_settings.ranguvannja_df_source_minus[N_BIG*index_of_df + i];
-        }
-      }
-      else
-      {
-        for (unsigned int i = 0; i < N_BIG; i++)
-        {
-          state_viewing_input[i] = edition_settings.ranguvannja_df_source_blk[N_BIG*index_of_df + i];
-        }
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_DF;
-  }
-  else if(type_ekran == INDEX_VIEWING_DT)
-  {
-    unsigned int index_in_ekran_list = number_ekran - EKRAN_RANGUVANNJA_SET_DT1_PLUS;
-    unsigned int type_source = index_in_ekran_list % 2;
-    unsigned int type_of_action = (index_in_ekran_list / 2) & 0x1;
-    unsigned int index_of_dt = index_in_ekran_list / 4;
-    
-    if(current_ekran.edition == 0)
-    {
-      if (type_of_action == INDEX_ML_SET_DT)
-      {
-        if(type_source == INDEX_ML_LIST_TYPE_SOURCE_PLUS_DT)
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = current_settings.ranguvannja_set_dt_source_plus[N_BIG*index_of_dt + i];
-          }
-        }
-        else
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = current_settings.ranguvannja_set_dt_source_minus[N_BIG*index_of_dt + i];
-          }
-        }
-      }
-      else
-      {
-        if(type_source == INDEX_ML_LIST_TYPE_SOURCE_PLUS_DT)
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = current_settings.ranguvannja_reset_dt_source_plus[N_BIG*index_of_dt + i];
-          }
-        }
-        else
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = current_settings.ranguvannja_reset_dt_source_minus[N_BIG*index_of_dt + i];
-          }
-        }
-      }
-    }
-    else
-    {
-      if (type_of_action == INDEX_ML_SET_DT)
-      {
-        if(type_source == INDEX_ML_LIST_TYPE_SOURCE_PLUS_DT)
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = edition_settings.ranguvannja_set_dt_source_plus[N_BIG*index_of_dt + i];
-          }
-        }
-        else
-        { 
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = edition_settings.ranguvannja_set_dt_source_minus[N_BIG*index_of_dt + i];
-          }
-        }
-      }
-      else
-      {
-        if(type_source == INDEX_ML_LIST_TYPE_SOURCE_PLUS_DT)
-        {
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = edition_settings.ranguvannja_reset_dt_source_plus[N_BIG*index_of_dt + i];
-          }
-        }
-        else
-        { 
-          for (unsigned int i = 0; i < N_BIG; i++)
-          {
-            state_viewing_input[i] = edition_settings.ranguvannja_reset_dt_source_minus[N_BIG*index_of_dt + i];
-          }
-        }
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_DT;
-  }
-  else if(type_ekran == INDEX_VIEWING_D_AND)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_d_and[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_AND1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_d_and[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_AND1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_D_AND;
-  }
-  else if(type_ekran == INDEX_VIEWING_D_OR)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_d_or[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_OR1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_d_or[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_OR1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_D_OR;
-  }
-  else if(type_ekran == INDEX_VIEWING_D_XOR)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_d_xor[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_XOR1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_d_xor[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_XOR1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_D_XOR;
-  }
-  else if(type_ekran == INDEX_VIEWING_D_NOT)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_d_not[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_NOT1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_d_not[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_D_NOT1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_D_NOT;
-  }
-  else if(type_ekran == INDEX_VIEWING_OUTPUT)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_outputs[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_OUTPUT_1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_outputs[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_OUTPUT_1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_OUTPUT;
-  }
-  else if(type_ekran == INDEX_VIEWING_LED)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_leds[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_LED_1) + i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_leds[N_BIG*(number_ekran - EKRAN_RANGUVANNJA_LED_1) + i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_LED;
-  }
-  else if(type_ekran == INDEX_VIEWING_A_REG)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_analog_registrator[i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_analog_registrator[i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_ANALOG_REGISTRATOR;
-  }
-  else if(type_ekran == INDEX_VIEWING_D_REG)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_digital_registrator[i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_digital_registrator[i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_DIGITAL_REGISTRATOR;
-  }
-  else if(type_ekran == INDEX_VIEWING_OFF_CB)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_off_cb[i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_off_cb[i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_OFF_CB;
-  }
-  else if(type_ekran == INDEX_VIEWING_ON_CB)
-  {
-    if(current_ekran.edition == 0)
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = current_settings.ranguvannja_on_cb[i];
-      }
-    }
-    else
-    {
-      for (unsigned int i = 0; i < N_BIG; i++)
-      {
-        state_viewing_input[i] = edition_settings.ranguvannja_on_cb[i];
-      }
-    }
-    max_row_ranguvannja = MAX_ROW_RANGUVANNJA_ON_CB;
   }
 
   if(current_ekran.edition == 0)
@@ -1226,15 +1150,15 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
       unsigned int i = 0, offset = 0;
       unsigned int state_current_bit;
       
-      while ((i + offset) < max_row_ranguvannja)
+      while ((i + offset) < NUMBER_TOTAL_SIGNAL_FOR_RANG)
       {
         state_current_bit = state_viewing_input[(i + offset)>>5] & (1<<((i + offset) & 0x1f));
           
         if (state_current_bit == 0)
         {
-          for (unsigned int j = i; j < (max_row_ranguvannja - offset); j++)
+          for (unsigned int j = i; j < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset); j++)
           {
-            if ((j + 1) < (max_row_ranguvannja - offset))
+            if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset))
             {
               for (unsigned int k = 0; k<MAX_COL_LCD; k++)
                 name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -1249,7 +1173,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
           offset++;
           
           //Робота з Watchdog
-          watchdog_routine();
+          watchdog_routine(UNITED_BITS_WATCHDOG);
         }
         else i++;
       }
@@ -1261,7 +1185,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
       for (i=0; i< MAX_ROW_LCD; i++)
       {
         //Наступні рядки треба перевірити, чи їх требе відображати у текучій кофігурації
-        if (index_of_ekran < max_row_ranguvannja)
+        if (index_of_ekran < NUMBER_TOTAL_SIGNAL_FOR_RANG)
         {
           for (unsigned int j = 0; j<MAX_COL_LCD; j++) working_ekran[i][j] = name_string_tmp[index_of_ekran + NUMBER_ROW_FOR_NOTHING_INFORMATION][j];
 
@@ -1304,7 +1228,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
     unsigned int position_temp = current_ekran.index_position;
     unsigned int index_of_ekran;
     unsigned int i, offset = 0;
-    const int min_max_number[TOTAL_NUMBER_PROTECTION][2] =
+    static const int min_max_number[TOTAL_NUMBER_PROTECTION][2] =
     {
       {
        (NUMBER_GENERAL_SIGNAL_FOR_RANG),
@@ -1416,9 +1340,9 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
         state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
       }
       /***/
-      for (unsigned int j = (index_deleted_function - offset); j < (max_row_ranguvannja - offset); j++)
+      for (unsigned int j = (index_deleted_function - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset); j++)
       {
-        if ((j + 1) < (max_row_ranguvannja - offset))
+        if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset))
         {
           for (unsigned int k = 0; k<MAX_COL_LCD; k++)
             name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -1432,7 +1356,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
       if (current_ekran.index_position >= ((int)index_deleted_function)) position_temp--;
       offset++;
       //Робота з Watchdog
-      watchdog_routine();
+      watchdog_routine(UNITED_BITS_WATCHDOG);
       /*************************************************************/
 
       /*************************************************************/
@@ -1604,9 +1528,9 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
                   state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
                 }
                 /***/
-                for (unsigned int j = (index_in_list - offset); j < max_row_ranguvannja; j++)
+                for (unsigned int j = (index_in_list - offset); j < NUMBER_TOTAL_SIGNAL_FOR_RANG; j++)
                 {
-                  if ((j + 1) < (max_row_ranguvannja - offset))
+                  if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset))
                   {
                     for (unsigned int k = 0; k<MAX_COL_LCD; k++)
                       name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -1621,7 +1545,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
           
                 offset++;
                 //Робота з Watchdog
-                watchdog_routine();
+                watchdog_routine(UNITED_BITS_WATCHDOG);
               }
               else
               {
@@ -1763,9 +1687,9 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
                   state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
                 }
                 /***/
-                for (unsigned int j = (index_in_list - offset); j < (max_row_ranguvannja - offset); j++)
+                for (unsigned int j = (index_in_list - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset); j++)
                 {
-                  if ((j + 1) < (max_row_ranguvannja - offset))
+                  if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset))
                   {
                     for (unsigned int k = 0; k < MAX_COL_LCD; k++)
                       name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -1780,7 +1704,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
           
                 offset++;
                 //Робота з Watchdog
-                watchdog_routine();
+                watchdog_routine(UNITED_BITS_WATCHDOG);
               }
               else
               {
@@ -1828,9 +1752,9 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
             state_viewing_input[k] = new_temp_data_1[k] | new_temp_data_2[k];
           }
           /***/
-          for (unsigned int j = (index_in_list - offset); j < (max_row_ranguvannja - offset); j++)
+          for (unsigned int j = (index_in_list - offset); j < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset); j++)
           {
-            if ((j + 1) < (max_row_ranguvannja - offset))
+            if ((j + 1) < (NUMBER_TOTAL_SIGNAL_FOR_RANG - offset))
             {
               for (unsigned int k = 0; k<MAX_COL_LCD; k++)
                 name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION][k] = name_string_tmp[j + NUMBER_ROW_FOR_NOTHING_INFORMATION + 1][k];
@@ -1846,13 +1770,12 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
           offset++;
           index_in_list++;
           //Робота з Watchdog
-          watchdog_routine();
+          watchdog_routine(UNITED_BITS_WATCHDOG);
         }
       }
-
           
       //Робота з Watchdog
-      watchdog_routine();
+      watchdog_routine(UNITED_BITS_WATCHDOG);
     }
     /*************************************************************/
 
@@ -1861,7 +1784,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
 
     for (i=0; i< MAX_ROW_LCD; i++)
     {
-     if (index_of_ekran < ((max_row_ranguvannja - offset)<<1))//Множення на два константи  max_row_ranguvannja потрібне для того, бо на одну позицію ми використовуємо два рядки (назва + значення)
+     if (index_of_ekran < ((NUMBER_TOTAL_SIGNAL_FOR_RANG - offset)<<1))//Множення на два константи  NUMBER_TOTAL_SIGNAL_FOR_RANG потрібне для того, бо на одну позицію ми використовуємо два рядки (назва + значення)
      {
        if ((i & 0x1) == 0)
        {
@@ -1871,7 +1794,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
        else
        {
          //У парному номері рядку виводимо стан функції
-         const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+         static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
          {
            {"      ОТКЛ      ", "      ВКЛ       "},
            {"      ВИМК      ", "     ВВІМК      "},
@@ -1889,7 +1812,7 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
      index_of_ekran++;
     }
     
-    const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+    static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
     {
       {5, 5},
       {5, 4},
@@ -1910,9 +1833,9 @@ void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int number_ekran, 
   //Обновити повністю весь екран
   current_ekran.current_action = ACTION_WITH_CARRENT_EKRANE_FULL_UPDATE;
 
-#undef NUMBER_ROW_FOR_NOTHING_INFORMATION
 }
 /*****************************************************/
+#undef NUMBER_ROW_FOR_NOTHING_INFORMATION
 
 /*****************************************************/
 //Перевірка, чи текучий індекс вказує на функцію, яка присутня у даній конфігурації

@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_timeout_apv(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_APV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_APV][MAX_COL_LCD] = 
   {
     {
       "   1 ÷ËÍÎ ¿œ¬   ",
@@ -325,7 +325,7 @@ void make_ekran_timeout_apv(unsigned int group)
 /*****************************************************/
 void make_ekran_control_apv()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_APV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_APV][MAX_COL_LCD] = 
   {
     {
       "      ¿œ¬       ",

@@ -1,15 +1,15 @@
 
-#include "header.h"
-
 //начальный регистр в карте памяти
-#define BEGIN_ADR_REGISTER 297
+#define BEGIN_ADR_REGISTER 300
 //начальный bit в карте памяти
-#define BEGIN_ADR_BIT 50656
+#define BEGIN_ADR_BIT 50704
 
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 337
+#define END_ADR_REGISTER 343
 //конечный bit в карте памяти
-#define END_ADR_BIT 51311
+#define END_ADR_BIT 51407
+
+#include "header.h"
 
 int privateGCMDSmallGetReg2(int adrReg);
 int privateGCMDSmallGetBit2(int adrBit);
@@ -19,10 +19,6 @@ int getGCMDSmallModbusBit(int);//получить содержимое бита
 int setGCMDSmallModbusRegister(int, int);//записать регистр
 int setGCMDSmallModbusBit(int, int);//записать бит
 
-void setGCMDSmallCountObject(void);//записать к-во обектов
-
-void preGCMDSmallReadAction(void);//action до чтения
-void preGCMDSmallWriteAction(void);//action до записи
 int  postGCMDSmallWriteAction(void);//action после записи
 void loadACMDSmallActualDataBit(int cmdSwitch, int beginOffset, int endOffset);
 
@@ -39,11 +35,7 @@ void constructorGCMDSmallComponent(COMPONENT_OBJ *gcmdcomp)
   gcmdsmallcomponent->setModbusRegister = setGCMDSmallModbusRegister;// регистра
   gcmdsmallcomponent->setModbusBit      = setGCMDSmallModbusBit;// бита
 
-  gcmdsmallcomponent->preReadAction   = preGCMDSmallReadAction;//action до чтения
-  gcmdsmallcomponent->preWriteAction  = preGCMDSmallWriteAction;//action до записи
   gcmdsmallcomponent->postWriteAction = postGCMDSmallWriteAction;//action после записи
-
-  gcmdsmallcomponent->isActiveActualData = 0;
 }//constructorGCMDSmallComponent(COMPONENT_OBJ *gcmdcomp)
 
 int getGCMDSmallModbusRegister(int adrReg)
@@ -105,18 +97,6 @@ int setGCMDSmallModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTModbusRegister(int adrReg)
 
-void preGCMDSmallReadAction(void)
-{
-//action до чтения
-  gcmdsmallcomponent->isActiveActualData = 1;
-}//
-void preGCMDSmallWriteAction(void)
-{
-//action до записи
-  gcmdsmallcomponent->operativMarker[0] = -1;
-  gcmdsmallcomponent->operativMarker[1] = -1;//оперативный маркер
-  gcmdsmallcomponent->isActiveActualData = 1;
-}//
 int postGCMDSmallWriteAction(void)
 {
 //action после записи

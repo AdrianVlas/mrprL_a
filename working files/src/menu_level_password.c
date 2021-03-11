@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_level_password(unsigned int password, unsigned int view)
 {
-  const unsigned char name_string_1[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string_1[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     " Введите пароль:",
     " Введіть пароль:",
@@ -13,7 +13,7 @@ void make_ekran_level_password(unsigned int password, unsigned int view)
     " Введите пароль:"
   };
 
-  const unsigned char name_string_2[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string_2[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     "  Новый пароль: ",
     "  Новий пароль: ",
@@ -31,7 +31,7 @@ void make_ekran_level_password(unsigned int password, unsigned int view)
   else
     point_to_working_array = (unsigned char *)name_string_1;
 
-  unsigned char name_string_tmp[MAX_ROW_FOR_LEVEL_PASSWORD][MAX_COL_LCD];
+  unsigned char name_string_tmp[MAX_ROW_LCD][MAX_COL_LCD];
 
   int index_language = index_language_in_array(current_settings.language);
   for(int index_1 = 0; index_1 < MAX_ROW_LCD; index_1++)
@@ -84,6 +84,8 @@ void make_ekran_level_password(unsigned int password, unsigned int view)
     for (unsigned int j = 0; j<MAX_COL_LCD; j++) working_ekran[i][j] = name_string_tmp[i][j];
   }
   
+  number_seconds = 0; //Скидаю, щоб не пішла команда на реініціалізацію індикатора, коли іде введення паролю, бо це трохи збиває з пантелику, коли індикатор неочікувано очистив те що вже набрано було
+  
   //Відображення курору по вертикалі
   current_ekran.position_cursor_y = 1;
   //Обновити повністю весь екран
@@ -96,7 +98,7 @@ void make_ekran_level_password(unsigned int password, unsigned int view)
 /*****************************************************/
 void make_ekran_chose_passwords(void)
 {
-  const unsigned char password_item[MAX_ROW_FOR_CHOOSE_PASSWORDS][MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+  static const unsigned char password_item[MAX_ROW_FOR_CHOOSE_PASSWORDS][MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
   {
     {
       {" Смена пароля 1 ", " Уст.пароля 1   "},

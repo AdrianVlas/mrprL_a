@@ -1,9 +1,9 @@
-#include "header.h"
-
 //начальный регистр в карте памяти
 #define BEGIN_ADR_REGISTER 61948
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 63001
+#define END_ADR_REGISTER 63472
+
+#include "header.h"
 
 int privateYustBigGetReg2(int adrReg);
 
@@ -12,9 +12,8 @@ int getYustBigModbusBit(int);//получить содержимое бита
 int setYustBigModbusRegister(int, int);//получить содержимое регистра
 int setYustBigModbusBit(int, int);//получить содержимое бита
 
-void preYustBigReadAction(void);//action до чтения
-void preYustBigWriteAction(void);//action до записи
 int postYustBigWriteAction(void);//action после записи
+int passwordImunitetRegYUSTBigComponent(int adrReg);
 
 COMPONENT_OBJ *yustbigcomponent;
 
@@ -32,11 +31,7 @@ void constructorYustBigComponent(COMPONENT_OBJ *yustbigcomp)
   yustbigcomponent->setModbusRegister = setYustBigModbusRegister;//получить содержимое регистра
   yustbigcomponent->setModbusBit      = setYustBigModbusBit;//получить содержимое бита
 
-  yustbigcomponent->preReadAction   = preYustBigReadAction;//action до чтения
-  yustbigcomponent->preWriteAction  = preYustBigWriteAction;//action до записи
   yustbigcomponent->postWriteAction = postYustBigWriteAction;//action после записи
-
-  yustbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getYustBigModbusRegister(int adrReg)
@@ -109,20 +104,6 @@ int setYustBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preYustBigReadAction(void) {
-//action до чтения
-  yustbigcomponent->operativMarker[0] = -1;
-  yustbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  yustbigcomponent->isActiveActualData = 1;
-}//
-
-void preYustBigWriteAction(void) {
-//action до записи
-  yustbigcomponent->operativMarker[0] = -1;
-  yustbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  yustbigcomponent->isActiveActualData = 1;
-}//
-
 int postYustBigWriteAction(void) {
 //action после записи
   int beginAdr = yustbigcomponent->operativMarker[0];
@@ -179,9 +160,13 @@ int postYustBigWriteAction(void) {
     case 152://62100
       upravlMin = tempWriteArray[offsetTempWriteArray+i];//флаг min param
       break;
-    case 1053://63001
-      upravlMinEnrg = tempWriteArray[offsetTempWriteArray+i];//флаг min Enrg
-      break;
+#define  IMUNITET_REG472 63472
+    case (IMUNITET_REG472 - BEGIN_ADR_REGISTER):
+//      if(upravlYust==0x1978) {//флаг юстировки
+      test_watchdogs = (unsigned short)tempWriteArray[offsetTempWriteArray+i];//CMD_TEST_EXTERNAL_WATCHDOG;
+      return 0;
+//      }//if
+//      return ERROR_VALID2;//флаг юстировки
     }//switch
   }//for
 
@@ -195,6 +180,9 @@ int postYustBigWriteAction(void) {
     int typI = 2;
     if(pointInterface==RS485_RECUEST)//метка интерфейса 0-USB 1-RS485
       typI = 3;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    else if(pointInterface==LAN_RECUEST) typI = 4;//метка интерфейса 0-USB 1-RS485
+#endif
     if(set_new_settings_from_interface(typI)) return ERROR_VALID2;//2-USB
     return 0;
   }//if(number_iteration_el>0)
@@ -202,7 +190,16 @@ int postYustBigWriteAction(void) {
   if(upravlYust==0x1978) {//флаг юстировки
 
     changed_ustuvannja = CHANGED_ETAP_EXECUTION;
-    serial_number_dev = edit_serial_number_dev;
+    if (serial_number_dev != edit_serial_number_dev)
+    {   
+      serial_number_dev = edit_serial_number_dev;
+      
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      //Помічаємо, що треба перезапустити КП
+      _SET_STATE(queue_mo, STATE_QUEUE_MO_RESTART_KP);
+#endif
+    }
+
     for(int i=0; i<NUMBER_ANALOG_CANALES; i++) ustuvannja[i] = edit_ustuvannja[i];
     for(int i=0; i<NUMBER_ANALOG_CANALES; i++) phi_ustuvannja[i] = phi_edit_ustuvannja[i];
 
@@ -225,6 +222,10 @@ int postYustBigWriteAction(void) {
     int typI = 2;
     if(pointInterface==RS485_RECUEST)//метка интерфейса 0-USB 1-RS485
       typI = 3;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+    else if(pointInterface==LAN_RECUEST) typI = 4;//метка интерфейса 0-USB 1-RS485
+#endif
+
     if(set_new_settings_from_interface(typI)) return ERROR_VALID2;
   }//if(upravlMin==0x1111)
   else if(upravlMinEnrg==0x1234) {
@@ -242,4 +243,11 @@ int privateYustBigGetReg2(int adrReg)
   return controlPerimetr(adrReg, BEGIN_ADR_REGISTER, END_ADR_REGISTER);
 }//privateGetReg2(int adrReg)
 
+int passwordImunitetRegYUSTBigComponent(int adrReg)
+{
+  //имунитетные к паролю адреса регистров 0 - есть имунитет
+  if(privateYustBigGetReg2(adrReg)==MARKER_OUTPERIMETR) return MARKER_OUTPERIMETR;
+  if(adrReg < IMUNITET_REG472) return 0;//есть имунитет
+  return MARKER_OUTPERIMETR;
+}//passwordImunitetRegYUSTBigComponent(int adrReg)
 

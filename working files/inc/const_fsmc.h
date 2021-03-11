@@ -12,11 +12,12 @@
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
 
 #define OFFSET_DD26_DD29                0x0C00000
-#define OFFSET_DD28                     0x1C00000
+#define OFFSET_DD28_DD30                0x1C00000
 
 #endif
 

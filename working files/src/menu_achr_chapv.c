@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_setpoint_achr_chapv(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_ACHR_CHAPV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_ACHR_CHAPV][MAX_COL_LCD] = 
   {
     {
       "    Uóñò. UF    ",
@@ -36,7 +36,7 @@ void make_ekran_setpoint_achr_chapv(unsigned int group)
       "  Fðàá.×ÀÏÂ2    "
     }
   };
-  const unsigned char hz[MAX_NAMBER_LANGUAGE][2] = {"Ãö", "Ãö", "Hz", "Ãö"};
+  static const unsigned char hz[MAX_NAMBER_LANGUAGE][2] = {"Ãö", "Ãö", "Hz", "Ãö"};
 
   int index_language = index_language_in_array(current_settings.language);
   
@@ -226,7 +226,7 @@ void make_ekran_setpoint_achr_chapv(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_achr_chapv(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ACHR_CHAPV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ACHR_CHAPV][MAX_COL_LCD] = 
   {
     {
       " Âûäåðæêà À×Ð1  ",
@@ -411,7 +411,7 @@ void make_ekran_timeout_achr_chapv(unsigned int group)
 /*****************************************************/
 void make_ekran_control_achr_chapv()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ACHR_CHAPV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ACHR_CHAPV][MAX_COL_LCD] = 
   {
     {
       "   ×ÀÏÂ îò ÄÂ   ",

@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_setpoint_tznp(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_TZNP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_TZNP][MAX_COL_LCD] = 
   {
     {
       "3I0 ÒÇÍÏ1 Ïðÿìîé",
@@ -470,7 +470,7 @@ void make_ekran_setpoint_tznp(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_tznp(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_TZNP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_TZNP][MAX_COL_LCD] = 
   {
     {
       "  ÒÇÍÏ1 Ïðÿìîé  ",
@@ -705,7 +705,7 @@ void make_ekran_timeout_tznp(unsigned int group)
 /*****************************************************/
 void make_ekran_control_tznp()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_TZNP][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_TZNP][MAX_COL_LCD] = 
   {
     {
       "     ÒÇÍÏ1      ",

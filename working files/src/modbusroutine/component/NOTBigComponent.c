@@ -1,11 +1,11 @@
-#include "header.h"
-
 //начальный регистр в карте памяти
-#define BEGIN_ADR_REGISTER 2524
+#define BEGIN_ADR_REGISTER 2588
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 2539
+#define END_ADR_REGISTER 2603
 
 #define REGISTERS_NOT 1
+
+#include "header.h"
 
 int privateNOTBigGetReg2(int adrReg);
 
@@ -14,9 +14,6 @@ int getNOTBigModbusBit(int);//получить содержимое бита
 int setNOTBigModbusRegister(int, int);//получить содержимое регистра
 int setNOTBigModbusBit(int, int);//получить содержимое бита
 
-void setNOTBigCountObject(void);//записать к-во обектов
-void preNOTBigReadAction(void);//action до чтения
-void preNOTBigWriteAction(void);//action до записи
 int  postNOTBigWriteAction(void);//action после записи
 
 COMPONENT_OBJ *notbigcomponent;
@@ -33,11 +30,7 @@ void constructorNOTBigComponent(COMPONENT_OBJ *notbigcomp)
   notbigcomponent->setModbusRegister = setNOTBigModbusRegister;//получить содержимое регистра
   notbigcomponent->setModbusBit      = setNOTBigModbusBit;//получить содержимое бита
 
-  notbigcomponent->preReadAction   = preNOTBigReadAction;//action до чтения
-  notbigcomponent->preWriteAction  = preNOTBigWriteAction;//action до записи
   notbigcomponent->postWriteAction = postNOTBigWriteAction;//action после записи
-
-  notbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getNOTBigModbusRegister(int adrReg)
@@ -77,16 +70,6 @@ int setNOTBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preNOTBigReadAction(void) {
-//action до чтения
-  notbigcomponent->isActiveActualData = 1;
-}//
-void preNOTBigWriteAction(void) {
-//action до записи
-  notbigcomponent->operativMarker[0] = -1;
-  notbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  notbigcomponent->isActiveActualData = 1;
-}//
 int postNOTBigWriteAction(void) {
 extern int upravlSchematic;//флаг Rang
 //action после записи

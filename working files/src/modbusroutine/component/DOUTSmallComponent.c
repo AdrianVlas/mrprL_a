@@ -9,7 +9,8 @@
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
 //конечный регистр в карте памяти
 #define END_ADR_REGISTER 100
@@ -32,10 +33,6 @@ int getDOUTSmallModbusBit(int);//получить содержимое бита
 int setDOUTSmallModbusRegister(int, int);//записать регистр
 int setDOUTSmallModbusBit(int, int);//записать бит
 
-void setDOUTSmallCountObject(void);//записать к-во обектов
-
-void preDOUTSmallReadAction(void);//action до чтения
-void preDOUTSmallWriteAction(void);//action до записи
 int  postDOUTSmallWriteAction(void);//action после записи
 
 COMPONENT_OBJ *doutsmallcomponent;
@@ -52,11 +49,7 @@ void constructorDOUTSmallComponent(COMPONENT_OBJ *doutcomp)
   doutsmallcomponent->setModbusRegister = setDOUTSmallModbusRegister;// регистра
   doutsmallcomponent->setModbusBit      = setDOUTSmallModbusBit;// бита
 
-  doutsmallcomponent->preReadAction   = preDOUTSmallReadAction;//action до чтения
-  doutsmallcomponent->preWriteAction  = preDOUTSmallWriteAction;//action до записи
   doutsmallcomponent->postWriteAction = postDOUTSmallWriteAction;//action после записи
- 
-  doutsmallcomponent->isActiveActualData = 0;
 }//constructorDOUTSmallComponent(COMPONENT_OBJ *doutcomp)
 
 int getDOUTSmallModbusRegister(int adrReg) {
@@ -87,16 +80,6 @@ int setDOUTSmallModbusBit(int x, int y) {
   return MARKER_OUTPERIMETR;
 }//getDOUTModbusRegister(int adrReg)
 
-void preDOUTSmallReadAction(void) {
-//action до чтения
-  doutsmallcomponent->isActiveActualData = 1;
-}//
-void preDOUTSmallWriteAction(void) {
-//action до записи
-  doutsmallcomponent->operativMarker[0] = -1;
-  doutsmallcomponent->operativMarker[1] = -1;//оперативный маркер
-  doutsmallcomponent->isActiveActualData = 1;
-}//
 int postDOUTSmallWriteAction(void) {
 //action после записи
   return 0;

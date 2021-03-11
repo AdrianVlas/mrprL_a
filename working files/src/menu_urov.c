@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_setpoint_urov(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UROV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_SETPOINT_UROV][MAX_COL_LCD] = 
   {
     {
       "  Óñòàâêà ÓÐÎÂ  "
@@ -99,7 +99,7 @@ void make_ekran_setpoint_urov(unsigned int group)
 /*****************************************************/
 void make_ekran_timeout_urov(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UROV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_UROV][MAX_COL_LCD] = 
   {
     {
       " 1 Ñòóïåíü ÓÐÎÂ ",
@@ -230,7 +230,7 @@ void make_ekran_timeout_urov(unsigned int group)
 /*****************************************************/
 void make_ekran_control_urov()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UROV - NUMBER_UP + 1][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_UROV - NUMBER_UP + 1][MAX_COL_LCD] = 
   {
     {
       "      ÓÐÎÂ      ",
@@ -353,7 +353,7 @@ void make_ekran_control_urov()
       "  Ïóñê îò ÓÇõ   "
     }
   };
-  const uint32_t index_number_UP[MAX_NAMBER_LANGUAGE] = {12, 13, 12, 12};
+  static const uint32_t index_number_UP_prvv[MAX_NAMBER_LANGUAGE] = {12, 13, 12, 12};
   
   unsigned char name_string_tmp[MAX_ROW_FOR_CONTROL_UROV][MAX_COL_LCD];
 
@@ -365,7 +365,7 @@ void make_ekran_control_urov()
     {
       if (
           (index_1 >= (MAX_ROW_FOR_CONTROL_UROV - NUMBER_UP)) &&
-          (index_2 == index_number_UP[index_language]) 
+          (index_2 == index_number_UP_prvv[index_language]) 
          )
       {
         name_string_tmp[index_1][index_2] = 0x30 + (index_1 - (MAX_ROW_FOR_CONTROL_UROV - NUMBER_UP) + 1);

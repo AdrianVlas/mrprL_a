@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_chose_settings_uvv(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CHOSE_SETTINGS_UVV][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CHOSE_SETTINGS_UVV][MAX_COL_LCD] = 
   {
     {
       " дНОСЯЙ Д.БУНДЮ ",
@@ -77,15 +77,15 @@ void make_ekran_chose_settings_uvv(void)
 /*****************************************************/
 void make_ekran_dopusk_dv()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     "    дБx.        ",
     "    дБx.        ",
     "     DI.        ",
     "    дБx.        "
   };
-  const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {8, 8, 8, 8};
-  const unsigned char ms[MAX_NAMBER_LANGUAGE][2] = {"ЛЯ", "ЛЯ", "ms", "ЛЯ"};
+  static const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {8, 8, 8, 8};
+  static const unsigned char ms[MAX_NAMBER_LANGUAGE][2] = {"ЛЯ", "ЛЯ", "ms", "ЛЯ"};
 
   int index_language = index_language_in_array(current_settings.language);
   unsigned int first_index_number_1 = first_index_number[index_language];
@@ -196,14 +196,14 @@ void make_ekran_dopusk_dv()
 /*****************************************************/
 void make_ekran_type_input_uvv(unsigned int type_input_or_signal)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     "    дБx.        ",
     "    дБx.        ",
     "     DI.        ",
     "    дБx.        "
   };
-  const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {8, 8, 8, 8};
+  static const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {8, 8, 8, 8};
   int index_language = index_language_in_array(current_settings.language);
   unsigned int first_index_number_1 = first_index_number[index_language];
   
@@ -260,14 +260,14 @@ void make_ekran_type_input_uvv(unsigned int type_input_or_signal)
           
         if (type_input_or_signal == 0)
         {
-          const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+          static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
           {
             {"     опълни     ", "   хмбепямши    "},
             {"     опълхи     ", "   ╡мбепямхи    "},
             {"     DIRECT     ", "    INVERSE     "},
             {"     опълни     ", "   хмбепямши    "}
           };
-          const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+          static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
           {
             {4, 2},
             {4, 2},
@@ -283,14 +283,14 @@ void make_ekran_type_input_uvv(unsigned int type_input_or_signal)
         }
         else
         {
-          const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+          static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
           {
             {"   онярнъммши   ", "   оепелеммши   "},
             {"   оняр╡имхи    ", "    гл╡ммхи     "},
             {"     DIRECT     ", "   ALTERNATE    "},
             {"   онярнъммши   ", "   оепелеммши   "}
           };
-          const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+          static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
           {
             {2, 2},
             {2, 3},
@@ -351,14 +351,14 @@ void correct_dopusk_dv_when_type_of_input_signal_is_changed(void)
 /*****************************************************/
 void make_ekran_type_output_uvv(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     "    дБШУ.       ",
     "    дБХУ.       ",
     "     DO.        ",
     "    дБШУ.       "
   };
-  const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {9, 9, 8, 9};
+  static const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {9, 9, 8, 9};
   int index_language = index_language_in_array(current_settings.language);
   unsigned int first_index_number_1 = first_index_number[index_language];
   
@@ -411,14 +411,14 @@ void make_ekran_type_output_uvv(void)
         //с ОЮПМНЛС МНЛЕПЁ ПЪДЙС БХБНДХЛН ГМЮВЕММЪ 
         unsigned int index_ctr = (index_of_ekran>>1);
 
-        const unsigned char information[MAX_NAMBER_LANGUAGE][4][MAX_COL_LCD] = 
+        static const unsigned char information[MAX_NAMBER_LANGUAGE][4][MAX_COL_LCD] = 
         {
           {"   йнлюмдмши    ", "   яхцмюкэмши   ", " яхцмюкэмши хло ", "  ньхайю дюмшу  "},
           {"   йнлюмдмхи    ", "   яхцмюкэмхи   ", " яхцмюкэмхи ╡ло ", "  онлхкйю дюмху "},
           {"    COMMAND     ", "     SIGNAL     ", "   SIGNAL IMP   ", "   DATA ERROR   "},
           {"   йнлюмдмши    ", "   яхцмюкэмши   ", " яхцмюкэмши хло ", "  ньхайю дюмшу  "}
         };
-        const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][4] = 
+        static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][4] = 
         {
           {2, 2, 0, 1},
           {2, 2, 0, 1},
@@ -469,14 +469,14 @@ void make_ekran_type_output_uvv(void)
 /*****************************************************/
 void make_ekran_type_led_uvv(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_COL_LCD] = 
   {
     "      CБ.       ",
     "      CБ.       ",
     "      LED       ",
     "      CБ.       "
   };
-  const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {9, 9, 9, 9};
+  static const unsigned int first_index_number[MAX_NAMBER_LANGUAGE] = {9, 9, 9, 9};
   int index_language = index_language_in_array(current_settings.language);
   unsigned int first_index_number_1 = first_index_number[index_language];
   
@@ -524,14 +524,14 @@ void make_ekran_type_led_uvv(void)
         unsigned int index_ctr = (index_of_ekran>>1);
         unsigned int temp_data;
 
-        const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+        static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
         {
           {"   мнплюкэмши   ", "   рпхццепмши   "},
           {"   мнплюкэмхи   ", "   рпх╔епмхи    "},
           {"     NORMAL     ", "    TRIGGER     "},
           {"   мнплюкэмши   ", "   рпхццепмши   "}
         };
-        const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+        static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
         {
           {2, 2},
           {2, 2},
@@ -569,8 +569,8 @@ void make_ekran_type_led_uvv(void)
 /*****************************************************/
 void make_ekran_type_button_uvv(void)
 {
-  const unsigned char name_string[MAX_COL_LCD] = "       F        ";
-  const unsigned int first_index_number = 8;
+  static const unsigned char name_string[MAX_COL_LCD] = "       F        ";
+  static const unsigned int first_index_number = 8;
   
   int index_language = index_language_in_array(current_settings.language);
   
@@ -598,14 +598,14 @@ void make_ekran_type_button_uvv(void)
         //с ОЮПМНЛС МНЛЕПЁ ПЪДЙС БХБНДХЛН ГМЮВЕММЪ 
         unsigned int index_ctr = (index_of_ekran>>1);
 
-        const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+        static const unsigned char information[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
         {
           {"     ймнойю     ", "      йкчв      "},
           {"     ймнойю     ", "      йкчв      "},
           {"     ймнойю     ", "      йкчв      "},
           {"     ймнойю     ", "      йкчв      "}
         };
-        const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
+        static const unsigned int cursor_x[MAX_NAMBER_LANGUAGE][2] = 
         {
           {4, 5},
           {4, 5},

@@ -46,72 +46,16 @@ void global_vareiables_installation(void)
   /**************************/
   //Вимірювальна система
   /**************************/
-//  for (unsigned int i = 0; i < NUMBER_INPUTs_ADCs; i++)
-//  {
-//    output_adc[i].tick = 0;
-//    output_adc[i].value = 0;
-//  }
   
   for(size_t i = 0; i < NUMBER_ANALOG_CANALES; i++)
   {
     for(unsigned int j = 0; j < MAIN_FREQUENCY; j++) vref_adc_moment_value_1s[i][j] = VREF_NORMAL_VALUE;
-//    vref_adc[i] = VREF_NORMAL_VALUE;
   }
   
-//  for(unsigned int i=0; i<(NUMBER_ANALOG_CANALES*NUMBER_POINT*NUMBER_PERIOD_TRANSMIT); i++)
-//    current_data[i] = 0;
-  
-//  for(unsigned int i=0; i<NUMBER_POINT; i++)
-//  {
-//    sqr_current_data_3I0[i] = 0;
-//  }
-
-//  rozshyrena_vyborka.time_p = 0;
-//  rozshyrena_vyborka.time_c = 0;
-//  for (unsigned int i = 0; i < NUMBER_ANALOG_CANALES; i++)
-//  {
-//    rozshyrena_vyborka.data_p[i] = 0;
-//    rozshyrena_vyborka.data_c[i] = 0;
-//  }
-
   for (unsigned int i = 0; i < MAX_INDEX_DATA_FOR_OSCYLOGRAPH; i++)
   {
-//    data_for_oscylograph[i].time_stemp = 0;
-//    data_for_oscylograph[i].DATA_fix = 0;
-//    for (unsigned int j = 0; j < NUMBER_ANALOG_CANALES; j++) data_for_oscylograph[i].data[j] = 0;
-//    for (unsigned int j = 0; j < N_BIG; j++) data_for_oscylograph[i].active_functions[j] = 0;
-    data_for_oscylograph[i].state_ar_record = STATE_AR_NO_RECORD;
+    data_for_oscylograph[i].state_ar_record = STATE_AR_NONE_M;
   }
-
-//  for (unsigned int i = 0; i < MAX_INDEX_PhK; i++)
-//  {
-//    for (unsigned int j = 0; j < 2; j++)
-//    {
-//      perechid_cherez_nul[i][j].x1 = 0;
-//      perechid_cherez_nul[i][j].y1 = 0;
-//
-//      perechid_cherez_nul[i][j].x2 = 0;
-//      perechid_cherez_nul[i][j].y2 = 0;
-//    }
-//    fix_perechid_cherez_nul[i] = 0;
-//  }
-
-//  poperednij_perechid.Ua_x1 = 0;
-//  poperednij_perechid.Ua_y1 = 0;
-//  poperednij_perechid.Ua_x2 = 0;
-//  poperednij_perechid.Ua_y2 = 0;
-//  poperednij_perechid.Ub_x1 = 0;
-//  poperednij_perechid.Ub_y1 = 0;
-//  poperednij_perechid.Ub_x2 = 0;
-//  poperednij_perechid.Ub_y2 = 0;
-//  poperednij_perechid.Uc_x1 = 0;
-//  poperednij_perechid.Uc_y1 = 0;
-//  poperednij_perechid.Uc_x2 = 0;
-//  poperednij_perechid.Uc_y2 = 0;
-//  poperednij_perechid.U0_x1 = 0;
-//  poperednij_perechid.U0_y1 = 0;
-//  poperednij_perechid.U0_x2 = 0;
-//  poperednij_perechid.U0_y2 = 0;
   
   sector_1[0] = (int) (AMPLITUDA_SECTOR*/*cos*/arm_cos_f32(/*(double)*/(PI*((float)(  0 + SECTOR1 - POPRAVKA_NZZ))/180.0f)));
   sector_1[1] = (int) (AMPLITUDA_SECTOR*/*sin*/arm_sin_f32(/*(double)*/(PI*((float)(  0 + SECTOR1 - POPRAVKA_NZZ))/180.0f)));
@@ -148,54 +92,12 @@ void global_vareiables_installation(void)
   sector_2_mtz_tznp[5] = (int) (AMPLITUDA_SECTOR*/*sin*/arm_sin_f32(/*(double)*/(PI*((float)(-90 - SECTOR2_MTZ_TZNP - POPRAVKA_MTZ_TZNP))/180.0f)));
   sector_2_mtz_tznp[6] = (int) (AMPLITUDA_SECTOR*/*cos*/arm_cos_f32(/*(double)*/(PI*((float)(-90 + SECTOR2_MTZ_TZNP - POPRAVKA_MTZ_TZNP))/180.0f)));
   sector_2_mtz_tznp[7] = (int) (AMPLITUDA_SECTOR*/*sin*/arm_sin_f32(/*(double)*/(PI*((float)(-90 + SECTOR2_MTZ_TZNP - POPRAVKA_MTZ_TZNP))/180.0f)));
-
-//  for(unsigned int i=0; i<(NUMBER_POINT*NUMBER_ANALOG_CANALES); i++)
-//  {
-//    data_sin[i] = 0;
-//    data_cos[i] = 0;
-//  }
-  
-//  for(unsigned int i=0; i<NUMBER_ANALOG_CANALES; i++)
-//  {
-//    ADCs_data_raw[i].tick = 0;
-//    ADCs_data_raw[i].value = 0;
-//      
-//    ustuvannja_meas[i] = ustuvannja[i] = DEFAULT_USTUVANNJA_VALUE;
-//
-//    int phi_tmp;
-//    phi_ustuvannja_meas[i] = phi_ustuvannja[i] = phi_tmp = 0;
-//    
-//    float phi_radian_tmp = PI*((float)phi_tmp)/180.0f;
-//    phi_ustuvannja_sin_cos_meas[2*i    ] = phi_ustuvannja_sin_cos[2*i    ] = arm_sin_f32(phi_radian_tmp);
-//    phi_ustuvannja_sin_cos_meas[2*i + 1] = phi_ustuvannja_sin_cos[2*i + 1] = arm_cos_f32(phi_radian_tmp);
-//  }
-
-//  for(unsigned int i=0; i<(2*NUMBER_ANALOG_CANALES); i++)
-//  {
-//    ortogonal_irq[i] = 0;
-//    ortogonal[i][0] = ortogonal[i][1] = 0;
-//  }
-
-//  for(unsigned int i=0; i<(2*FULL_ORT_MAX); i++)
-//  {
-//    ortogonal_calc[i]     = 0;
-//    ortogonal_calc_low[i] = 0;
-//  }
   /**************************/
 
   /**************************/
   //Ініціалізація глобальних таймерів
   /**************************/
   for(unsigned int i = 0; i < MAX_NUMBER_GLOBAL_TIMERS; i++) global_timers[i] = -1;
-  /**************************/
-
-  /**************************/
-  //Змінні, які потрібні для роботи
-  /**************************/
-//  for(unsigned int i = 0; i < NUMBER_DEFINED_FUNCTIONS; i++)
-//  {
-//    etap_execution_df[i] = NONE_DF;
-//  }
   /**************************/
 
   /**************************/
@@ -207,24 +109,10 @@ void global_vareiables_installation(void)
   }
   /**************************/
   
-  /**************************
-  Константа (які від версії до версії може змінюватися), але для даного проекту 
-  завжди визначена
-  **************************/
-//  number_word_digital_part_ar = NUMBER_TOTAL_SIGNAL_FOR_RANG/(8*sizeof(short int));
-//  if ((number_word_digital_part_ar*8*sizeof(short int)) < NUMBER_TOTAL_SIGNAL_FOR_RANG) number_word_digital_part_ar += 1;
-  /**************************/
-
-  /**************************/
-  //
-  /**************************/
-  /**************************/
-
   for(unsigned int i = 0; i < MAX_ROW_LCD; i++)
   {
     for (unsigned int j = 0; j < MAX_COL_LCD; j++) working_ekran[i][j] = ' ';
   }
-//  for (unsigned int i=0; i<NUMBER_KEY_KEYBOARD; i++) time_set_keyboard[i] = 0;
  
   for(unsigned int i=0; i<MAX_LEVEL_MENU; i++)
   {
@@ -237,27 +125,6 @@ void global_vareiables_installation(void)
   current_ekran.current_level = EKRAN_MAIN;
   current_ekran.index_position = position_in_current_level_menu[current_ekran.current_level];
   current_ekran.position_cursor_y = current_ekran.index_position;
-//  current_ekran.edition = 0;
-//  current_ekran.cursor_on = 0;
-//  current_ekran.cursor_blinking_on = 0;  
-  
-//  time[0] = 0x0;
-//  time[1] = 0x0;
-//  time[2] = 0x0;
-//  time[3] = 0x0;
-//  time[4] = 0x0;
-//  time[5] = 0x0;
-//  time[6] = 0x0;
-//  calibration = 0;
-
-//  time_copy[0] = 0x0;
-//  time_copy[1] = 0x0;
-//  time_copy[2] = 0x0;
-//  time_copy[3] = 0x0;
-//  time_copy[4] = 0x0;
-//  time_copy[5] = 0x0;
-//  time_copy[6] = 0x0;
-//  calibration_copy = 0;
   
   /**************************/
   //Ініціалізація структури усправління драйвером I2C
@@ -271,147 +138,137 @@ void global_vareiables_installation(void)
   //Значення решти полів поки не грає ролі 
   /**************************/
 
-//  /**************************/
-//  //Обнуляємо масив для аналогового реєстратора
-//  /**************************/
-//  for(unsigned int i = 0; i < SIZE_BUFFER_FOR_AR; i++) array_ar[i] = 0;
-//  /**************************/
-
   /**************************/
   //Дополнительные константы для МТЗ
   /**************************/
-  mtz_settings_prt[MTZ_LEVEL1][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZ] = RANG_PO_MTZ1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN1_VPERED;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN1_NAZAD;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZPN] = RANG_PO_MTZPN1;
-  mtz_settings_prt[MTZ_LEVEL1][RANG_MTZ] = RANG_MTZ1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZ] = RANG_PO_MTZ1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN1_VPERED;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN1_NAZAD;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_PO_MTZPN] = RANG_PO_MTZPN1;
+//  mtz_settings_prt[MTZ_LEVEL1][RANG_MTZ] = RANG_MTZ1;
+//  
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_BLOCK_USK_MTZ] = RANG_BLOCK_USK_MTZ2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZ] = RANG_PO_MTZ2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN2_VPERED;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN2_NAZAD;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZPN] = RANG_PO_MTZPN2;
+//  mtz_settings_prt[MTZ_LEVEL2][RANG_MTZ] = RANG_MTZ2;
+//  
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZ] = RANG_PO_MTZ3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN3_VPERED;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN3_NAZAD;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZPN] = RANG_PO_MTZPN3;
+//  mtz_settings_prt[MTZ_LEVEL3][RANG_MTZ] = RANG_MTZ3;
+//  
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZ] = RANG_PO_MTZ4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN4_VPERED;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN4_NAZAD;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZPN] = RANG_PO_MTZPN4;
+//  mtz_settings_prt[MTZ_LEVEL4][RANG_MTZ] = RANG_MTZ4;
+//  
+//  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ] = CTR_MTZ_1;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ_VPERED] = CTR_MTZ_1_VPERED;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ_NAZAD] = CTR_MTZ_1_NAZAD;
+//  
+//  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ] = CTR_MTZ_2;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ_VPERED] = CTR_MTZ_2_VPERED;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ_NAZAD] = CTR_MTZ_2_NAZAD;
+//  
+//  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ] = CTR_MTZ_3;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ_VPERED] = CTR_MTZ_3_VPERED;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ_NAZAD] = CTR_MTZ_3_NAZAD;
+//  
+//  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ] = CTR_MTZ_4;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ_VPERED] = CTR_MTZ_4_VPERED;
+//  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ_NAZAD] = CTR_MTZ_4_NAZAD;
+//  
+//  type_mtz_arr[MTZ_LEVEL1] = &current_settings_prt.type_mtz1;
+//  type_mtz_arr[MTZ_LEVEL2] = &current_settings_prt.type_mtz2;
+//  type_mtz_arr[MTZ_LEVEL3] = &current_settings_prt.type_mtz3;
+//  type_mtz_arr[MTZ_LEVEL4] = &current_settings_prt.type_mtz4;
+//  
+//  setpoint_mtz[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1;
+//  setpoint_mtz[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2;
+//  setpoint_mtz[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3;
+//  setpoint_mtz[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4;
+//  
+//  setpoint_mtz_n_vpered[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_n_vpered;
+//  setpoint_mtz_n_vpered[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_n_vpered;
+//  setpoint_mtz_n_vpered[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_n_vpered;
+//  setpoint_mtz_n_vpered[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_n_vpered;
+//  
+//  setpoint_mtz_n_nazad[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_n_nazad;
+//  setpoint_mtz_n_nazad[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_n_nazad;
+//  setpoint_mtz_n_nazad[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_n_nazad;
+//  setpoint_mtz_n_nazad[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_n_nazad;
+//  
+//  setpoint_mtz_U[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_U;
+//  setpoint_mtz_U[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_U;
+//  setpoint_mtz_U[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_U;
+//  setpoint_mtz_U[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_U;
+//  
+//  setpoint_mtz_po_napruzi[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_po_napruzi;
+//  setpoint_mtz_po_napruzi[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_po_napruzi;
+//  setpoint_mtz_po_napruzi[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_po_napruzi;
+//  setpoint_mtz_po_napruzi[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_po_napruzi;
+//  
+//  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ1;
+//  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ1_N_VPERED;
+//  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ1_N_NAZAD;
+//  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ1_PO_NAPRUZI;
+//  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ] = 0;
+//  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_N_VPERED] = 0;
+//  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_N_NAZAD] = 0;
+//  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_PO_NAPRUZI] = 0;
+//  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ3;
+//  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ3_N_VPERED;
+//  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ3_N_NAZAD;
+//  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ3_PO_NAPRUZI;
+//  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ4;
+//  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ4_N_VPERED;
+//  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ4_N_NAZAD;
+//  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ4_PO_NAPRUZI;
+//  
+//  timeout_mtz[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1;
+//  timeout_mtz[MTZ_LEVEL2] = 0;
+//  timeout_mtz[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3;
+//  timeout_mtz[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4;
+//  
+//  timeout_mtz_n_vpered[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_n_vpered;
+//  timeout_mtz_n_vpered[MTZ_LEVEL2] = 0;
+//  timeout_mtz_n_vpered[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_n_vpered;
+//  timeout_mtz_n_vpered[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_n_vpered;
+//  
+//  timeout_mtz_n_nazad[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_n_nazad;
+//  timeout_mtz_n_nazad[MTZ_LEVEL2] = 0;
+//  timeout_mtz_n_nazad[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_n_nazad;
+//  timeout_mtz_n_nazad[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_n_nazad;
+//  
+//  timeout_mtz_po_napruzi[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_po_napruzi;
+//  timeout_mtz_po_napruzi[MTZ_LEVEL2] = 0;
+//  timeout_mtz_po_napruzi[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_po_napruzi;
+//  timeout_mtz_po_napruzi[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_po_napruzi;
   
-  mtz_settings_prt[MTZ_LEVEL2][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_BLOCK_USK_MTZ] = RANG_BLOCK_USK_MTZ2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZ] = RANG_PO_MTZ2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN2_VPERED;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN2_NAZAD;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_PO_MTZPN] = RANG_PO_MTZPN2;
-  mtz_settings_prt[MTZ_LEVEL2][RANG_MTZ] = RANG_MTZ2;
-  
-  mtz_settings_prt[MTZ_LEVEL3][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZ] = RANG_PO_MTZ3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN3_VPERED;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN3_NAZAD;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_PO_MTZPN] = RANG_PO_MTZPN3;
-  mtz_settings_prt[MTZ_LEVEL3][RANG_MTZ] = RANG_MTZ3;
-  
-  mtz_settings_prt[MTZ_LEVEL4][RANG_BLOCK_MTZ] = RANG_BLOCK_MTZ4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_SECTOR_VPERED_MTZN] = RANG_SECTOR_VPERED_MTZN4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_SECTOR_NAZAD_MTZN] = RANG_SECTOR_NAZAD_MTZN4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZ] = RANG_PO_MTZ4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZN_VPERED] = RANG_PO_MTZN4_VPERED;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZN_NAZAD] = RANG_PO_MTZN4_NAZAD;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_U_MTZPN] = RANG_PO_U_MTZPN4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_PO_MTZPN] = RANG_PO_MTZPN4;
-  mtz_settings_prt[MTZ_LEVEL4][RANG_MTZ] = RANG_MTZ4;
-  
-  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ] = CTR_MTZ_1;
-  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ_VPERED] = CTR_MTZ_1_VPERED;
-  mtz_const_menu_settings_prt[MTZ_LEVEL1][CTR_MTZ_NAZAD] = CTR_MTZ_1_NAZAD;
-  
-  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ] = CTR_MTZ_2;
-  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ_VPERED] = CTR_MTZ_2_VPERED;
-  mtz_const_menu_settings_prt[MTZ_LEVEL2][CTR_MTZ_NAZAD] = CTR_MTZ_2_NAZAD;
-  
-  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ] = CTR_MTZ_3;
-  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ_VPERED] = CTR_MTZ_3_VPERED;
-  mtz_const_menu_settings_prt[MTZ_LEVEL3][CTR_MTZ_NAZAD] = CTR_MTZ_3_NAZAD;
-  
-  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ] = CTR_MTZ_4;
-  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ_VPERED] = CTR_MTZ_4_VPERED;
-  mtz_const_menu_settings_prt[MTZ_LEVEL4][CTR_MTZ_NAZAD] = CTR_MTZ_4_NAZAD;
-  
-  type_mtz_arr[MTZ_LEVEL1] = &current_settings_prt.type_mtz1;
-  type_mtz_arr[MTZ_LEVEL2] = &current_settings_prt.type_mtz2;
-  type_mtz_arr[MTZ_LEVEL3] = &current_settings_prt.type_mtz3;
-  type_mtz_arr[MTZ_LEVEL4] = &current_settings_prt.type_mtz4;
-  
-  setpoint_mtz[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1;
-  setpoint_mtz[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2;
-  setpoint_mtz[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3;
-  setpoint_mtz[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4;
-  
-  setpoint_mtz_n_vpered[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_n_vpered;
-  setpoint_mtz_n_vpered[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_n_vpered;
-  setpoint_mtz_n_vpered[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_n_vpered;
-  setpoint_mtz_n_vpered[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_n_vpered;
-  
-  setpoint_mtz_n_nazad[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_n_nazad;
-  setpoint_mtz_n_nazad[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_n_nazad;
-  setpoint_mtz_n_nazad[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_n_nazad;
-  setpoint_mtz_n_nazad[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_n_nazad;
-  
-  setpoint_mtz_U[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_U;
-  setpoint_mtz_U[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_U;
-  setpoint_mtz_U[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_U;
-  setpoint_mtz_U[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_U;
-  
-  setpoint_mtz_po_napruzi[MTZ_LEVEL1] = current_settings_prt.setpoint_mtz_1_po_napruzi;
-  setpoint_mtz_po_napruzi[MTZ_LEVEL2] = current_settings_prt.setpoint_mtz_2_po_napruzi;
-  setpoint_mtz_po_napruzi[MTZ_LEVEL3] = current_settings_prt.setpoint_mtz_3_po_napruzi;
-  setpoint_mtz_po_napruzi[MTZ_LEVEL4] = current_settings_prt.setpoint_mtz_4_po_napruzi;
-  
-  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ1;
-  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ1_N_VPERED;
-  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ1_N_NAZAD;
-  mtz_tmr_const[MTZ_LEVEL1][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ1_PO_NAPRUZI;
-  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ] = 0;
-  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_N_VPERED] = 0;
-  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_N_NAZAD] = 0;
-  mtz_tmr_const[MTZ_LEVEL2][INDEX_TIMER_MTZ_PO_NAPRUZI] = 0;
-  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ3;
-  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ3_N_VPERED;
-  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ3_N_NAZAD;
-  mtz_tmr_const[MTZ_LEVEL3][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ3_PO_NAPRUZI;
-  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ] = INDEX_TIMER_MTZ4;
-  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_N_VPERED] = INDEX_TIMER_MTZ4_N_VPERED;
-  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_N_NAZAD] = INDEX_TIMER_MTZ4_N_NAZAD;
-  mtz_tmr_const[MTZ_LEVEL4][INDEX_TIMER_MTZ_PO_NAPRUZI] = INDEX_TIMER_MTZ4_PO_NAPRUZI;
-  
-  timeout_mtz[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1;
-  timeout_mtz[MTZ_LEVEL2] = 0;
-  timeout_mtz[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3;
-  timeout_mtz[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4;
-  
-  timeout_mtz_n_vpered[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_n_vpered;
-  timeout_mtz_n_vpered[MTZ_LEVEL2] = 0;
-  timeout_mtz_n_vpered[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_n_vpered;
-  timeout_mtz_n_vpered[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_n_vpered;
-  
-  timeout_mtz_n_nazad[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_n_nazad;
-  timeout_mtz_n_nazad[MTZ_LEVEL2] = 0;
-  timeout_mtz_n_nazad[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_n_nazad;
-  timeout_mtz_n_nazad[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_n_nazad;
-  
-  timeout_mtz_po_napruzi[MTZ_LEVEL1] = current_settings_prt.timeout_mtz_1_po_napruzi;
-  timeout_mtz_po_napruzi[MTZ_LEVEL2] = 0;
-  timeout_mtz_po_napruzi[MTZ_LEVEL3] = current_settings_prt.timeout_mtz_3_po_napruzi;
-  timeout_mtz_po_napruzi[MTZ_LEVEL4] = current_settings_prt.timeout_mtz_4_po_napruzi;
-  
-//  i_nom_const = I_NOM * KOEF_1_2_I;
-//  u_linear_nom_const = U_LINEAR_NOM * KOEF_0_2_U;
   /**************************/
   
   //Modbus-RTU
   type_of_settings_changed = 0;
-  password_ustuvannja = 0;
-  global_component_installation();  
 }
 /**************************************/
 
@@ -445,9 +302,10 @@ void start_settings_peripherals(void)
   _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD31_DD34_DD35_DD37) = 0;
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
-  _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28) = 0;
+  _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD28_DD30) = 0;
 #endif
   /**********************/
 
@@ -535,7 +393,8 @@ void start_settings_peripherals(void)
   uint32_t board_register_tmp = board_register = _DEVICE_REGISTER_V2(Bank1_SRAM2_ADDR, OFFSET_DD39_DD40_DD47);
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
   if ((board_register_tmp & 0x17) != 0x17)
 #elif (MODYFIKACIA_VERSII_PZ == 1)
@@ -550,14 +409,16 @@ void start_settings_peripherals(void)
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
     if ((board_register_tmp &  0x04) !=  0x4) _SET_BIT(set_diagnostyka, ERROR_BDVV5_2_FIX);
 #endif
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
     if ((board_register_tmp & 0x010) != 0x10) 
 #if (MODYFIKACIA_VERSII_PZ == 0)
@@ -585,7 +446,8 @@ void start_settings_peripherals(void)
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
      (MODYFIKACIA_VERSII_PZ == 1) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
   if ((board_register_tmp & 0x04) == 0x04)
   {
@@ -595,7 +457,8 @@ void start_settings_peripherals(void)
   
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )
   if ((board_register_tmp & 0x10) == 0x10)
   {
@@ -690,6 +553,20 @@ void start_settings_peripherals(void)
   GPIO_ResetBits(GPIO_485DE, GPIO_PIN_485DE);
   /**************/
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /* Canal1_MO_Out1*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_PIN_CANAL1_MO_Out1;
+  GPIO_Init(GPIO_CANAL1_MO_Out1, &GPIO_InitStructure);
+  /* Знімаємо пін Canal1_MO_Out */
+  GPIO_ResetBits(GPIO_CANAL1_MO_Out1, GPIO_PIN_CANAL1_MO_Out1);
+
+  /* KP_SOFT_RESET_Out1*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_PIN_KP_SOFT_RESET;
+  GPIO_Init(GPIO_KP_SOFT_RESET, &GPIO_InitStructure);
+  /* Знімаємо пін KP_SOFT_RESET */
+  GPIO_ResetBits(GPIO_KP_SOFT_RESET, GPIO_PIN_KP_SOFT_RESET);
+#endif
+
   /**************/
   //Піни на ввід
   /**************/
@@ -745,6 +622,24 @@ void start_settings_peripherals(void)
   GPIO_InitStructure.GPIO_Pin = GPIO_TxPin_RS485 | GPIO_RxPin_RS485;
   GPIO_Init(GPIO_USART_RS485, &GPIO_InitStructure);
   /**********************/
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  //Перекидаємо піни PA9/Tx_CANAL1_MO, PA10/Rx_CANAL1_MO
+  GPIO_PinAFConfig(GPIO_CANAL1_MO, GPIO_TxPin_CANAL1_MOSource, GPIO_AF_CANAL1_MO);
+  GPIO_PinAFConfig(GPIO_CANAL1_MO, GPIO_RxPin_CANAL1_MOSource, GPIO_AF_CANAL1_MO);
+
+  /* Configure CANAL1_MO Rx/Tx as alternate function push-pull */
+  GPIO_InitStructure.GPIO_Pin = GPIO_TxPin_CANAL1_MO | GPIO_RxPin_CANAL1_MO;
+  GPIO_Init(GPIO_CANAL1_MO, &GPIO_InitStructure);
+
+  //Перекидаємо піни PA9/Tx_CANAL2_MO, PA10/Rx_CANAL2_MO
+  GPIO_PinAFConfig(GPIO_CANAL2_MO, GPIO_TxPin_CANAL2_MOSource, GPIO_AF_CANAL2_MO);
+  GPIO_PinAFConfig(GPIO_CANAL2_MO, GPIO_RxPin_CANAL2_MOSource, GPIO_AF_CANAL2_MO);
+
+  /* Configure CANAL2_MO Rx/Tx as alternate function push-pull */
+  GPIO_InitStructure.GPIO_Pin = GPIO_TxPin_CANAL2_MO | GPIO_RxPin_CANAL2_MO;
+  GPIO_Init(GPIO_CANAL2_MO, &GPIO_InitStructure);
+#endif
 
   /* Під'єднання EXTI Line0 to POWER_CTRL_PIN піну */
   SYSCFG_EXTILineConfig(EXTI_PortSource_POWER, EXTI_PinSource_POWER);  
@@ -850,6 +745,61 @@ void start_settings_peripherals(void)
   DMA_Init(DMA_StreamRS485_Tx, &DMA_InitStructure);
   DMA_ClearFlag(DMA_StreamRS485_Tx, DMA_FLAG_TCRS485_Tx | DMA_FLAG_HTRS485_Tx | DMA_FLAG_TEIRS485_Tx | DMA_FLAG_DMEIRS485_Tx | DMA_FLAG_FEIRS485_Tx);
   /**********************/
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /* Прийом по CANAL1_MO*/
+  DMA_DeInit(DMA_StreamCANAL1_MO_Rx);
+  while (DMA_GetCmdStatus(DMA_StreamCANAL1_MO_Rx) != DISABLE);
+  
+  DMA_InitStructure.DMA_Channel = DMA_ChannelCANAL1_MO_Rx;
+  DMA_InitStructure.DMA_PeripheralBaseAddr = CANAL1_MO_DR_Base;
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)Canal1_MO_Received;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  DMA_InitStructure.DMA_BufferSize = BUFFER_CANAL1_MO;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh; /*Так як № потоку DMA_ChannelCANAL1_MO_Tx > за № потоку DMA_ChannelCANAL1_MO_Rx, то DMA_ChannelCANAL1_MO_Rx має пріориет над DMA_ChannelCANAL1_MO_Tx при однаковому програмному пріоритеті*/
+  DMA_Init(DMA_StreamCANAL1_MO_Rx, &DMA_InitStructure);
+  DMA_ClearFlag(DMA_StreamCANAL1_MO_Rx, DMA_FLAG_TCCANAL1_MO_Rx | DMA_FLAG_HTCANAL1_MO_Rx | DMA_FLAG_TEICANAL1_MO_Rx | DMA_FLAG_DMEICANAL1_MO_Rx | DMA_FLAG_FEICANAL1_MO_Rx);
+  
+  /* Передача по CANAL1_MO*/
+  DMA_DeInit(DMA_StreamCANAL1_MO_Tx);
+  while (DMA_GetCmdStatus(DMA_StreamCANAL1_MO_Tx) != DISABLE);
+
+  DMA_InitStructure.DMA_Channel = DMA_ChannelCANAL1_MO_Tx;
+  DMA_InitStructure.DMA_PeripheralBaseAddr = CANAL1_MO_DR_Base;
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)Canal1_MO_Transmit;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+  DMA_InitStructure.DMA_BufferSize = 0;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh; /*Так як № потоку DMA_ChannelCANAL1_MO_Tx > за № потоку DMA_ChannelCANAL1_MO_Rx, то DMA_ChannelCANAL1_MO_Rx має пріориет над DMA_ChannelCANAL1_MO_Tx при однаковому програмному пріоритеті*/;
+  DMA_Init(DMA_StreamCANAL1_MO_Tx, &DMA_InitStructure);
+  DMA_ClearFlag(DMA_StreamCANAL1_MO_Tx, DMA_FLAG_TCCANAL1_MO_Tx | DMA_FLAG_HTCANAL1_MO_Tx | DMA_FLAG_TEICANAL1_MO_Tx | DMA_FLAG_DMEICANAL1_MO_Tx | DMA_FLAG_FEICANAL1_MO_Tx);
+
+  /* Прийом по CANAL2_MO*/
+  DMA_DeInit(DMA_StreamCANAL2_MO_Rx);
+  while (DMA_GetCmdStatus(DMA_StreamCANAL2_MO_Rx) != DISABLE);
+  
+  DMA_InitStructure.DMA_Channel = DMA_ChannelCANAL2_MO_Rx;
+  DMA_InitStructure.DMA_PeripheralBaseAddr = CANAL2_MO_DR_Base;
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)Canal2_MO_Received;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  DMA_InitStructure.DMA_BufferSize = BUFFER_CANAL2_MO;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh; /*Так як № потоку DMA_ChannelCANAL2_MO_Tx > за № потоку DMA_ChannelCANAL2_MO_Rx, то DMA_ChannelCANAL2_MO_Rx має пріориет над DMA_ChannelCANAL2_MO_Tx при однаковому програмному пріоритеті*/
+  DMA_Init(DMA_StreamCANAL2_MO_Rx, &DMA_InitStructure);
+  DMA_ClearFlag(DMA_StreamCANAL2_MO_Rx, DMA_FLAG_TCCANAL2_MO_Rx | DMA_FLAG_HTCANAL2_MO_Rx | DMA_FLAG_TEICANAL2_MO_Rx | DMA_FLAG_DMEICANAL2_MO_Rx | DMA_FLAG_FEICANAL2_MO_Rx);
+  
+  /* Передача по CANAL2_MO*/
+  DMA_DeInit(DMA_StreamCANAL2_MO_Tx);
+  while (DMA_GetCmdStatus(DMA_StreamCANAL2_MO_Tx) != DISABLE);
+
+  DMA_InitStructure.DMA_Channel = DMA_ChannelCANAL2_MO_Tx;
+  DMA_InitStructure.DMA_PeripheralBaseAddr = CANAL2_MO_DR_Base;
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)Canal2_MO_Transmit;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+  DMA_InitStructure.DMA_BufferSize = 0;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh; /*Так як № потоку DMA_ChannelCANAL2_MO_Tx > за № потоку DMA_ChannelCANAL2_MO_Rx, то DMA_ChannelCANAL2_MO_Rx має пріориет над DMA_ChannelCANAL2_MO_Tx при однаковому програмному пріоритеті*/;
+  DMA_Init(DMA_StreamCANAL2_MO_Tx, &DMA_InitStructure);
+  DMA_ClearFlag(DMA_StreamCANAL2_MO_Tx, DMA_FLAG_TCCANAL2_MO_Tx | DMA_FLAG_HTCANAL2_MO_Tx | DMA_FLAG_TEICANAL2_MO_Tx | DMA_FLAG_DMEICANAL2_MO_Tx | DMA_FLAG_FEICANAL2_MO_Tx); 
+  /**********************/
+#endif
 
   /**********************/
   //Настроювання SPI для  АЦП з початковою ініціалізацією АП
@@ -978,16 +928,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1006,16 +947,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+   watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1034,16 +966,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1062,16 +985,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1090,16 +1004,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1129,16 +1034,7 @@ void start_settings_peripherals(void)
          )
     {
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-      control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
 
       main_routines_for_spi1();
       changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1158,16 +1054,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1186,16 +1073,7 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -1214,22 +1092,64 @@ void start_settings_peripherals(void)
        )
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     main_routines_for_spi1();
     changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
   }
   /**********************/
   
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  /**********************/
+  //Ініціалізація CANAL1_MO і CANAL2_MO: 6.75Мбіт/с, контроль парності, один стоп біт
+  /**********************/
+  USART_InitTypeDef USART_InitStructure;
+
+  //Заповняємо структуру
+  USART_InitStructure.USART_BaudRate = 7500000;
+  USART_InitStructure.USART_WordLength = USART_WordLength_9b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_Even;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  
+  //Виконуємо конфігупацію CANAL1_MO
+  USART_OverSampling8Cmd(CANAL1_MO, ENABLE);
+  USART_Init(CANAL1_MO, &USART_InitStructure);
+  //Виконуємо конфігупацію CANAL2_MO
+  USART_OverSampling8Cmd(CANAL2_MO, ENABLE);
+  USART_Init(CANAL2_MO, &USART_InitStructure);
+
+  //Дозволяємо передачу через DMA
+  CANAL1_MO->CR3 |= USART_DMAReq_Rx;
+  CANAL1_MO->CR3 |= USART_DMAReq_Tx;
+  /*------------------------------*/
+  CANAL2_MO->CR3 |= USART_DMAReq_Rx;
+  CANAL2_MO->CR3 |= USART_DMAReq_Tx;
+
+//  //Дозволяємо переривання від CANAL1_MO при фіксації помикли
+//  USART_ITConfig(CANAL1_MO, USART_IT_IDLE, ENABLE);
+//  USART_ITConfig(CANAL1_MO, USART_IT_LBD, ENABLE);
+//  USART_ITConfig(CANAL1_MO, USART_IT_PE, ENABLE);
+//  USART_ITConfig(CANAL1_MO, USART_IT_ERR, ENABLE);
+//  //Дозволяємо переривання від CANAL2_MO при фіксації помикли
+//  USART_ITConfig(CANAL2_MO, USART_IT_IDLE, ENABLE);
+//  USART_ITConfig(CANAL2_MO, USART_IT_LBD, ENABLE);
+//  USART_ITConfig(CANAL2_MO, USART_IT_PE, ENABLE);
+//  USART_ITConfig(CANAL2_MO, USART_IT_ERR, ENABLE);
+
+  //Дозволяємо CANAL1_MO
+  CANAL1_MO->CR1 |= USART_CR1_UE;
+  //Дозволяємо CANAL2_MO
+  CANAL2_MO->CR1 |= USART_CR1_UE;
+  
+  //Запускаэмо канали DMA  на приймання
+  DMA_StreamCANAL1_MO_Rx->CR |= (uint32_t)DMA_SxCR_EN;
+  /*------------------------------*/
+  DMA_StreamCANAL2_MO_Rx->CR |= (uint32_t)DMA_SxCR_EN;
+  /**********************/
+#endif
+
   /**********************/
   //Настроювання TIM2 на генерацію переривань кожні 1 мс для системи захистів
   /**********************/
@@ -1292,16 +1212,7 @@ void start_settings_peripherals(void)
   /**********************/
 
   //Робота з watchdogs
-  if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-  {
-    //Змінюємо стан біту зовнішнього Watchdog на протилежний
-    GPIO_WriteBit(
-                  GPIO_EXTERNAL_WATCHDOG,
-                  GPIO_PIN_EXTERNAL_WATCHDOG,
-                  (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                 );
-    control_word_of_watchdog =  0;
-  }
+  watchdog_routine(WATCHDOG_KYYBOARD);
 
 //  /**********************/
 //  //Ініціалізація USB
@@ -1336,16 +1247,14 @@ void start_settings_peripherals(void)
 /**************************************/
 void min_settings(__SETTINGS *target_label)
 {
-  target_label->device_id = VERSIA_PZ;
+  target_label->device_id = ((VERSIA_PZ << 8) | (MODYFIKACIA_VERSII_PZ));
     
   target_label->type_of_input = 0x0;
   target_label->type_of_input_signal = 0x0;
   
   for(unsigned int i = 0; i < NUMBER_INPUTS; i++)
   {
-    target_label->ranguvannja_inputs[N_SMALL*i  ] = 0x0;
-    target_label->ranguvannja_inputs[N_SMALL*i+1] = 0x0;
-    target_label->ranguvannja_inputs[N_SMALL*i+2] = 0x0;
+    for (size_t j = 0; j < N_SMALL; ++j) target_label->ranguvannja_inputs[N_SMALL*i + j] = 0x0;
     
     if ((target_label->type_of_input_signal & (1<<i)) != 0)
     {
@@ -1440,17 +1349,42 @@ void min_settings(__SETTINGS *target_label)
   target_label->buttons_mode = 0;
   for(unsigned int i = 0; i < NUMBER_DEFINED_BUTTONS; i++)
   {
-    target_label->ranguvannja_buttons[N_SMALL*i  ] = 0x0;
-    target_label->ranguvannja_buttons[N_SMALL*i+1] = 0x0;
-    target_label->ranguvannja_buttons[N_SMALL*i+2] = 0x0;
+    for (size_t j = 0; j < N_SMALL; ++j) target_label->ranguvannja_buttons[N_SMALL*i + j] = 0x0;
   }
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  for(size_t i = 0; i < N_IN_GOOSE; i++)
+  {
+    for(size_t j = 0; j < N_IN_GOOSE_MMS_OUT; j++) 
+    {
+      for(size_t k = 0; k < N_SMALL; k++) target_label->ranguvannja_In_GOOSE[i][j][k] = 0;
+    }
+  }
+
+  for(size_t i = 0; i < N_IN_MMS; i++)
+  {
+    for(size_t j = 0; j < N_IN_GOOSE_MMS_OUT; j++)
+    {
+      for(size_t k = 0; k < N_SMALL; k++) target_label->ranguvannja_In_MMS[i][j][k] = 0;
+    }
+  }
+
+  for(size_t i = 0; i < N_OUT_LAN; i++)
+  {
+    for(size_t j = 0; j < N_OUT_LAN_IN; j++) 
+    {
+      for(size_t k = 0; k < MAX_FUNCTIONS_IN_OUT_LAN; k++) target_label->ranguvannja_Out_LAN[i][j][k] = 0;
+    }
+  }
+#endif
 
   target_label->configuration = 0;
   
   target_label->ctrl_zdz_type = ZDZ_CTRL_MIN;
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
   target_label->zdz_ovd_porig = 0;
 #endif
@@ -1766,6 +1700,10 @@ void min_settings(__SETTINGS *target_label)
   target_label->password_interface_USB = 0;
   target_label->timeout_deactivation_password_interface_RS485 = TIMEOUT_DEACTIVATION_PASSWORD_MIN;
   target_label->password_interface_RS485 = 0;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  target_label->timeout_deactivation_password_interface_LAN = TIMEOUT_DEACTIVATION_PASSWORD_MIN;
+  target_label->password_interface_LAN = 0;
+#endif
   
   target_label->timeout_idle_new_settings = TIMEOUT_NEW_SETTINGS_MIN;
   
@@ -1796,11 +1734,44 @@ void min_settings(__SETTINGS *target_label)
   
   target_label->control_extra_settings_1 = 0;
 
-  for(unsigned int i = 0; i < (7+1); i++)
-  {
-    target_label->time_setpoints[i] = 0;
-    target_label->time_ranguvannja[i] = 0;
-  }
+//  for(unsigned int i = 0; i < (7+1); i++)
+//  {
+//    target_label->time_setpoints[i] = 0;
+//    target_label->time_ranguvannja[i] = 0;
+//  }
+  target_label->time_zone = 2;
+  target_label->dst = MASKA_FOR_BIT(N_BIT_TZ_DST);
+  target_label->dst_on_rule = (_Mar << POS_MM) | (_NL << POS_WR) | (_Sun << POS_DOW) | (3 << POS_HH);
+  target_label->dst_off_rule = (_Oct << POS_MM) | (_NL << POS_WR) | (_Sun << POS_DOW) | (3 << POS_HH);
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  
+  target_label->IP4[0] = 192;
+  target_label->IP4[1] = 168;
+  target_label->IP4[2] = 0;
+  target_label->IP4[3] = 11;
+
+  target_label->mask = NETWORK_MASK_DEFAULT;
+
+  target_label->gateway[0] = 0;
+  target_label->gateway[1] = 0;
+  target_label->gateway[2] = 0;
+  target_label->gateway[3] = 0;
+
+  target_label->IP_time_server[0] = 192;
+  target_label->IP_time_server[1] = 168;
+  target_label->IP_time_server[2] = 100;
+  target_label->IP_time_server[3] = 10;
+  
+  target_label->port_time_server = 123;
+
+  target_label->period_sync = 300;
+    
+#endif  
+
+  target_label->time_setpoints = target_label->time_ranguvannja = 0;
+  target_label->source_setpoints = target_label->source_ranguvannja = 0;
+
 }
 /**************************************/
 
@@ -1809,7 +1780,7 @@ void min_settings(__SETTINGS *target_label)
 /**************************************/
 void error_reading_with_eeprom()
 {
-  const unsigned char string_info[MAX_NAMBER_LANGUAGE][4][MAX_COL_LCD] = 
+  static const unsigned char string_info[MAX_NAMBER_LANGUAGE][4][MAX_COL_LCD] = 
   {
     {
       "  Настроек нет  ",
@@ -1836,7 +1807,7 @@ void error_reading_with_eeprom()
       "Ош.к.с.триг.инф."
     } 
   };
-  const unsigned char string_action[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] =
+  static const unsigned char string_action[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] =
   {
     {
       "Мин.парам.:Enter",
@@ -1866,16 +1837,7 @@ void error_reading_with_eeprom()
      )   
   {
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+   watchdog_routine(WATCHDOG_KYYBOARD);
     
     unsigned int index_info, index_action, information_type;
     if((state_spi1_task & STATE_SETTINGS_EEPROM_EMPTY) != 0)
@@ -1924,16 +1886,7 @@ void error_reading_with_eeprom()
     while ((new_state_keyboard & (1<<BIT_KEY_ENTER)) ==0)
     {
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-      control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
     }
 
     new_state_keyboard = 0;
@@ -1969,16 +1922,7 @@ void error_reading_with_eeprom()
          )
     {
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-      control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
 
       main_routines_for_spi1();
       changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -2006,16 +1950,7 @@ void error_reading_with_eeprom()
          )
     {
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-      control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
       
       main_routines_for_spi1();
       changing_diagnostyka_state();//Підготовлюємо новий потенційно можливий запис для реєстратора програмних подій
@@ -2051,16 +1986,7 @@ void start_checking_dataflash(void)
       }
       
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-      control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
     }
     page_size_256 &= RxBuffer_SPI_EDF[1] & (1<< 0); 
     ready_busy = RxBuffer_SPI_EDF[1] & (1<< 7);
@@ -2086,16 +2012,7 @@ void start_checking_dataflash(void)
           }
           
           //Робота з watchdogs
-          if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-          {
-            //Змінюємо стан біту зовнішнього Watchdog на протилежний
-            GPIO_WriteBit(
-                          GPIO_EXTERNAL_WATCHDOG,
-                          GPIO_PIN_EXTERNAL_WATCHDOG,
-                          (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                         );
-            control_word_of_watchdog =  0;
-          }
+          watchdog_routine(WATCHDOG_KYYBOARD);
         }
         ready_busy = RxBuffer_SPI_EDF[1] & (1<< 7);
         driver_spi_df[number_chip_dataflsh_exchange].state_execution = TRANSACTION_EXECUTING_NONE;
@@ -2113,16 +2030,7 @@ void start_checking_dataflash(void)
         */
         
         //Робота з watchdogs
-        if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-        {
-          //Змінюємо стан біту зовнішнього Watchdog на протилежний
-          GPIO_WriteBit(
-                        GPIO_EXTERNAL_WATCHDOG,
-                        GPIO_PIN_EXTERNAL_WATCHDOG,
-                        (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                       );
-          control_word_of_watchdog =  0;
-        }
+        watchdog_routine(WATCHDOG_KYYBOARD);
       }
       driver_spi_df[number_chip_dataflsh_exchange].state_execution = TRANSACTION_EXECUTING_NONE;
       driver_spi_df[number_chip_dataflsh_exchange].code_operation = CODE_OPERATION_NONE;
@@ -2143,16 +2051,7 @@ void start_checking_dataflash(void)
           }
       
           //Робота з watchdogs
-          if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-          {
-            //Змінюємо стан біту зовнішнього Watchdog на протилежний
-            GPIO_WriteBit(
-                          GPIO_EXTERNAL_WATCHDOG,
-                          GPIO_PIN_EXTERNAL_WATCHDOG,
-                          (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                         );
-            control_word_of_watchdog =  0;
-          }
+          watchdog_routine(WATCHDOG_KYYBOARD);
         }
         ready_busy = RxBuffer_SPI_EDF[1] & (1<< 7);
         driver_spi_df[number_chip_dataflsh_exchange].state_execution = TRANSACTION_EXECUTING_NONE;
@@ -2179,11 +2078,11 @@ void start_checking_dataflash(void)
   
   if (page_size_256_total == 0)
   {
-    const unsigned char name_string[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+    static const unsigned char name_string[MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
     {
       {
         " Перезапустите  ",
-        "   устройство   ",
+        "   устройство   "
       },
       {
         " Перезапустіть  ",
@@ -2202,16 +2101,7 @@ void start_checking_dataflash(void)
     int index_language = index_language_in_array(current_settings.language);
     
     //Робота з watchdogs
-    if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-    {
-      //Змінюємо стан біту зовнішнього Watchdog на протилежний
-      GPIO_WriteBit(
-                    GPIO_EXTERNAL_WATCHDOG,
-                    GPIO_PIN_EXTERNAL_WATCHDOG,
-                    (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                   );
-      control_word_of_watchdog =  0;
-    }
+    watchdog_routine(WATCHDOG_KYYBOARD);
 
     //Копіюємо  рядки у робочий екран
     for (unsigned int i=0; i< MAX_ROW_LCD; i++)
@@ -2236,16 +2126,7 @@ void start_checking_dataflash(void)
     while(1)
     {
       //Робота з watchdogs
-      if ((control_word_of_watchdog & WATCHDOG_KYYBOARD) == WATCHDOG_KYYBOARD)
-      {
-        //Змінюємо стан біту зовнішнього Watchdog на протилежний
-        GPIO_WriteBit(
-                      GPIO_EXTERNAL_WATCHDOG,
-                      GPIO_PIN_EXTERNAL_WATCHDOG,
-                      (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
-                     );
-        control_word_of_watchdog =  0;
-      }
+      watchdog_routine(WATCHDOG_KYYBOARD);
     }
   }
 }

@@ -71,7 +71,7 @@ typedef struct
                                                       //0 - Нормальний
                                                       //1 - Тригерний
     
-  unsigned int number_iteration_el;                                             //Максимадбна кількість ітерацій для розширеної логіки
+  unsigned int number_iteration_el;                                             //Максимальна кількість ітерацій для розширеної логіки
 //  unsigned int number_defined_df;                                               //Кількість визначуваних функцій у конфігурації приладу
 //  unsigned int number_defined_dt;                                               //Кількість визначуваних тригерів у конфігурації приладу
 //  unsigned int number_defined_and;                                              //Кількість визначуваних "І" у конфігурації приладу
@@ -80,11 +80,11 @@ typedef struct
 //  unsigned int number_defined_not;                                              //Кількість визначуваних "НЕ" у конфігурації приладу
 
   //Опреділювальні функції
-  unsigned int type_df;                                                 //Тип опреділювальної функції
-                                                                        //0 - Пряма
-                                                                        //1 - Зворотня
-  unsigned int timeout_pause_df[NUMBER_DEFINED_FUNCTIONS];              //Час затримки спрацюваня опреділювальної функції
-  unsigned int timeout_work_df[NUMBER_DEFINED_FUNCTIONS];               //Час роботи опреділювальної функції
+  unsigned int type_df;                                                     //Тип опреділювавльної функції
+                                                                            //0 - Пряма
+                                                                            //1 - Зворотня
+  int timeout_pause_df[NUMBER_DEFINED_FUNCTIONS];                           //Час затримки спрацюваня опреділювальної функції
+  int timeout_work_df[NUMBER_DEFINED_FUNCTIONS];                            //Час роботи опреділювальної функції
   unsigned int ranguvannja_df_source_plus[N_BIG*NUMBER_DEFINED_FUNCTIONS];  //Ранжування прямих команд опреділювальниї функцій
   unsigned int ranguvannja_df_source_minus[N_BIG*NUMBER_DEFINED_FUNCTIONS]; //Ранжування інверсних команд опреділювальниї функцій
   unsigned int ranguvannja_df_source_blk[N_BIG*NUMBER_DEFINED_FUNCTIONS];   //Ранжування команд блокування опреділювальниї функцій
@@ -105,6 +105,12 @@ typedef struct
                                                                                 //0 - Звичайна кнопка
                                                                                 //1 - Двопозиційний ключ
   unsigned int ranguvannja_buttons[N_SMALL*NUMBER_DEFINED_BUTTONS];             //Ранжування опреділюваних кнопок
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  uint32_t ranguvannja_In_GOOSE[N_IN_GOOSE][N_IN_GOOSE_MMS_OUT][N_SMALL];       //Ранжування виходів Вхідних GOOSE блоків
+  uint32_t ranguvannja_In_MMS[N_IN_MMS][N_IN_GOOSE_MMS_OUT][N_SMALL];           //Ранжування виходів Вхідних MMS блоків
+  uint16_t ranguvannja_Out_LAN[N_OUT_LAN][N_OUT_LAN_IN][MAX_FUNCTIONS_IN_OUT_LAN];//Ранжування входів  Вихідних мережевих блоків
+#endif  
   
   unsigned int configuration;         //Конфігурація приладу
   
@@ -248,7 +254,8 @@ typedef struct
   unsigned int control_zdz;                                 //Поле для управління ЗДЗ
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
    int32_t zdz_ovd_porig;                                   //Поріг спрацювання ОВД
 #endif
@@ -376,6 +383,11 @@ typedef struct
   unsigned int timeout_deactivation_password_interface_RS485;   //Час деактивації паролю для редагування з інтерфейсу RS485
   unsigned int password_interface_RS485;                        //Пароль для редагування з інтерфейсу RS485
   
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  unsigned int timeout_deactivation_password_interface_LAN;   //Час деактивації паролю для редагування з інтерфейсу LAN
+  unsigned int password_interface_LAN;                        //Пароль для редагування з інтерфейсу LAN
+#endif  
+
   unsigned int timeout_idle_new_settings;
 
   //Вимикач
@@ -401,6 +413,7 @@ typedef struct
   //Аналоговий реєстратор
   unsigned int prefault_number_periods; //Час доаварійного масиву (кількість періодів промислової частоти)
   unsigned int postfault_number_periods;//Час післяарійного масиву (кількість періодів промислової частоти)
+  unsigned int control_ar;              //Поля для управління аналоговим реєстратором
 
   //Комунікація
   unsigned int name_of_cell[MAX_CHAR_IN_NAME_OF_CELL];//І'мя ячейки
@@ -427,20 +440,46 @@ typedef struct
   
   unsigned int control_extra_settings_1;                //Поле для додаткових налаштувань
 
+
+  int32_t time_zone;                                    //Часова зона
+  uint32_t dst;                                         //Перехід на літній час
+  uint32_t dst_on_rule;                                 //Правило переходу на Літній час
+  uint32_t dst_off_rule;                                //Правило переходу на стандартний час
+
   
-  unsigned char time_setpoints[7+1];                     //Час останніх змін уставок-витримок-управління
-                                                         //Останній байт масиву сигналізує мітку звідки зміни були проведені
-                                                            //0 - мінімальні параметри
+  time_t time_setpoints;                                    //Час останніх змін уставок-витримок-управління
+  unsigned char source_setpoints;                           //0 - мінімальні параметри
                                                             //1 - клавіатура
                                                             //2 - USB
                                                             //3 - RS-485
+                                                            //4 - Ethernet
   
-  unsigned char time_ranguvannja[7+1];                    //Час останніх змін ранжування
-                                                            //0 - мінімальні параметри
+  time_t time_ranguvannja;                                  //Час останніх змін ранжування
+  unsigned char source_ranguvannja;                         //0 - мінімальні параметри
                                                             //1 - клавіатура
                                                             //2 - USB
                                                             //3 - RS-485
+                                                            //4 - Ethernet
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  //IP4
+  uint16_t IP4[4];                                      //XXX.XXX.XXX.XXX Можна б було обійтися типом в один байт, але для редагування може виходити число 999, тому я вибрав двобайтний тип
+  uint32_t mask;                                        //XX
+  uint16_t gateway[4];                                  //XXX.XXX.XXX.XXX Можна б було обійтися типом в один байт, але для редагування може виходити число 999, тому я вибрав двобайтний тип
+  
+  uint16_t IP_time_server[4];                           //XXX.XXX.XXX.XXX Можна б було обійтися типом в один байт, але для редагування може виходити число 999, тому я вибрав двобайтний тип
+  uint32_t port_time_server;
+  uint32_t period_sync;
+  
+#endif
+
+
 } __SETTINGS;
+
+typedef struct _info_vymk
+{
+  time_t time_dat;
+  int32_t time_ms;
+} __info_vymk;
 
 typedef struct
 {
@@ -482,6 +521,19 @@ typedef struct
 
 typedef struct
 {
+  int first_number;
+  int last_number;
+} __INFO_AR_REJESTRATOR;
+
+typedef struct _FIL_FATFS
+{
+  unsigned int opened;
+  FIL fil;
+  
+} __FIL_FATFS;
+
+typedef struct
+{
   unsigned int state_execution;     //стан виконуваної заразоперації
   
   unsigned int code_operation;      //Код виконуваної операції
@@ -491,11 +543,14 @@ typedef struct
 typedef struct
 {
   unsigned char label_start_record;
-  unsigned char time[7]; 
+  time_t time_dat; 
+  int32_t time_ms;
   unsigned int T0;
   unsigned int TCurrent;
   unsigned int TVoltage;
+  unsigned int prefault_number_periods;
   unsigned char name_of_cell[MAX_CHAR_IN_NAME_OF_CELL];
+  unsigned int cur_active_sources[N_BIG];
 } __HEADER_AR;
 
 typedef enum __STATE_READING_ADCs {
@@ -632,7 +687,17 @@ typedef enum _id_input_output
   ID_OR,
   ID_XOR,
   ID_NOT,
-  ID_TF
+  ID_TF,
+
+
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+  
+  ID_IN_GOOSE,
+  ID_IN_MMS,
+  ID_OUT_LAN,
+#endif
+  
+  _MAX_ID_INPUT_OUPUT
   
 } __id_input_output;
 

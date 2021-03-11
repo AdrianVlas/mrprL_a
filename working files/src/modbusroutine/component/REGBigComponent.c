@@ -1,11 +1,14 @@
-#include "header.h"
-
 //начальный регистр в карте памяти
 #define BEGIN_ADR_REGISTER 13000
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 13075
+#define END_ADR_REGISTER 13369
 
+// источники запуска регистратора
 #define REGISTERS_REG 32
+//сработавшие источники запуска регистратора
+#define REGISTERS_ACTIONREG 32
+
+#include "header.h"
 
 int privateREGBigGetReg2(int adrReg);
 
@@ -14,9 +17,6 @@ int getREGBigModbusBit(int);//получить содержимое бита
 int setREGBigModbusRegister(int, int);//получить содержимое регистра
 int setREGBigModbusBit(int, int);//получить содержимое бита
 
-void setREGBigCountObject(void);//записать к-во обектов
-void preREGBigReadAction(void);//action до чтения
-void preREGBigWriteAction(void);//action до записи
 int  postREGBigWriteAction(void);//action после записи
 int passwordImunitetRegREGBigComponent(int adrReg);
 
@@ -34,11 +34,7 @@ void constructorREGBigComponent(COMPONENT_OBJ *regbigcomp)
   regbigcomponent->setModbusRegister = setREGBigModbusRegister;//получить содержимое регистра
   regbigcomponent->setModbusBit      = setREGBigModbusBit;//получить содержимое бита
 
-  regbigcomponent->preReadAction   = preREGBigReadAction;//action до чтения
-  regbigcomponent->preWriteAction  = preREGBigWriteAction;//action до записи
   regbigcomponent->postWriteAction = postREGBigWriteAction;//action после записи
-
-  regbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getREGBigModbusRegister(int adrReg)
@@ -50,10 +46,191 @@ int getREGBigModbusRegister(int adrReg)
 //Ранжирование источников запуска аналогового регистратора
   if(offset<32) return getRangN_BIGModbusRegister(&current_settings_interfaces.ranguvannja_analog_registrator[0],
                                                    REGISTERS_REG, offset );
+//Сработавшие источники запуска текущего аналогового регистратора
+  if(offset>=37&&offset<69) 
+  {
+   //отсекатель аналоговый
+   if(
+      (
+       !(
+         ((pointInterface == USB_RECUEST  ) && ((number_record_of_ar_for_USB   != -1) && (id_ar_record_for_USB[0]   != '\0'))) ||
+         ((pointInterface == RS485_RECUEST) && ((number_record_of_ar_for_RS485 != -1) && (id_ar_record_for_RS485[0] != '\0')))
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+         ||
+         ((pointInterface == LAN_RECUEST) && ((number_record_of_ar_for_LAN != -1) && (id_ar_record_for_LAN[0] != '\0')))
+#endif
+        )               
+      )
+      ||
+      (
+       (
+        (state_ar_record_fatfs != STATE_AR_NONE_FATFS) &&
+        (state_ar_record_fatfs != STATE_AR_MEMORY_FULL_FATFS) &&
+        (state_ar_record_fatfs != STATE_AR_BLOCK_FATFS)
+       )
+       ||
+       ((clean_rejestrators & CLEAN_AR) != 0)  
+       ||  
+       (
+        (control_tasks_dataflash & (
+                                    TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_FS |
+                                    TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_FS
+                                   )
+        ) != 0
+       )
+      )
+     )
+    {
+      //Зараз іде операція запису/стирання для аналоговго реєстратора, яка може тривати довго (післяаварійний масив становить 20 с), тому читання аналогового реєстратора є тимчасово недоступне
+      return MARKER_ERRORPERIMETR;
+    }
+
+      //Можна читати дані
+      int *point_to_first_number_time_sample, *point_to_last_number_time_sample;
+      char *point_id_ar_record;
+      int *point_to_max_number_time_sample;
+      unsigned char *point_to_buffer;
+
+      if (pointInterface == USB_RECUEST)
+      {
+        point_id_ar_record = id_ar_record_for_USB;
+        point_to_first_number_time_sample = &first_number_time_sample_for_USB;
+        point_to_last_number_time_sample  = &last_number_time_sample_for_USB;
+        point_to_max_number_time_sample = &max_number_time_sample_USB;
+          
+        point_to_buffer = buffer_for_USB_read_record_ar;
+      }
+      else if (pointInterface == RS485_RECUEST)
+      {
+        point_id_ar_record = id_ar_record_for_RS485;
+        point_to_first_number_time_sample = &first_number_time_sample_for_RS485;
+        point_to_last_number_time_sample  = &last_number_time_sample_for_RS485;
+        point_to_max_number_time_sample = &max_number_time_sample_RS485;
+        
+        point_to_buffer = buffer_for_RS485_read_record_ar;
+      }
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      else if (pointInterface == LAN_RECUEST)
+      {
+        point_id_ar_record = id_ar_record_for_LAN;
+        point_to_first_number_time_sample = &first_number_time_sample_for_LAN;
+        point_to_last_number_time_sample  = &last_number_time_sample_for_LAN;
+        point_to_max_number_time_sample = &max_number_time_sample_LAN;
+        
+        point_to_buffer = buffer_for_LAN_read_record_ar;
+      }
+#endif
+  else
+  {
+    //Теоретично цього ніколи не мало б бути
+    total_error_sw_fixed(203);
+  }
+
+      if ((*point_to_first_number_time_sample) != -1)
+      {
+        //Зараз не виконувалося зчитування заголовку аналогового реєстрата
+              
+        FIL fil;
+        FRESULT res = f_open(&fil, point_id_ar_record, FA_READ);
+        if (res == FR_OK) 
+        {
+          res = f_lseek(&fil, 0);
+          if (res == FR_OK)
+          {
+            //Виставляємо читання заголовку запису даного запису і дальше, скільки можливо, часових зрізів 
+            *point_to_first_number_time_sample = -1;
+            int last_number_time_sample_tmp = (SIZE_PAGE_DATAFLASH_2 - sizeof(__HEADER_AR))/((NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int));
+            int max_number_time_sample = *point_to_max_number_time_sample = (f_size(&fil) - sizeof(__HEADER_AR))/((NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int));
+            
+            if (max_number_time_sample >= 0)
+            {
+              if (last_number_time_sample_tmp <= max_number_time_sample)
+              {
+                *point_to_last_number_time_sample = last_number_time_sample_tmp - 1;//номер останнього часового зрізу ВКЛЮЧНО
+              }
+              else
+              {
+                *point_to_last_number_time_sample = max_number_time_sample - 1;
+              }
+              
+              unsigned int read_tmp;
+              UINT ByteToRead = sizeof(__HEADER_AR) + ((unsigned int)(*point_to_last_number_time_sample) + 1)*(NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int);
+              res = f_read(&fil, point_to_buffer, ByteToRead, &read_tmp);
+              if ((res != FR_OK) || (read_tmp != ByteToRead)) return MARKER_ERRORPERIMETR;
+            }
+            else return MARKER_ERRORPERIMETR;
+          }
+          else return MARKER_ERRORPERIMETR;
+
+          res = f_close(&fil);
+          if (res != FR_OK) 
+          {
+            //Невизначена ситуація, якої ніколи б не мало бути.
+            _SET_BIT(set_diagnostyka, ERROR_AR_UNDEFINED_BIT);
+            return MARKER_ERRORPERIMETR;
+          }
+        }
+        else return MARKER_ERRORPERIMETR;
+      }
+
+      //Якщо ми сюди дійшли, то вважаємо що заголовок аналогового реєстратора вже зчитаний
+      __HEADER_AR *p_header_ar = (__HEADER_AR*)point_to_buffer;
+      return getRangN_BIGModbusRegister(p_header_ar->cur_active_sources, REGISTERS_ACTIONREG, offset-37 );
+  }//if(offset>=37&&offset<69) 
+
 //Ранжирование источников запуска дискретного регистратора
-  if(offset>=36&&offset<70)
+  if(offset>=300&&offset<332)
       return getRangN_BIGModbusRegister(&current_settings_interfaces.ranguvannja_digital_registrator[0],
-                                                               REGISTERS_REG, offset-36 );
+                                                               REGISTERS_REG, offset-300 );
+//Сработавшие источники запуска текущего дискретного регистратора
+  if(offset>=337&&offset<369) 
+  {
+   //отсекатель дискретный
+          if (
+            //Не подано попередньокоманди вичитування відповідного запису дискретного реєстратора
+            //pointInterface=0 метка интерфейса 0-USB 1-RS485
+            ((pointInterface == USB_RECUEST  ) && (number_record_of_dr_for_USB == 0xffff)) ||
+            ((pointInterface == RS485_RECUEST) && (number_record_of_dr_for_RS485 == 0xffff))
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+            ||
+            ((pointInterface == LAN_RECUEST) && (number_record_of_dr_for_LAN == 0xffff))
+#endif
+          ) return MARKER_ERRORPERIMETR;
+         if (
+              (
+               ((pointInterface == USB_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_USB  ) != 0)) ||
+               ((pointInterface == RS485_RECUEST) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_RS485) != 0))
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+            ||
+               ((pointInterface == LAN_RECUEST) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_LAN) != 0))
+#endif
+              ) 
+              ||  
+              ((clean_rejestrators & CLEAN_DR) != 0)
+            )  
+           
+    {
+     //Зараз іде зчитування для інтерфейсу запису дискретного реєстратора, тому ця операція є тимчасово недоступною
+      return MARKER_ERRORPERIMETR;
+    }
+
+      //Можна читати дані
+      unsigned char *point_to_buffer;
+      if (pointInterface == USB_RECUEST) point_to_buffer = buffer_for_USB_read_record_dr;
+      else if (pointInterface == RS485_RECUEST) point_to_buffer = buffer_for_RS485_read_record_dr;
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      else if (pointInterface == LAN_RECUEST) point_to_buffer = buffer_for_LAN_read_record_dr;
+#endif
+  else
+  {
+    //Теоретично цього ніколи не мало б бути
+    total_error_sw_fixed(203);
+  }
+      //Якщо ми сюди дійшли, то вважаємо що заголовок дискретного реєстратора вже зчитаний
+      //Визначаємо, які сигнали запустили реєстратора
+      unsigned int *activeNBIG_dr = (unsigned int*)(&point_to_buffer[FIRST_INDEX_SOURCE_DR+0]);//указатель на N_BIG массив активных команд запуска дискр
+      return getRangN_BIGModbusRegister(activeNBIG_dr, REGISTERS_ACTIONREG, offset-337 );
+  }//if(offset>=337&&offset<369) 
 
   switch(offset)
     {
@@ -62,24 +239,47 @@ int getREGBigModbusRegister(int adrReg)
     case 33://Время записи аналогового регистратора (послеаварый массив)
       return (current_settings_interfaces.postfault_number_periods) &0xFFFF; //В таблицю настройок записуємо не мілісекунди, а кількість періодів
     case 34://Количество аналоговых регистраторов
-      return (info_rejestrator_ar.number_records) &0xFFFF;
+      {
+        unsigned int first_number = (info_rejestrator_ar.first_number < 0) ? 0 : (info_rejestrator_ar.first_number + 1);
+        unsigned int last_number  = (info_rejestrator_ar.last_number  < 0) ? 0 : (info_rejestrator_ar.last_number + 1);
+      
+        unsigned int number_records;
+        if (first_number == 0) number_records = 0;
+        else if (first_number >= last_number) number_records = first_number - last_number + 1;
+        else number_records = NUMBER_FATFS_NAME - last_number + first_number + 1;
+                
+        return (number_records) & 0xFFFF;
+      }
 #define IMUNITET_REG35 35
     case IMUNITET_REG35://Текущий аналоговый регистратор
-      if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
+      if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485 2-LAN
         return (number_record_of_ar_for_USB) &0xFFFF;
-      else
+      else if(pointInterface==RS485_RECUEST)
         return (number_record_of_ar_for_RS485) &0xFFFF;
-    case 70://Количество дискретных регистраторов
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      else if(pointInterface==LAN_RECUEST)
+        return (number_record_of_ar_for_LAN) &0xFFFF;
+#endif  
+      //Теоретично сюди ніколи не мала б програма зайти
+      else total_error_sw_fixed(212);
+    case 36://Очистить аналоговый регистратор
+      return MARKER_ERRORPERIMETR;
+
+    case 334://Количество дискретных регистраторов
       return (info_rejestrator_dr.number_records) &0xFFFF;
-#define IMUNITET_REG71 71
-    case IMUNITET_REG71://Текущий дискретный регистратор
+#define IMUNITET_REG335 335
+    case IMUNITET_REG335://Текущий дискретный регистратор
       if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
         return (number_record_of_dr_for_USB) &0xFFFF;
-      else
+      else if(pointInterface==RS485_RECUEST)
         return (number_record_of_dr_for_RS485) &0xFFFF;
-    case 74://Очистить аналоговый регистратор
-      return MARKER_ERRORPERIMETR;
-    case 75://Очистить дискретный регистратор
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      else if(pointInterface==LAN_RECUEST)
+        return (number_record_of_dr_for_LAN) &0xFFFF;
+#endif  
+      //Теоретично сюди ніколи не мала б програма зайти
+      else total_error_sw_fixed(213);
+    case 336://Очистить дискретный регистратор
       return MARKER_ERRORPERIMETR;
     }//switch
 
@@ -106,7 +306,13 @@ int setREGBigModbusRegister(int adrReg, int dataReg)
 
   int offset = adrReg-BEGIN_ADR_REGISTER;
 //Ранжирование источников запуска аналогового регистратора
-  if(offset<32 || (offset>=36&&offset<70)) return validN_BIGACMD(dataReg);
+  if(offset<32) return validN_BIGACMD(dataReg);
+//Сработавшие источники запуска текущего аналогового регистратора
+  if(offset>=37&&offset<69) return MARKER_ERRORDIAPAZON;
+//Ранжирование источников запуска аналогового регистратора
+  if(offset>=300&&offset<332) return validN_BIGACMD(dataReg);
+//Сработавшие источники запуска текущего дискретного регистратора
+  if(offset>=337&&offset<369) return MARKER_ERRORDIAPAZON;
 
   switch(offset)
     {
@@ -119,34 +325,49 @@ int setREGBigModbusRegister(int adrReg, int dataReg)
     case 34://Количество аналоговых регистраторов
       return MARKER_ERRORDIAPAZON;
     case 35://Текущий аналоговый регистратор
-      if (
-        ((clean_rejestrators & CLEAN_AR) != 0) ||
-        (
-          ((pointInterface == USB_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_AR_USB  ) != 0)) ||
-          ((pointInterface == RS485_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_AR_RS485) != 0))
-        )
-      ) return MARKER_ERRORDIAPAZON;
-      if(! ((unsigned int)dataReg < info_rejestrator_ar.number_records)) return MARKER_ERRORDIAPAZON;
-      if((unsigned int)dataReg > max_number_records_ar) return MARKER_ERRORDIAPAZON;
+      {
+        if (
+            ((clean_rejestrators & CLEAN_AR) != 0) ||
+            (
+             (state_ar_record_fatfs != STATE_AR_NONE_FATFS) &&
+             (state_ar_record_fatfs != STATE_AR_MEMORY_FULL_FATFS) &&
+             (state_ar_record_fatfs != STATE_AR_BLOCK_FATFS)
+            )
+          ) return MARKER_ERRORDIAPAZON;
 
+        unsigned int first_number = (info_rejestrator_ar.first_number < 0) ? 0 : (info_rejestrator_ar.first_number + 1);
+        unsigned int last_number  = (info_rejestrator_ar.last_number  < 0) ? 0 : (info_rejestrator_ar.last_number + 1);
+                
+        unsigned int number_records;
+        if (first_number == 0) number_records = 0;
+        else if (first_number >= last_number) number_records = first_number - last_number + 1;
+        else number_records = NUMBER_FATFS_NAME - last_number + first_number + 1;
+                
+        if(! ((unsigned int)dataReg < number_records)) return MARKER_ERRORDIAPAZON;
+
+      }
       break;
-    case 70://Количество дискретных регистраторов
+    case 36://Очистить аналоговый регистратор
+      if(dataReg!=CMD_WORD_CLEAR_AR) return MARKER_ERRORDIAPAZON;
+      break;
+    case 334://Количество дискретных регистраторов
       return MARKER_ERRORDIAPAZON;
-    case 71://Текущий дискретный регистратор
+    case 335://Текущий дискретный регистратор
       if (
         ((clean_rejestrators & CLEAN_DR) != 0) ||
         (
           ((pointInterface == USB_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_USB  ) != 0)) ||
           ((pointInterface == RS485_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_RS485) != 0))
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+          ||
+          ((pointInterface == LAN_RECUEST  ) && ((control_tasks_dataflash & TASK_MAMORY_READ_DATAFLASH_FOR_DR_LAN) != 0))
+#endif
         )
       ) return MARKER_ERRORDIAPAZON;
       if(! ((unsigned int)dataReg < info_rejestrator_dr.number_records)) return MARKER_ERRORDIAPAZON;
       if(dataReg > MAX_NUMBER_RECORDS_INTO_DR) return MARKER_ERRORDIAPAZON;
       break;
-    case 74://Очистить аналоговый регистратор
-      if(dataReg!=CMD_WORD_CLEAR_AR) return MARKER_ERRORDIAPAZON;
-      break;
-    case 75://Очистить дискретный регистратор
+    case 336://Очистить дискретный регистратор
       if(dataReg!=CMD_WORD_CLEAR_DR) return MARKER_ERRORDIAPAZON;
       break;
     }//switch
@@ -161,18 +382,6 @@ int setREGBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preREGBigReadAction(void)
-{
-//action до чтения
-  regbigcomponent->isActiveActualData = 1;
-}//
-void preREGBigWriteAction(void)
-{
-//action до записи
-  regbigcomponent->operativMarker[0] = -1;
-  regbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  regbigcomponent->isActiveActualData = 1;
-}//
 int postREGBigWriteAction(void)
 {
   extern int upravlSchematic;//флаг Rang
@@ -199,71 +408,164 @@ int postREGBigWriteAction(void)
           upravlSchematic = 1;//флаг Rang
         }//if
 
-      if(offset>=36&&offset<70&&flag2)
+      if(offset>=300&&offset<332&&flag2)
         {
           writeRangN_BIGModbusRegister(&edition_settings.ranguvannja_digital_registrator[0], REGISTERS_REG, beginAdr,
-                                       countReg, BEGIN_ADR_REGISTER+36);
+                                       countReg, BEGIN_ADR_REGISTER+300);
           flag2=0;
           upravlSchematic = 1;//флаг Rang
         }//if
       switch(offset)
         {
         case 32://Время записи аналогового регистратора (доаварийный массив)
-          edition_settings.prefault_number_periods = tempWriteArray[offsetTempWriteArray+i];// /20; //В таблицю настройок записуємо не мілісекунди, а кількість періодів
+          edition_settings.prefault_number_periods = tempWriteArray[offsetTempWriteArray+i];//В таблицю настройок записуємо не мілісекунди, а кількість періодів
           upravlSetting = 1;//флаг Setting
           break;
         case 33://Время записи аналогового регистратора (послеаварый массив)
-          edition_settings.postfault_number_periods = tempWriteArray[offsetTempWriteArray+i];// /20; //В таблицю настройок записуємо не мілісекунди, а кількість періодів
+          edition_settings.postfault_number_periods = tempWriteArray[offsetTempWriteArray+i];//В таблицю настройок записуємо не мілісекунди, а кількість періодів
           upravlSetting = 1;//флаг Setting
           break;
         case 35://Текущий аналоговый регистратор
         {
-          unsigned int *point_to_number_record_of_ar;
+          int *point_to_number_record_of_ar;
           int *point_to_first_number_time_sample, *point_to_last_number_time_sample;
+          char *point_id_ar_record;
+          int *point_to_max_number_time_sample;
+          unsigned char *point_to_Buffer;
 
           if (pointInterface == USB_RECUEST)
             {
               point_to_number_record_of_ar = &number_record_of_ar_for_USB;
+              point_id_ar_record = id_ar_record_for_USB;
               point_to_first_number_time_sample = &first_number_time_sample_for_USB;
               point_to_last_number_time_sample = &last_number_time_sample_for_USB;
+              point_to_max_number_time_sample = &max_number_time_sample_USB;
+          
+              point_to_Buffer = buffer_for_USB_read_record_ar;
             }
-          else
+          else if (pointInterface == RS485_RECUEST)
             {
               point_to_number_record_of_ar = &number_record_of_ar_for_RS485;
+              point_id_ar_record = id_ar_record_for_RS485;
               point_to_first_number_time_sample = &first_number_time_sample_for_RS485;
               point_to_last_number_time_sample = &last_number_time_sample_for_RS485;
+              point_to_max_number_time_sample = &max_number_time_sample_RS485;
+          
+              point_to_Buffer = buffer_for_RS485_read_record_ar;
             }
-
-          //Встановлюємо номер запису аналогового реєстратора для читання
-          *point_to_number_record_of_ar = tempWriteArray[offsetTempWriteArray+i];
-          //Подаємо команду читання аналогового реєстратора для  інтерфейсу
-
-          //Виставляємо читання заголовку запису даного запису і дальше, скільки можливо, часових зрізів
-          *point_to_first_number_time_sample = -1;
-          int last_number_time_sample_tmp = (SIZE_PAGE_DATAFLASH_2 - sizeof(__HEADER_AR))/((NUMBER_ANALOG_CANALES + number_word_digital_part_ar)*sizeof(short int));
-          int max_number_time_sample = (current_settings.prefault_number_periods + current_settings.postfault_number_periods) << VAGA_NUMBER_POINT_AR;
-          if (last_number_time_sample_tmp <= max_number_time_sample)
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+          else if (pointInterface == LAN_RECUEST)
             {
-              *point_to_last_number_time_sample = last_number_time_sample_tmp - 1;//номер останнього часового зрізу ВКЛЮЧНО
+              point_to_number_record_of_ar = &number_record_of_ar_for_LAN;
+              point_id_ar_record = id_ar_record_for_LAN;
+              point_to_first_number_time_sample = &first_number_time_sample_for_LAN;
+              point_to_last_number_time_sample = &last_number_time_sample_for_LAN;
+              point_to_max_number_time_sample = &max_number_time_sample_LAN;
+          
+              point_to_Buffer = buffer_for_LAN_read_record_ar;
             }
-          else
+#endif
+      //Теоретично сюди ніколи не мала б програма зайти
+      else total_error_sw_fixed(213);
+          
+          unsigned short int data = tempWriteArray[offsetTempWriteArray+i];
+        
+          int record_name = info_rejestrator_ar.first_number - data;
+          if (record_name < 0) record_name += NUMBER_FATFS_NAME;
+
+          int n = snprintf(point_id_ar_record, (8 + 1), "%d", record_name);
+          if (n > 8) n = 8; //Теоретично цього ніколи б не мало бути
+          point_id_ar_record[n++] = '.';
+          point_id_ar_record[n++] = 'd';
+          point_id_ar_record[n++] = 'a';
+          point_id_ar_record[n++] = 't';
+          point_id_ar_record[n++] = '\0';
+        
+          unsigned int error = 0;
+          FIL fil;
+          FRESULT res = f_open(&fil, point_id_ar_record, FA_READ);
+          if (res == FR_OK) 
+          {
+            res = f_lseek(&fil, 0);
+            if (res == FR_OK)
             {
-              *point_to_last_number_time_sample = max_number_time_sample - 1;
+              //Виставляємо читання заголовку запису даного запису і дальше, скільки можливо, часових зрізів 
+              *point_to_first_number_time_sample = -1;
+              int last_number_time_sample_tmp = (SIZE_PAGE_DATAFLASH_2 - sizeof(__HEADER_AR))/((NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int));
+              int max_number_time_sample = *point_to_max_number_time_sample = (f_size(&fil) - sizeof(__HEADER_AR))/((NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int));
+            
+              if (max_number_time_sample >= 0)
+              {
+                if (last_number_time_sample_tmp <= max_number_time_sample)
+                {
+                  *point_to_last_number_time_sample = last_number_time_sample_tmp - 1;//номер останнього часового зрізу ВКЛЮЧНО
+                }
+                else
+                {
+                  *point_to_last_number_time_sample = max_number_time_sample - 1;
+                }
+              
+                unsigned int read_tmp;
+                UINT ByteToRead = sizeof(__HEADER_AR) + ((unsigned int)(*point_to_last_number_time_sample) + 1)*(NUMBER_ANALOG_CANALES + NUMBER_WORD_DIGITAL_PART_AR)*sizeof(short int);
+                res = f_read(&fil, point_to_Buffer, ByteToRead, &read_tmp);
+                if ((res != FR_OK) || (read_tmp != ByteToRead)) error = ERROR_SLAVE_DEVICE_FAILURE;
+              }
+              else error = ERROR_SLAVE_DEVICE_FAILURE;
             }
+            else error = ERROR_SLAVE_DEVICE_FAILURE;
 
-          //Подаємо команду зчитати дані у бувер пам'яті
-          if (pointInterface == USB_RECUEST)
-            control_tasks_dataflash |= TASK_MAMORY_READ_DATAFLASH_FOR_AR_USB;
+            res = f_close(&fil);
+            if (res != FR_OK) 
+            {
+              //Невизначена ситуація, якої ніколи б не мало бути.
+              _SET_BIT(set_diagnostyka, ERROR_AR_UNDEFINED_BIT);
+              error = ERROR_SLAVE_DEVICE_FAILURE;
+            }
+          }
+          else error = ERROR_SLAVE_DEVICE_FAILURE;
+        
+          if (error == 0)
+          {
+            //Встановлюємо номер запису аналогового реєстратора для читання
+            *point_to_number_record_of_ar = data;
+          }
           else
-            control_tasks_dataflash |= TASK_MAMORY_READ_DATAFLASH_FOR_AR_RS485;
-
+          {
+            //Помічаємо, що немає вибраної аварії для читання
+            *point_to_number_record_of_ar = -1;
+            point_id_ar_record[0] = '\0';
+            return ERROR_VALID2;
+          }
         }
         break;//case 35
-        case 71://Текущий дискретный регистратор
+        case 36://Очистить аналоговый регистратор
+//ОСОБАЯ ПРОВЕРКА
+          if (
+            (current_ekran.current_level == EKRAN_DATA_LADEL_AR)
+            ||
+            (state_ar_record_m           != STATE_AR_NONE_M )
+            ||  
+            (state_ar_record_prt         != STATE_AR_NONE_PRT )
+            ||  
+            (
+             (control_tasks_dataflash & (
+                                         TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_FS |
+                                         TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_FS      |
+                                         TASK_MAMORY_READ_DATAFLASH_FOR_FS 
+                                        )
+             ) != 0
+            )
+            ||
+            ((clean_rejestrators & CLEAN_AR) != 0)
+          ) return ERROR_VALID2;//ошибка валидации
+
+          clean_rejestrators |= CLEAN_AR;
+          break;
+
+        case 335://Текущий дискретный регистратор
 
           if(pointInterface==USB_RECUEST)//метка интерфейса 0-USB 1-RS485
             {
-//int test = tempWriteArray[offsetTempWriteArray+i];
               number_record_of_dr_for_USB = tempWriteArray[offsetTempWriteArray+i];
               //Подаємо команду читання дискретного реєстратора для інтерфейсу USB
 
@@ -272,7 +574,7 @@ int postREGBigWriteAction(void)
               //Подаємо команду зчитати дані у бувер пам'яті
               control_tasks_dataflash |= TASK_MAMORY_READ_DATAFLASH_FOR_DR_USB;
             }//if
-          else
+          else if(pointInterface==RS485_RECUEST)
             {
               number_record_of_dr_for_RS485 = tempWriteArray[offsetTempWriteArray+i];
               //Подаємо команду читання дискретного реєстратора для інтерфейсу RS-485
@@ -282,32 +584,23 @@ int postREGBigWriteAction(void)
               //Подаємо команду зчитати дані у бувер пам'яті
               control_tasks_dataflash |= TASK_MAMORY_READ_DATAFLASH_FOR_DR_RS485;
             }
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+          else if(pointInterface==LAN_RECUEST)
+            {
+              number_record_of_dr_for_LAN = tempWriteArray[offsetTempWriteArray+i];
+              //Подаємо команду читання дискретного реєстратора для інтерфейсу LAN
+
+              //Виставляємо першу частину запису
+              part_reading_dr_from_dataflash_for_LAN = 0;
+              //Подаємо команду зчитати дані у бувер пам'яті
+              control_tasks_dataflash |= TASK_MAMORY_READ_DATAFLASH_FOR_DR_LAN;
+            }
+#endif
+      //Теоретично сюди ніколи не мала б програма зайти
+      else total_error_sw_fixed(213);
 
           break;
-        case 74://Очистить аналоговый регистратор
-//ОСОБАЯ ПРОВЕРКА
-          if (
-            (current_ekran.current_level == EKRAN_DATA_LADEL_AR)
-            ||
-            (state_ar_record             != STATE_AR_NO_RECORD )
-            ||
-            (
-              (control_tasks_dataflash & (
-                 TASK_MAMORY_PART_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR |
-                 TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_AR      |
-                 TASK_MAMORY_READ_DATAFLASH_FOR_AR_USB                         |
-                 TASK_MAMORY_READ_DATAFLASH_FOR_AR_RS485                       |
-                 TASK_MAMORY_READ_DATAFLASH_FOR_AR_MENU
-               )
-              ) != 0
-            )
-            ||
-            ((clean_rejestrators & CLEAN_AR) != 0)
-          ) return ERROR_VALID2;//ошибка валидации
-
-          clean_rejestrators |= CLEAN_AR;
-          break;
-        case 75://Очистить дискретный регистратор
+        case 336://Очистить дискретный регистратор
 //ОСОБАЯ ПРОВЕРКА
           if (
             (current_ekran.current_level == EKRAN_TITLES_DIGITAL_REGISTRATOR)
@@ -323,6 +616,9 @@ int postREGBigWriteAction(void)
                  TASK_MAMORY_PAGE_PROGRAM_THROUGH_BUFFER_DATAFLASH_FOR_DR |
                  TASK_MAMORY_READ_DATAFLASH_FOR_DR_USB                    |
                  TASK_MAMORY_READ_DATAFLASH_FOR_DR_RS485                  |
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                 TASK_MAMORY_READ_DATAFLASH_FOR_DR_LAN                  |
+#endif
                  TASK_MAMORY_READ_DATAFLASH_FOR_DR_MENU
                )
               ) != 0
@@ -353,7 +649,7 @@ int passwordImunitetRegREGBigComponent(int adrReg)
   switch(adrReg)
   {
   case BEGIN_ADR_REGISTER+IMUNITET_REG35://Текущий аналоговый регистратор
-  case BEGIN_ADR_REGISTER+IMUNITET_REG71://Текущий дискретный регистратор
+  case BEGIN_ADR_REGISTER+IMUNITET_REG335://Текущий дискретный регистратор
     return 0;//есть имунитет
   }//switch
   return MARKER_OUTPERIMETR;

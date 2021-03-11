@@ -432,10 +432,69 @@ void TIM5_IRQHandler(void)
     {
       //Переповнення не зафіксоване
       _SET_BIT(clear_diagnostyka, ERROR_OSCYLOJRAPH_OVERFLOW);
+      
+      //Перевірка на те, чи не потрібно запустити роботу аналогового реєстртора на рівні "Вимірювання"
+      if (
+          (state_ar_record_fatfs == STATE_AR_WAIT_TO_STOP_WRITE_FATFS) &&  
+          (state_ar_record_m != STATE_AR_BLOCK_M) &&
+          (index_array_ar_tail != index_array_ar_heat)
+         )
+      {
+        state_ar_record_fatfs = STATE_AR_WRITE_FATFS;
+      }
+      
+      if (
+          (
+           (state_ar_record_m == STATE_AR_NONE_M) ||
+           (state_ar_record_m == STATE_AR_WORK_STOP_M)
+          ) 
+          &&
+          (_CHECK_SET_BIT (active_functions, RANG_WORK_A_REJESTRATOR) != 0)  
+         )   
+      {
+        state_ar_record_m = STATE_AR_WORK_M;
+        
+        if (state_ar_record_fatfs == STATE_AR_NONE_FATFS) state_ar_record_fatfs = STATE_AR_WAIT_TO_WRITE_FATFS;
+      }
+      else if (
+               (state_ar_record_m == STATE_AR_WORK_M) &&
+               (_CHECK_SET_BIT (active_functions, RANG_WORK_A_REJESTRATOR) == 0)  
+              )
+      {
+        state_ar_record_m = STATE_AR_WORK_STOP_M;
+      }
+      else if (
+               (state_ar_record_m == STATE_AR_WORK_STOP_M) &&
+               (
+                (state_ar_record_fatfs == STATE_AR_WAIT_TO_STOP_WRITE_FATFS) ||
+                (state_ar_record_fatfs == STATE_AR_MEMORY_FULL_FATFS) ||
+                (state_ar_record_fatfs == STATE_AR_BLOCK_FATFS)
+               )   
+              )
+      {
+        state_ar_record_m = STATE_AR_NONE_M;
+        if (state_ar_record_fatfs == STATE_AR_WAIT_TO_STOP_WRITE_FATFS) state_ar_record_fatfs = STATE_AR_STOP_WRITE_FATFS;
+        else if (state_ar_record_fatfs == STATE_AR_MEMORY_FULL_FATFS) state_ar_record_fatfs = STATE_AR_NONE_FATFS;
+      }
+      else if (
+               (state_ar_record_m == STATE_AR_BLOCK_M) &&
+               (
+                (state_ar_record_fatfs == STATE_AR_WAIT_TO_STOP_WRITE_FATFS) ||
+                (state_ar_record_fatfs == STATE_AR_MEMORY_FULL_FATFS) ||
+                (state_ar_record_fatfs == STATE_AR_BLOCK_FATFS)
+               )   
+              )
+      {
+        state_ar_record_m = STATE_AR_NONE_M;
+        if (state_ar_record_fatfs == STATE_AR_WAIT_TO_STOP_WRITE_FATFS) state_ar_record_fatfs = STATE_AR_STOP_WRITE_FATFS;
+        else if (state_ar_record_fatfs == STATE_AR_MEMORY_FULL_FATFS) state_ar_record_fatfs = STATE_AR_NONE_FATFS;
+
+        _SET_BIT(clear_diagnostyka, ERROR_AR_OVERLOAD_BUFFER_BIT);
+      }
     
       //Мітка часу
       data_for_oscylograph[head_data_for_oscylograph].time_stemp = current_tick;
-      data_for_oscylograph[head_data_for_oscylograph].state_ar_record = state_ar_record;
+      data_for_oscylograph[head_data_for_oscylograph].state_ar_record = state_ar_record_m;
 
       //Активні дискретні сигнали
       unsigned int *label_to_active_functions_target = data_for_oscylograph[head_data_for_oscylograph].active_functions;
@@ -593,7 +652,7 @@ void TIM4_IRQHandler(void)
             {
               //Інакше прийнятий пакет буде стояти в очікуванні на подальшу обробку - якщо не виконувати більше тут ніяких дій (не перезапускати моніторинг)
 
-              if (global_requect == 0) time_last_receive_byte = TIM4->CNT;
+              if (global_requect == 0) time_last_receive_byte_RS485 = TIM4->CNT;
 
               //Встановлюємо мітку, що на останньому перериванні відбулася фіксація прийняття цілого фрейму
               mark_current_tick_RS_485 = 0xff;
@@ -933,7 +992,8 @@ void TIM4_IRQHandler(void)
         number_seconds = 0;
         if((POWER_CTRL->IDR & POWER_CTRL_PIN) != (uint32_t)Bit_RESET)
         {
-          reinit_LCD = true;
+          if (state_ar_record_fatfs != STATE_AR_WRITE_FATFS) reinit_LCD = true; /*реініціалізацію індикатора робимо, коли не іде запис Аналогового реєстратора*/
+          
           if (++number_minutes >= PERIOD_SAVE_ENERGY_IN_MINUTES)
           {
             number_minutes = 0;
@@ -980,6 +1040,19 @@ void TIM4_IRQHandler(void)
         if (timeout_idle_RS485 < (current_settings.timeout_deactivation_password_interface_RS485)) timeout_idle_RS485++;
       }
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      //Робота з таймерами простою LAN
+      if ((restart_timeout_interface & (1 << LAN_RECUEST)) != 0) 
+      {
+        timeout_idle_LAN = 0;
+        restart_timeout_interface &= (unsigned int)(~(1 << LAN_RECUEST));
+      }
+      else 
+      {
+        if (timeout_idle_LAN < (current_settings.timeout_deactivation_password_interface_LAN)) timeout_idle_LAN++;
+      }
+#endif
+
       //Ресурс
       if (restart_resurs_count == 0)
       {
@@ -1000,125 +1073,28 @@ void TIM4_IRQHandler(void)
     }
     /***********************************************************/
 
-    /***********************************************************/
-    //Корекція десятих і сотих секунд
-    /***********************************************************/
-    if (copying_time == 0)
-    {
-      //На даний момент не іде встановлення або зчитування часу
-
-      /*
-      Помічаємо, що зараз  будемо змінювати час (при цьому встановлення або
-      читання з мікросхеми не може початися, бо ми у перериванні, а ці операції
-      виконуються з фонового режиму; відбір же даних буде іти коректно)
-      */
-      copying_time = 2; 
-      
-      unsigned int rozrjad = 0;
-      for(unsigned int i = 0; i < 7; i++)
-      {
-        unsigned int data_tmp = 10*((time[i] >> 4) & 0xf) + (time[i] & 0xf);
-        
-        unsigned int porig;
-        switch (i)
-        {
-        case 0:
-        case 6:
-          {
-            porig = 99;
-            break;
-          }
-        case 1:
-        case 2:
-          {
-            porig = 59;
-            break;
-          }
-        case 3:
-          {
-            porig = 23;
-            break;
-          }
-        case 4:
-          {
-            unsigned int month = 10*((time[5] >> 4) & 0xf) + (time[5] & 0xf);
-            if (month == 0x2/*BCD*/)
-            {
-              unsigned int year = 10*((time[6] >> 4) & 0xf) + (time[6] & 0xf);
-              if (
-                  ((year & 0x3) == 0) && /*остача від ділення на 4*/
-                  (
-                   ((year % 100) != 0) /* ||
-                   ((year % 400) == 0) */ /*не кратний 100 або кратний 400*/
-                  )  
-                 )
-              {
-                porig = 29;
-              } 
-              else
-              {
-                porig = 28;
-              }
-            }
-            else if (
-                     ((month <= 0x7/*BCD*/) && ( (month & 1))) ||
-                     ((month >  0x7/*BCD*/) && (!(month & 1)))
-                    ) 
-            {
-              porig = 31;
-            }
-            else
-            {
-              porig = 30;
-            }
-            break;
-          }
-        case 5:
-          {
-            porig = 12;
-            break;
-          }
-        default:
-          {
-            //Якщо сюди дійшла програма, значить відбулася недопустива помилка, тому треба зациклити програму, щоб вона пішла на перезагрузку
-            total_error_sw_fixed(103);
-          }
-        }
-        
-        if ((++data_tmp) > porig)
-        {
-          rozrjad = 1;
-          
-          if ((i == 4) || (i == 5)) data_tmp = 1;
-          else data_tmp = 0;
-        }
-        else rozrjad = 0;
-        
-        unsigned int high = data_tmp / 10;
-        unsigned int low = data_tmp - high*10;
-        time[i] = (high << 4) | low;
-        
-        if (rozrjad == false) break;
-      }
-
-      copying_time = 1; 
-      
-      for(unsigned int i = 0; i < 7; i++) time_copy[i] = time[i];
-      
-      copying_time = 0; 
-    }
-    /***********************************************************/
 
     /***********************************************************/
     //Виставляємо повідомлення про те, що канал 1 TIM4, що відповідає за періодичні функції клавіатури працює
     /***********************************************************/
     if (watchdog_l2)
     {
+      time_2_watchdog_output = time_2_watchdog_input = TIM4->CNT;
       GPIO_WriteBit(
                     GPIO_EXTERNAL_WATCHDOG,
                     GPIO_PIN_EXTERNAL_WATCHDOG,
                     (BitAction)(1 - GPIO_ReadOutputDataBit(GPIO_EXTERNAL_WATCHDOG, GPIO_PIN_EXTERNAL_WATCHDOG))
                    );
+
+      if (periodical_tasks_CALC_ENERGY_DATA != 0)
+      {
+        //Стоїть у черзі активна задача розразунку потужності і енергій
+      
+        calc_power_and_energy();
+
+        //Скидаємо активну задачу розрахунку потужності і енергій
+        periodical_tasks_CALC_ENERGY_DATA = false;
+      }
     }
     else control_word_of_watchdog |= WATCHDOG_KYYBOARD;
     /***********************************************************/
@@ -1176,10 +1152,16 @@ void TIM4_IRQHandler(void)
   else if (TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
   {
     /***********************************************************************************************/
-    //Переривання відбулося вік каналу 2, який генерує переривання кожні 1 мс, для опраціьовування управління мікросхемами DataFlash і формування нових записів реєстратора програмних подій
+    //Переривання відбулося від каналу 2, який генерує переривання кожні 1 мс, для опраціьовування управління мікросхемами DataFlash і формування нових записів реєстратора програмних подій
     /***********************************************************************************************/
     TIM4->SR = (uint16_t)((~(uint32_t)TIM_IT_CC2) & 0xffff);
     uint16_t current_tick = TIM4->CCR2;
+    
+    /***********************************************************/
+    //Робота з USB на стиороні переривання
+    /***********************************************************/
+    Usb_routines_irq();
+    /***********************************************************/
     
     /***********************************************************/
     //Перевіряємо необхідність очистки реєстратора програмних подій
@@ -1192,6 +1174,9 @@ void TIM4_IRQHandler(void)
                                      TASK_WRITE_PR_ERR_RECORDS_INTO_DATAFLASH    |
                                      TASK_MAMORY_READ_DATAFLASH_FOR_PR_ERR_USB   |
                                      TASK_MAMORY_READ_DATAFLASH_FOR_PR_ERR_RS485 |
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                                     TASK_MAMORY_READ_DATAFLASH_FOR_PR_ERR_LAN |
+#endif
                                      TASK_MAMORY_READ_DATAFLASH_FOR_PR_ERR_MENU
                                     )
          ) == 0
@@ -1212,7 +1197,10 @@ void TIM4_IRQHandler(void)
       number_record_of_pr_err_into_menu  = 0xffff;
       number_record_of_pr_err_into_USB   = 0xffff;
       number_record_of_pr_err_into_RS485 = 0xffff;
-
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      number_record_of_pr_err_into_LAN = 0xffff;
+#endif
+      
       //Знімаємо команду очистки реєстратора програмних подій
       clean_rejestrators &= (unsigned int)(~CLEAN_PR_ERR);
     }
@@ -1277,7 +1265,7 @@ void TIM4_IRQHandler(void)
               number_chip_dataflsh_exchange = (number_chip_dataflsh_exchange + 1) & (NUMBER_DATAFLASH_CHIP - 1);
             }
 
-            //Робимо запит на нову мікросхему DataFlash, якщо э такий
+            //Робимо запит на нову мікросхему DataFlash, якщо є такий
             main_function_for_dataflash_req(number_chip_dataflsh_exchange);
           }
         }
@@ -1452,19 +1440,19 @@ void TIM4_IRQHandler(void)
     
     /*Vidladka*/
 #ifdef DEBUG_TEST
-    static unsigned int t_1, t_2, delta_tmp;
-    t_1 = TIM4->CCR2;
-    t_2 = TIM4->CNT;
-    if (t_1 >= t_2) delta_tmp = t_1 - t_2;
-    else delta_tmp = t_1 + 0xffff - t_2;
-    
-    if (
-        (delta_tmp > TIM4_CCR2_VAL) &&
-        (TIM_GetITStatus(TIM4, TIM_IT_CC2) == RESET)  
-       )   
-    {
-      while(delta_tmp > 0);
-    }
+//    static unsigned int t_1, t_2, delta_tmp;
+//    t_1 = TIM4->CCR2;
+//    t_2 = TIM4->CNT;
+//    if (t_1 >= t_2) delta_tmp = t_1 - t_2;
+//    else delta_tmp = t_1 + 0xffff - t_2;
+//    
+//    if (
+//        (delta_tmp > TIM4_CCR2_VAL) &&
+//        (TIM_GetITStatus(TIM4, TIM_IT_CC2) == RESET)  
+//       )   
+//    {
+//      while(delta_tmp > 0);
+//    }
 #endif
     /***/
     /***********************************************************/

@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_timeout_zdz(unsigned int group)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ZDZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TIMEOUT_ZDZ][MAX_COL_LCD] = 
   {
     {
       "     T ÇÄÇ      "
@@ -98,13 +98,14 @@ void make_ekran_timeout_zdz(unsigned int group)
 /*****************************************************/
 void make_ekran_control_zdz()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ZDZ][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CONTROL_ZDZ][MAX_COL_LCD] = 
   {
     {
       "      ÇÄÇ       ",
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
       "      ÎÂÄ1      ",
       "      ÎÂÄ2      ",
@@ -123,7 +124,8 @@ void make_ekran_control_zdz()
       "      ÇÄÇ       ",
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
       "      ÎÂÄ1      ",
       "      ÎÂÄ2      ",
@@ -142,7 +144,8 @@ void make_ekran_control_zdz()
       "      ÇÄÇ       ",
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
       "      ÎÂÄ1      ",
       "      ÎÂÄ2      ",
@@ -161,7 +164,8 @@ void make_ekran_control_zdz()
       "      ÇÄÇ       ",
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
       "      ÎÂÄ1      ",
       "      ÎÂÄ2      ",
@@ -178,14 +182,14 @@ void make_ekran_control_zdz()
     }
   };
   
-  const unsigned char information_2[MAX_NAMBER_LANGUAGE][_ZDZ_CTRL_NUMBER][MAX_COL_LCD] = 
+  static const unsigned char information_2[MAX_NAMBER_LANGUAGE][_ZDZ_CTRL_NUMBER][MAX_COL_LCD] = 
   {
     {"  Áåç êîíòðîëÿ  ", "       I        ", "       U        ", "    I èëè U     ", "     I è U      ", "      3I0       "},
     {"  Áåç êîíòðîëþ  ", "       I        ", "       U        ", "    I àáî U     ", "     I ³ U      ", "      3I0       "},
     {" Without control", "       I        ", "       U        ", "    I or U      ", "    I and U     ", "      3I0       "},
     {"  Áåç êîíòðîëÿ  ", "       I        ", "       U        ", "    I èëè U     ", "     I è U      ", "      3I0       "}
   };
-  const unsigned int cursor_x_2[MAX_NAMBER_LANGUAGE][_ZDZ_CTRL_NUMBER] = 
+  static const unsigned int cursor_x_2[MAX_NAMBER_LANGUAGE][_ZDZ_CTRL_NUMBER] = 
   {
     {1, 6, 6, 3, 4, 5},
     {1, 6, 6, 3, 4, 5},
@@ -195,9 +199,10 @@ void make_ekran_control_zdz()
 
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
-  const uint8_t information_3[ZDZ_CTRL_PORIG_N][MAX_COL_LCD] = 
+  static const uint8_t information_3[ZDZ_CTRL_PORIG_N][MAX_COL_LCD] = 
   {
     "       1        ",
     "       2        ",
@@ -212,7 +217,7 @@ void make_ekran_control_zdz()
     "       11       ",
     "       12       "
   };
-  const uint32_t cursor_x_3[ZDZ_CTRL_PORIG_N] = {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+  static const uint32_t cursor_x_3[ZDZ_CTRL_PORIG_N] = {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
 #endif
   
   int index_language = index_language_in_array(current_settings.language);
@@ -223,7 +228,8 @@ void make_ekran_control_zdz()
     {information_off_on[index_language][(point->control_zdz >> CTR_ZDZ_STATE_BIT) & 0x1], cursor_x_off_on[index_language][(point->control_zdz >> CTR_ZDZ_STATE_BIT) & 0x1]},
 #if (                                   \
      (MODYFIKACIA_VERSII_PZ == 0) ||    \
-     (MODYFIKACIA_VERSII_PZ == 3)       \
+     (MODYFIKACIA_VERSII_PZ == 3) ||    \
+     (MODYFIKACIA_VERSII_PZ == 13)       \
     )   
     {information_off_on[index_language][(point->control_zdz >> CTR_ZDZ_OVD1_STATE_BIT) & 0x1], cursor_x_off_on[index_language][(point->control_zdz >> CTR_ZDZ_OVD1_STATE_BIT) & 0x1]},
     {information_off_on[index_language][(point->control_zdz >> CTR_ZDZ_OVD2_STATE_BIT) & 0x1], cursor_x_off_on[index_language][(point->control_zdz >> CTR_ZDZ_OVD2_STATE_BIT) & 0x1]},

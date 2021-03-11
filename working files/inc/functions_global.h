@@ -11,11 +11,16 @@
    
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
+void MX_FATFS_Init(void);
+
 void Configure_I2C(I2C_TypeDef*);
 void FSMC_SRAM_Init(void);
 
 int main(void);
+void ar_routine_with_fatfs(unsigned int);
+unsigned int ar_free_space(int*, int*);
 void periodical_operations(void);
+void periodical_operations_communication(unsigned int);
 void global_vareiables_installation(void);
 void start_settings_peripherals(void);
 void start_tim4_canal2_for_interrupt_1mc(void);
@@ -117,11 +122,15 @@ void make_ekran_control_Umax(void);
 void make_ekran_setpoint_UP(unsigned int);
 void make_ekran_timeout_UP(unsigned int);
 void make_ekran_control_UP(void);
-void make_ekran_chose_of_inputs_outputs_leds_df_buttons_for_ranguvannja(__id_input_output);
+void make_ekran_chose_of_list_for_ranguvannja(__id_input_output);
 void make_ekran_transformator(void);
 void make_ekran_transformator_control(void);
-void make_ekran_set_function_in_bi(unsigned int, unsigned int);
-void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int, unsigned int);
+void make_ekran_set_function_in_bi(unsigned int, unsigned int, unsigned int * 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+                                                                              , int, int
+#endif
+);
+void make_ekran_set_function_in_output_led_df_dt_reg(unsigned int, unsigned int, unsigned int *);
 void check_current_index_is_presented_in_configuration(unsigned int*, int*, /*EL_FILTER_STRUCT[],*/ int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 void make_ekran_choose_CBOn_CBOff(void);
 void make_ekran_setpoint_switch(void);
@@ -140,13 +149,21 @@ void make_ekran_chose_communication_parameters(void);
 void make_ekran_name_of_cell(void);
 void make_ekran_address(void);
 void make_ekran_chose_setting_rs485(void);
+void make_ekran_chose_setting_Ethernet(void);
+void make_ekran_phy_layer_rs485(void);
+void make_ekran_protocols_rs485(void);
 void make_ekran_speed_interface(void);
 void make_ekran_pare_interface(void);
 void make_ekran_stopbits_interface(void);
 void make_ekran_timeout_interface(void);
+void make_ekran_settings_network_layer_Ethernet(void);
+void make_ekran_chose_data_time_settings(void);
+void make_ekran_timezone_dst(void);
+void make_ekran_dst_rule(uint32_t);
 void make_ekran_chose_registrators(void);
 void make_ekran_settings_analog_registrators(void);
 void make_ekran_timeout_analog_registrator(void);
+void make_ekran_control_ar(void);
 void make_ekran_extended_logic(void);
 void make_ekran_general_pickups_el(void);
 void make_ekran_chose_settings_df(void);
@@ -194,7 +211,7 @@ unsigned int count_number_set_bit(unsigned int*, unsigned int);
 void input_scan(void);
 void clocking_global_timers(void);
 void main_protection(void);
-void df_handler(unsigned int*, unsigned int*);
+void df_handler(unsigned int*);
 void dt_handler(unsigned int*);
 void d_and_handler(unsigned int*);
 void d_or_handler(unsigned int*);
@@ -230,6 +247,7 @@ void digital_registrator(unsigned int*);
 void analog_registrator(unsigned int*);
 //void diagnostyca_adc_execution(void);
 
+void Usb_routines_irq(void);
 void Usb_routines(void);
 void USART_RS485_Configure(void);
 void restart_monitoring_RS485(void);
@@ -255,11 +273,11 @@ unsigned int get_order(int);
 void calc_angle(void);
 void calc_power(int*);
 void calc_power_and_energy(void);
-void calc_resistance(int*, unsigned int, int*);
+void calc_resistance(int*, unsigned int, int*, int32_t *);
 
 void velychyna_zvorotnoi_poslidovnosti(int*, const __index_I_U);
 void detector_kuta_nzz(int*);
-void directional_dz(int*, unsigned int);
+void directional_dz(int*, int32_t *, unsigned int);
 
 void directional_mtz(int*, unsigned int);
 void directional_tznp(int*, unsigned int);
@@ -279,29 +297,38 @@ void dataflash_mamory_write_buffer(int);
 void dataflash_mamory_buffer_into_memory(int);
 void analize_received_data_dataflash(int);
 
-void actions_after_changing_tiomouts_ar(void);
-void calc_size_and_max_number_records_ar(unsigned int, unsigned int);
-unsigned int making_buffer_for_save_ar_record(unsigned int*);
-void fix_undefined_error_ar(unsigned int*);
-
 void control_settings(void);
 void control_ustuvannja(void);
 void control_trg_func(void);
 unsigned int control_info_rejestrator(__INFO_REJESTRATOR*, unsigned char);
+unsigned int control_info_ar_rejestrator(__INFO_AR_REJESTRATOR*, unsigned char);
 void control_resurs(void);
 
 void test_external_SRAM(void);
 
-void watchdog_routine(void);
+void watchdog_routine(unsigned int);
 void total_error_sw_fixed(unsigned int);
 
 void setpoints_selecting(unsigned int*, unsigned int);
 
 int str_to_int_DATE_Mmm(void);
 
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+void make_ekran_type_IEC61850_nodes(void);
+void make_ekran_list_in_out_for_iec61850(unsigned int, size_t);
+void start_transmint_data_via_CANAL1_MO(void);
+void start_receive_data_via_CANAL1_MO(void);
+void CANAL2_MO_routine(void);
+void inputPacketParserLAN(void);
+void make_ekran_settings_synchro(void);
+#endif
+
 extern void inputPacketParserUSB(void);
 extern void inputPacketParserRS485(void);
 
+#if (__VER__ >= 8000000)
+extern int _ForceReloadDstRules (void);
+#endif
 
 #endif
 

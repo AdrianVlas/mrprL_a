@@ -5,11 +5,14 @@
 /*****************************************************/
 void make_ekran_chose_settings(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CHOSE_SETTINGS][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_CHOSE_SETTINGS][MAX_COL_LCD] = 
   {
     {
       " Версия ПО и КП ",
       " Метка настроек ",
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      " IEC 61850      ",
+#endif
       " Входы          ",
       " Выходы         ",
       " Светоиндикаторы",
@@ -17,6 +20,7 @@ void make_ekran_chose_settings(void)
       " Трансформаторы ",
       " УВВ            ",
       " Коммуникация   ",
+      " Дата и время   ",
       " Регистраторы   ",
       " Расш.логика    ",
       " Ф-кнопки       ",
@@ -27,6 +31,9 @@ void make_ekran_chose_settings(void)
     {
       " Версія ПЗ і КП ",
       " Мітка налашт.  ",
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      " IEC 61850      ",
+#endif
       " Входи          ",
       " Виходи         ",
       " Світлоіндикат. ",
@@ -34,6 +41,7 @@ void make_ekran_chose_settings(void)
       " Трансформатори ",
       " УВВ            ",
       " Комунікація    ",
+      " Дата і час     ",
       " Реєстратори    ",
       " Розш.логіка    ",
       " Ф-кнопки       ",
@@ -44,6 +52,9 @@ void make_ekran_chose_settings(void)
     {
       " VER.of F/W & MM",
       " Settings Mark  ",
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      " IEC 61850      ",
+#endif
       " Inputs         ",
       " Outputs        ",
       " LED            ",
@@ -51,6 +62,7 @@ void make_ekran_chose_settings(void)
       " Transformers   ",
       " BIOS           ",
       " Communication  ",
+      " Date and Time  ",
       " Recorders      ",
       " Extended logic ",
       " F-Keys         ",
@@ -61,6 +73,9 @@ void make_ekran_chose_settings(void)
     {
       " Версия ПО и КП ",
       " Метка настроек ",
+#if (MODYFIKACIA_VERSII_PZ >= 10)
+      " IEC 61850      ",
+#endif
       " Входы          ",
       " Выходы         ",
       " Светоиндикаторы",
@@ -68,6 +83,7 @@ void make_ekran_chose_settings(void)
       " Трансформаторы ",
       " УВВ            ",
       " Коммуникация   ",
+      " Дата и время   ",
       " Регистраторы   ",
       " Расш.логика    ",
       " Ф-кнопки       ",

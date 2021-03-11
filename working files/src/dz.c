@@ -1302,16 +1302,19 @@ sLV.p2.lVl = 0;
                      register long rCtr = 0;lV = 0;     
                     do{
                         if(rCtr == 0){
-                            if(rU&(1<<(IA_M0_P9+7)))
-                                lV = sector_directional_dz[DZ2_STAGE_BIT][0];
+                            //if(rU&(1<<(IA_M0_P9+7)))
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7)) ) 
+								  )
+                                lV = sector_directional_dz[DZ2_STAGE_BIT][4];
                         }
                         if(rCtr == 1){
-                            if(rU&(1<<(IB_M0_P9+7)))
-                                lV = sector_directional_dz[DZ2_STAGE_BIT][1];
+                            //if(rU&(1<<(IB_M0_P9+7)))
+                            if( (rU&( ((1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7))) )) == ( (1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ2_STAGE_BIT][5];
                         }
                         if(rCtr == 2){
-                            if(rU&(1<<(IC_M0_P9+7)))
-                                lV = sector_directional_dz[DZ2_STAGE_BIT][2];
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ2_STAGE_BIT][3];
                         }
                     }while( (lV <= 0)&& rCtr++ < 2  );
 
@@ -1630,18 +1633,35 @@ p2.bool_vars.and24_i_2 = 1;
             }else if(rU&(1<<1)){ //2
                      register long rCtr = 0;lV = 0;     
                     do{
+                        //.if(rCtr == 0){
+                        //.    if(rU&(1<<(IA_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ3_STAGE_BIT][0];
+                        //.}
+                        //.if(rCtr == 1){
+                        //.    if(rU&(1<<(IB_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ3_STAGE_BIT][1];
+                        //.}
+                        //.if(rCtr == 2){
+                        //.    if(rU&(1<<(IC_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ3_STAGE_BIT][2];
+                        //.}
+						
                         if(rCtr == 0){
-                            if(rU&(1<<(IA_M0_P9+7)))
-                                lV = sector_directional_dz[DZ3_STAGE_BIT][0];
+                            //if(rU&(1<<(IA_M0_P9+7)))
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7)) ) 
+								  )
+                                lV = sector_directional_dz[DZ3_STAGE_BIT][4];
                         }
                         if(rCtr == 1){
-                            if(rU&(1<<(IB_M0_P9+7)))
-                                lV = sector_directional_dz[DZ3_STAGE_BIT][1];
+                            //if(rU&(1<<(IB_M0_P9+7)))
+                            if( (rU&( ((1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7))) ))== ( (1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ3_STAGE_BIT][5];
                         }
                         if(rCtr == 2){
-                            if(rU&(1<<(IC_M0_P9+7)))
-                                lV = sector_directional_dz[DZ3_STAGE_BIT][2];
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ3_STAGE_BIT][3];
                         }
+                   
                     }while( (lV <= 0)&& rCtr++ < 2  );
 
             }else{//M
@@ -1945,18 +1965,35 @@ p2.bool_vars.and24_i_2 = 1;
             }else if(rU&(1<<1)){ //2
                      register long rCtr = 0;lV = 0;     
                     do{
+                        //.if(rCtr == 0){
+                        //.    if(rU&(1<<(IA_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ4_STAGE_BIT][0];
+                        //.}
+                        //.if(rCtr == 1){
+                        //.    if(rU&(1<<(IB_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ4_STAGE_BIT][1];
+                        //.}
+                        //.if(rCtr == 2){
+                        //.    if(rU&(1<<(IC_M0_P9+7)))
+                        //.        lV = sector_directional_dz[DZ4_STAGE_BIT][2];
+                        //.}
+						
                         if(rCtr == 0){
-                            if(rU&(1<<(IA_M0_P9+7)))
-                                lV = sector_directional_dz[DZ4_STAGE_BIT][0];
+                            //if(rU&(1<<(IA_M0_P9+7)))
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IA_L0_P9+7)) ) 
+								  )
+                                lV = sector_directional_dz[DZ4_STAGE_BIT][4];
                         }
                         if(rCtr == 1){
-                            if(rU&(1<<(IB_M0_P9+7)))
-                                lV = sector_directional_dz[DZ4_STAGE_BIT][1];
+                            //if(rU&(1<<(IB_M0_P9+7)))
+                            if( (rU&( ((1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7))) )) == ( (1<<(IA_M0_P9+7))|(1<<(IC_M0_P9+7))|(1<<(IB_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ4_STAGE_BIT][5];
                         }
                         if(rCtr == 2){
-                            if(rU&(1<<(IC_M0_P9+7)))
-                                lV = sector_directional_dz[DZ4_STAGE_BIT][2];
+                            if( (rU&( ((1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7))) )) == ( (1<<(IB_M0_P9+7))|(1<<(IA_M0_P9+7))|(1<<(IC_L0_P9+7)))  )
+                                lV = sector_directional_dz[DZ4_STAGE_BIT][3];
                         }
+                   
                     }while( (lV <= 0)&& rCtr++ < 2  );
 
             }else{//M
@@ -3012,9 +3049,4 @@ if(global_timers[_index_timer] >= 0
           else                                                         
             _OUTPUT &= (unsigned int)(~(1 << _OUTPUT_BIT));
 //this forms pulse 0 to _max_count          
-*/
-/*
-Идея по ДЗО и МТЗО. Что делать с командами.
-Создай извне контейнеры ₴ для команд ы всего что специфично для каждой защиты загоняй данные туда вначале и в процесе работы программы.
-Опиши каждый контейнер и работай через указатель. Эта схема сработает если защиты 1 в 1. Если нет прийдется учитывать тип контейнера и по этой информации делать селект.
 */

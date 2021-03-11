@@ -97,7 +97,7 @@ void make_ekran_chose_setpoint_control_transformator(void)
 /*****************************************************/
 void make_ekran_transformator()
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TRANSFORMATOR_INFO_SETPOINT][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TRANSFORMATOR_INFO_SETPOINT][MAX_COL_LCD] = 
   {
     {
       "   К-т.тр.Т0    ",
@@ -248,7 +248,7 @@ void make_ekran_transformator()
 /*****************************************************/
 void make_ekran_transformator_control(void)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_COL_LCD] = 
   {
     {
       " Выб.U для защит",
@@ -287,7 +287,7 @@ void make_ekran_transformator_control(void)
       else
       {
         //У парному номері рядку виводимо стан
-        const unsigned char information[MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
+        static const unsigned char information[MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_NAMBER_LANGUAGE][2][MAX_COL_LCD] = 
         {
           {
             {"     Фазные     ", "    Линейные    "},
@@ -302,7 +302,7 @@ void make_ekran_transformator_control(void)
             {"      3I0       ", "     3I0-1      "}
           }
         };
-        const unsigned int cursor_x[MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_NAMBER_LANGUAGE][2] = 
+        static const unsigned int cursor_x[MAX_ROW_FOR_TRANSFORMATOR_INFO_CONTROL][MAX_NAMBER_LANGUAGE][2] = 
         {
           {
             {3, 4},

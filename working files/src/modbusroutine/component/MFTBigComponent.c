@@ -1,12 +1,12 @@
-#include "header.h"
-
 //начальный регистр в карте памяти
-#define BEGIN_ADR_REGISTER 1676
+#define BEGIN_ADR_REGISTER 1740
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 2059
+#define END_ADR_REGISTER 2123
 
 #define REGISTERS_MFT 16
 #define PART_REGISTERS_MFT 3
+
+#include "header.h"
 
 int privateMFTBigGetReg2(int adrReg);
 
@@ -15,9 +15,6 @@ int getMFTBigModbusBit(int);//получить содержимое бита
 int setMFTBigModbusRegister(int, int);//получить содержимое регистра
 int setMFTBigModbusBit(int, int);//получить содержимое бита
 
-void setMFTBigCountObject(void);//записать к-во обектов
-void preMFTBigReadAction(void);//action до чтения
-void preMFTBigWriteAction(void);//action до записи
 int  postMFTBigWriteAction(void);//action после записи
 
 int validMFTN_BIGACMD(unsigned short dataReg, int actControl);
@@ -37,11 +34,7 @@ void constructorMFTBigComponent(COMPONENT_OBJ *mftbigcomp)
   mftbigcomponent->setModbusRegister = setMFTBigModbusRegister;//получить содержимое регистра
   mftbigcomponent->setModbusBit      = setMFTBigModbusBit;//получить содержимое бита
 
-  mftbigcomponent->preReadAction   = preMFTBigReadAction;//action до чтения
-  mftbigcomponent->preWriteAction  = preMFTBigWriteAction;//action до записи
   mftbigcomponent->postWriteAction = postMFTBigWriteAction;//action после записи
-
-  mftbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getMFTBigModbusRegister(int adrReg)
@@ -97,16 +90,6 @@ int setMFTBigModbusBit(int x, int y)
   return MARKER_OUTPERIMETR;
 }//getDOUTBigModbusRegister(int adrReg)
 
-void preMFTBigReadAction(void) {
-//action до чтения
-  mftbigcomponent->isActiveActualData = 1;
-}//
-void preMFTBigWriteAction(void) {
-//action до записи
-  mftbigcomponent->operativMarker[0] = -1;
-  mftbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  mftbigcomponent->isActiveActualData = 1;
-}//
 int postMFTBigWriteAction(void) {
 extern int upravlSchematic;//флаг Rang
 //action после записи
@@ -177,6 +160,6 @@ int privateMFTBigGetReg2(int adrReg)
 
 int validMFTN_BIGACMD(unsigned short dataReg, int actControl)
 {
- return validBazaN_BIGACMD(dataReg, actControl+1);
+ return validBazaN_BIGACMD(dataReg, actControl+(1+SOURCEMARKER_MFT));
 }//validOFN_BIGACMD(unsigned short dataReg, int actControl)
 

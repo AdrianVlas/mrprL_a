@@ -1,11 +1,12 @@
-#include "header.h"
 
 //начальный регистр в карте памяти
-#define BEGIN_ADR_REGISTER 2380
+#define BEGIN_ADR_REGISTER 2444
 //конечный регистр в карте памяти
-#define END_ADR_REGISTER 2443
+#define END_ADR_REGISTER 2507
 
 #define REGISTERS_AND 8
+
+#include "header.h"
 
 int privateANDBigGetReg2(int adrReg);
 
@@ -14,9 +15,6 @@ int getANDBigModbusBit(int);//получить содержимое бита
 int setANDBigModbusRegister(int, int);// регистр
 int setANDBigModbusBit(int, int);// бит
 
-void setANDBigCountObject(void);
-void preANDBigReadAction(void);//action до чтения
-void preANDBigWriteAction(void);//action до записи
 int  postANDBigWriteAction(void);//action после записи
 
 COMPONENT_OBJ *andbigcomponent;
@@ -33,11 +31,7 @@ void constructorANDBigComponent(COMPONENT_OBJ *andbigcomp)
   andbigcomponent->setModbusRegister = setANDBigModbusRegister;//записать регистр
   andbigcomponent->setModbusBit      = setANDBigModbusBit;//записать бит
 
-  andbigcomponent->preReadAction   = preANDBigReadAction;//action до чтения
-  andbigcomponent->preWriteAction  = preANDBigWriteAction;//action до записи
   andbigcomponent->postWriteAction = postANDBigWriteAction;//action после записи
-
-  andbigcomponent->isActiveActualData = 0;
 }//prepareDVinConfig
 
 int getANDBigModbusRegister(int adrReg)
@@ -78,18 +72,6 @@ int setANDBigModbusBit(int x, int y)
   //получить содержимое бита
   return MARKER_OUTPERIMETR;
 }//setDOUTBigModbusRegister(int adrReg)
-
-void preANDBigReadAction(void) {
-//action до чтения
-  andbigcomponent->isActiveActualData = 1;
-}//preANDBigReadAction() 
-
-void preANDBigWriteAction(void) {
-//action до записи
-  andbigcomponent->operativMarker[0] = -1;
-  andbigcomponent->operativMarker[1] = -1;//оперативный маркер
-  andbigcomponent->isActiveActualData = 1;
-}//preANDBigWriteAction() 
 
 int postANDBigWriteAction(void) {
 extern int upravlSchematic;//флаг Rang

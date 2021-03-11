@@ -5,7 +5,7 @@
 /*****************************************************/
 void make_ekran_energy(unsigned int pervynna_vtorynna)
 {
-  const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_EKRAN_ENERGY][MAX_COL_LCD] = 
+  static const unsigned char name_string[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_EKRAN_ENERGY][MAX_COL_LCD] = 
   {
     {
       "   Ea+ (к¬т*ч)  ",
@@ -40,7 +40,7 @@ void make_ekran_energy(unsigned int pervynna_vtorynna)
       "  Er4 (к¬јр*ч)  "
     }
   };
-  const unsigned int energy_k_M[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_EKRAN_ENERGY] = 
+  static const unsigned int energy_k_M[MAX_NAMBER_LANGUAGE][MAX_ROW_FOR_EKRAN_ENERGY] = 
   {
     {8, 8, 7, 7, 7, 7},
     {7, 7, 6, 6, 6, 6},
@@ -82,7 +82,7 @@ void make_ekran_energy(unsigned int pervynna_vtorynna)
       else
       {
         //” парному номер≥ р€дку виводимо значенн€
-        double value_double = energy[index_of_ekran>>1];
+        double value_double = energy[0][index_of_ekran>>1];
         if (pervynna_vtorynna == 0) 
           value_double *= 1000.0;
         else
